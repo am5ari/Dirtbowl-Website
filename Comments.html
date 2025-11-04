@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dirtbowl Comments</title>
+<style>
+:root{
+  --bg:#f4f6f8; --card:#fff; --accent:#2563eb; --muted:#6b7280; --shadow:0 6px 18px rgba(16,24,40,0.06);
+  font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:url(dirtbowl.jpg); min-height:100vh; display:flex; justify-content:center; padding:20px;}
+.container{width:100%; max-width:900px; opacity: 90%;background: white; border-radius:12px; box-shadow:var(--shadow); padding:28px;}
+.navbar{display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;}
+.navbar h1{font-size:20px;}
+.navbar button{padding:6px 12px; border:none; border-radius:6px; background:var(--accent); color:white; cursor:pointer;}
+.navbar-login{display:none; flex-direction:column; gap:6px; margin-top:6px;}
+.navbar-login input{padding:6px; border-radius:6px; border:1px solid #ccc;}
+.navbar-login button{padding:6px; border-radius:6px; background:#2563eb; color:white; border:none; cursor:pointer;}
+form{display:grid; grid-template-columns:1fr 1fr; gap:12px; align-items:start; margin-bottom:20px;}
+label{display:block; font-size:13px; margin-bottom:6px;}
+input[type="text"], input[type="password"], textarea{width:100%; padding:10px; border:1px solid #e6e9ee; border-radius:8px; background:transparent;}
+textarea{grid-column:1/-1;min-height:110px; resize:vertical;}
+.row-actions{display:flex; justify-content:space-between; align-items:center; grid-column:1/-1; gap:8px;}
+.btn{padding:10px 14px; border:none; border-radius:8px; background:var(--accent); color:white; cursor:pointer;}
+.btn:disabled{opacity:0.5; cursor:not-allowed;}
+.comments-list{display:grid; gap:12px;}
+.comment-card{display:flex; gap:12px; background:linear-gradient(180deg,#fff,#fbfdff); padding:12px; border-radius:10px; border:1px solid #eef2f6;}
+.avatar{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#c7ddff,#eef4ff);display:flex;align-items:center;justify-content:center;font-weight:700;color:#093169;flex-shrink:0;}
+.comment-body{flex:1;}
+.meta{display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;}
+.name{font-weight:700;}
+.time{color:var(--muted); font-size:13px;}
+.text{white-space:pre-wrap;}
+.admin-wrap{border:1px solid #ccc; padding:12px; border-radius:8px; background:#fafafa; margin-top:20px; display:none;}
+.admin-btn{padding:4px 8px; border:none; border-radius:6px; cursor:pointer; margin-right:4px;}
+#blockedWarning{display:none; padding:20px; border:1px solid #dc2626; border-radius:8px; background:#ffe6e6; color:#a70000; margin-bottom:16px;}
+</style>
+</head>
+<body>
+<div class="container">
+
+<!-- Navbar -->
+<div class="navbar">
+  <h1>Comments</h1>
+  <div>
+    <button id="loginToggle">Admin Login</button>
+    <div class="navbar-login" id="navbarLogin">
+      <input type="text" id="modUsername" placeholder="Username">
+      <input type="password" id="modPassword" placeholder="Password">
+      <button id="modLoginBtn">Login</button>
+      <div id="modMessage" style="color:red; font-size:13px;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Blocked Warning -->
+<div id="blockedWarning">
+  <h2>Access Denied</h2>
+  <p>You have been blocked from posting comments. Contact a moderator if this is an error.</p>
+</div>
+
+<!-- Comment Form -->
+<form id="commentForm">
+  <div>
+    <label>First Name*</label>
+    <input id="firstName" type="text" required>
+  </div>
+  <div>
+    <label>Last Name*</label>
+    <input id="lastName" type="text" required>
+  </div>
+  <div style="grid-column:1/-1;">
+    <label>Comment*</label>
+    <textarea id="commentText" required></textarea>
+  </div>
+  <div class="row-actions">
+    <button type="reset" class="btn" style="background:#e6eefb;color:#0b3a79;">Clear</button>
+    <button type="submit" id="submitBtn" class="btn" disabled>Post</button>
+  </div>
+</form>
+
+<div class="comments-wrap">
+  <div id="commentsCount">No comments yet</div>
+  <div class="comments-list" id="commentsList"></div>
+</div>
+
+<!-- Admin Panel -->
+<div class="admin-wrap" id="modPanel">
+  <h2>Moderator Panel</h2>
+  <div id="adminList">No comments yet</div>
+  <h3>Blocked Users</h3>
+  <div id="blockedList"></div>
+</div>
+
+<script>
+// Admins
+const ADMINS = [
+  { username:'admin1', password:'pass123' },
+  { username:'admin2', password:'secret456' }
+];
+
+// banned words
+const bannedWords = ['badword1','badword2','badword3'];
+
+let comments = JSON.parse(localStorage.getItem('comments')||'[]');
+let blockedUsers = new Set(JSON.parse(localStorage.getItem('blockedUsers')||'[]'));
+
+// Elements
+const form=document.getElementById('commentForm');
+const first=document.getElementById('firstName');
+const last=document.getElementById('lastName');
+const text=document.getElementById('commentText');
+const submitBtn=document.getElementById('submitBtn');
+const list=document.getElementById('commentsList');
+const count=document.getElementById('commentsCount');
+const modPanel=document.getElementById('modPanel');
+const navbarLogin=document.getElementById('navbarLogin');
+const loginToggle=document.getElementById('loginToggle');
+const modUsernameInput=document.getElementById('modUsername');
+const modPasswordInput=document.getElementById('modPassword');
+const modLoginBtn=document.getElementById('modLoginBtn');
+const modMessage=document.getElementById('modMessage');
+const blockedWarning=document.getElementById('blockedWarning');
+const blockedList=document.getElementById('blockedList');
+
+function saveData(){ localStorage.setItem('comments',JSON.stringify(comments)); localStorage.setItem('blockedUsers',JSON.stringify([...blockedUsers])); }
+
+function updateButtonState(){ submitBtn.disabled = !(first.value.trim() && last.value.trim() && text.value.trim()); }
+[first,last,text].forEach(el=>el.addEventListener('input',updateButtonState));
+
+function escapeHtml(str){ return str.replace(/[&<>"']/g,t=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[t])); }
+function makeInitials(fn,ln){return ((fn[0]||'')+(ln[0]||'')).toUpperCase();}
+function containsBannedWords(str){ const l=str.toLowerCase(); return bannedWords.some(w=>l.includes(w)); }
+
+function renderComments(){
+  list.innerHTML=''; comments.forEach(c=>{
+    if(c.approved){
+      const card=document.createElement('div'); card.className='comment-card';
+      const avatar=document.createElement('div'); avatar.className='avatar'; avatar.textContent=makeInitials(c.firstName,c.lastName);
+      const body=document.createElement('div'); body.className='comment-body';
+      const meta=document.createElement('div'); meta.className='meta';
+      meta.innerHTML=`<span class="name">${c.firstName} ${c.lastName}</span><span class="time">${new Date(c.time).toLocaleString()}</span>`;
+      const textDiv=document.createElement('div'); textDiv.className='text'; textDiv.innerHTML=escapeHtml(c.body);
+      body.appendChild(meta); body.appendChild(textDiv);
+      card.appendChild(avatar); card.appendChild(body);
+      list.appendChild(card);
+    }
+  });
+  count.textContent=comments.filter(c=>c.approved).length+' comments';
+}
+
+function renderAdmin(){
+  const adminList=document.getElementById('adminList');
+  adminList.innerHTML=''; 
+  const bList=document.getElementById('blockedList'); bList.innerHTML='';
+  comments.forEach(c=>{
+    const div=document.createElement('div');
+    div.innerHTML=`<strong>${c.firstName} ${c.lastName}</strong>: ${escapeHtml(c.body)}`;
+    const delBtn=document.createElement('button'); delBtn.className='admin-btn'; delBtn.textContent='Delete';
+    delBtn.onclick=()=>{ comments=comments.filter(x=>x.id!==c.id); saveData(); renderComments(); renderAdmin(); };
+    const blockBtn=document.createElement('button'); blockBtn.className='admin-btn'; blockBtn.textContent='Block User';
+    blockBtn.onclick=()=>{ blockedUsers.add(c.firstName.toLowerCase()+' '+c.lastName.toLowerCase()); comments=comments.filter(x=>x.id!==c.id); saveData(); renderComments(); renderAdmin(); };
+    div.appendChild(delBtn); div.appendChild(blockBtn);
+    adminList.appendChild(div);
+  });
+  blockedUsers.forEach(u=>{
+    const div=document.createElement('div'); div.textContent=u;
+    const unblockBtn=document.createElement('button'); unblockBtn.className='admin-btn'; unblockBtn.textContent='Unblock';
+    unblockBtn.onclick=()=>{ blockedUsers.delete(u); saveData(); renderAdmin(); };
+    div.appendChild(unblockBtn); bList.appendChild(div);
+  });
+}
+
+loginToggle.addEventListener('click',()=>{ navbarLogin.style.display = navbarLogin.style.display==='none'?'flex':'none'; });
+
+modLoginBtn.addEventListener('click',()=>{
+  const user=modUsernameInput.value.trim(); const pass=modPasswordInput.value.trim();
+  const admin=ADMINS.find(a=>a.username===user && a.password===pass);
+  if(admin){ modPanel.style.display='block'; modMessage.textContent=`Logged in as ${user}`; renderAdmin(); }
+  else{ modMessage.textContent='Invalid username or password'; }
+});
+
+form.addEventListener('submit',e=>{
+  e.preventDefault();
+  const fname=first.value.trim(); const lname=last.value.trim(); const fullName=fname.toLowerCase()+' '+lname.toLowerCase();
+  if(blockedUsers.has(fullName)){ form.style.display='none'; blockedWarning.style.display='block'; return; }
+  if(containsBannedWords(text.value)){ alert('Comment contains banned words'); return; }
+  comments.unshift({id:Date.now(),firstName:fname,lastName:lname,body:text.value,approved:true,time:new Date()});
+  saveData(); renderComments(); text.value=''; updateButtonState();
+});
+
+renderComments();
+</script>
+</div>
+</body>
+</html>
