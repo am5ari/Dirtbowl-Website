@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Form</title>
+    <link rel="stylesheet" href="contactstyles.css">
+<style>
+  body {
+    background: url(dirtbowl.jpg);
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    color: black; /* make general text white */
+  }
+
+  form {
+    opacity: 85%;
+    background-color: white; /* darker form background so white text shows well */
+    padding: 50px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 300px;
+  }
+
+  input, textarea, button {
+    width: 100%;
+    padding: 10px;
+    margin: 8px 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: white;
+    color: black; /* text color inside inputs */
+  }
+
+  input::placeholder,
+  textarea::placeholder {
+    color: black; /* light gray placeholder text */
+  }
+
+  input[name="message"] {
+    height: 100px;
+  }
+
+  button {
+    background-color: #111;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  button:hover {
+    background-color: #222;
+  }
+</style>
+    
+</head>
+<body>
+    <form action="https://formsubmit.co/your@email.com" method="POST">
+     <input type="email" name="email" placeholder="Email Address" required>
+     <input type="text" name="Fname" placeholder="First" required>
+     <input type="text" name="Lname" placeholder="Last" required>
+     <input type="text" name="message" placeholder="Write your message!" required>
+     <input type="hidden" name="_subject" value="Dirtbowl Inquiry">
+     <button type="submit">Send</button>
+    </form>
+</body>
+</html>

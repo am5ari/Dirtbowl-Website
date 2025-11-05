@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dirtbowl Comments</title>
+<style>
+:root {
+  --bg:#f4f6f8;
+  --card:#fff;
+  --accent:#2563eb;
+  --muted:#6b7280;
+  --shadow:0 6px 18px rgba(16,24,40,0.06);
+  font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+}
+* { box-sizing: border-box; margin:0; padding:0; }
+body {
+  background: url(dirtbowl.jpg) center/cover no-repeat;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 20px;
+}
+.container {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  gap: 30px;
+  width: 100%;
+  max-width: 1100px;
+  background: white;
+  opacity: 90%;
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  padding: 28px;
+}
+.left-panel { flex: 1; }
+.right-panel { 
+  flex: 1; 
+  border-left: 1px solid #ddd; 
+  padding-left: 20px; 
+  max-height: 80vh; 
+  overflow-y: auto; 
+}
+.navbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.navbar h1 { font-size: 20px; }
+.navbar button { padding: 6px 12px; border: none; border-radius: 6px; background: var(--accent); color:white; cursor:pointer; }
+.navbar-login { display: none; flex-direction: column; gap: 6px; margin-bottom: 20px; }
+.navbar-login input { padding: 6px; border-radius:6px; border:1px solid #ccc; }
+.navbar-login button { padding:6px; border-radius:6px; background:#2563eb; color:white; border:none; cursor:pointer; }
+.navbar-login #modMessage { color:red; font-size:13px; margin-top:4px; }
+form { display: grid; gap: 12px; align-items: start; margin-bottom: 20px; }
+label { display: block; font-size: 13px; margin-bottom: 6px; }
+input[type="text"], textarea { width:100%; padding:10px; border:1px solid #e6e9ee; border-radius:8px; background:transparent; }
+textarea { min-height:110px; resize: vertical; }
+.row-actions { display:flex; justify-content:space-between; align-items:center; gap:8px; }
+.btn { padding:10px 14px; border:none; border-radius:8px; background:var(--accent); color:white; cursor:pointer; }
+.btn:disabled { opacity:0.5; cursor:not-allowed; }
+.comments-list { display: grid; gap:12px; }
+.comment-card { display:flex; gap:12px; background:linear-gradient(180deg,#fff,#fbfdff); padding:12px; border-radius:10px; border:1px solid #eef2f6; }
+.avatar { width:44px; height:44px; border-radius:50%; background:linear-gradient(135deg,#c7ddff,#eef4ff); display:flex; align-items:center; justify-content:center; font-weight:700; color:#093169; flex-shrink:0; }
+.comment-body { flex:1; }
+.meta { display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; }
+.name { font-weight:700; }
+.time { color:var(--muted); font-size:13px; }
+.text { white-space:pre-wrap; }
+#blockedWarning { display:none; padding:20px; border:1px solid #dc2626; border-radius:8px; background:#ffe6e6; color:#a70000; margin-bottom:16px; }
+.admin-wrap { display:none; border:1px solid #ccc; padding:12px; border-radius:8px; background:#fafafa; margin-top:20px; }
+.admin-wrap h2 { margin-bottom:10px; }
+.admin-btn { padding:4px 8px; border:none; border-radius:6px; cursor:pointer; margin-right:4px; }
+@media screen and (max-width: 900px) {
+  .container { flex-direction: column; padding: 20px; }
+  .right-panel { border-left:none; border-top:1px solid #ddd; padding-left:0; padding-top:20px; max-height:none; }
+  .navbar h1 { font-size:1.4rem; }
+  .btn { padding:8px 12px; }
+  form textarea { min-height:90px; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <!-- Left Panel -->
+  <div class="left-panel">
+    <div class="navbar">
+      <h1>Comments</h1>
+      <button id="loginToggle">Admin Login</button>
+    </div>
+
+    <div class="navbar-login" id="navbarLogin">
+      <input type="text" id="modUsername" placeholder="Username">
+      <input type="password" id="modPassword" placeholder="Password">
+      <button id="modLoginBtn">Login</button>
+      <div id="modMessage"></div>
+    </div>
+
+    <div id="blockedWarning">
+      <h2>Access Denied</h2>
+      <p>You have been blocked from posting comments. Contact a moderator if this is an error.</p>
+    </div>
+
+    <form id="commentForm">
+      <div>
+        <label>First Name*</label>
+        <input id="firstName" type="text" required>
+      </div>
+      <div>
+        <label>Last Name*</label>
+        <input id="lastName" type="text" required>
+      </div>
+      <div>
+        <label>Comment*</label>
+        <textarea id="commentText" required></textarea>
+      </div>
+      <div class="row-actions">
+        <button type="reset" class="btn" style="background:#e6eefb;color:#0b3a79;">Clear</button>
+        <button type="submit" id="submitBtn" class="btn" disabled>Post</button>
+      </div>
+    </form>
+
+    <div class="admin-wrap" id="modPanel">
+      <h2>Moderator Panel</h2>
+      <div id="adminList">No comments yet</div>
+      <h3>Blocked Users</h3>
+      <div id="blockedList"></div>
+    </div>
+  </div>
+
+  <!-- Right Panel -->
+  <div class="right-panel">
+    <h2>All Comments</h2>
+    <div id="commentsList" class="comments-list"></div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getDatabase, ref, push, onValue, remove, get } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyByXfVkKxz166ghpEVD4xuaQtLDpeNCzUE",
+  authDomain: "dirtbowl-page.firebaseapp.com",
+  databaseURL: "https://dirtbowl-page-default-rtdb.firebaseio.com",
+  projectId: "dirtbowl-page",
+  storageBucket: "dirtbowl-page.firebasestorage.app",
+  messagingSenderId: "948778986865",
+  appId: "1:948778986865:web:0f66d810d77310ec459ad0",
+  measurementId: "G-0HV8M44Z3J"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+const commentForm = document.getElementById('commentForm');
+const firstName = document.getElementById('firstName');
+const lastName = document.getElementById('lastName');
+const commentText = document.getElementById('commentText');
+const submitBtn = document.getElementById('submitBtn');
+const commentsList = document.getElementById('commentsList');
+
+const loginToggle = document.getElementById('loginToggle');
+const navbarLogin = document.getElementById('navbarLogin');
+const modUsername = document.getElementById('modUsername');
+const modPassword = document.getElementById('modPassword');
+const modLoginBtn = document.getElementById('modLoginBtn');
+const modMessage = document.getElementById('modMessage');
+const modPanel = document.getElementById('modPanel');
+const adminList = document.getElementById('adminList');
+const blockedList = document.getElementById('blockedList');
+const blockedWarning = document.getElementById('blockedWarning');
+
+const ADMINS = [{username:'admin1',password:'pass123'}];
+
+// Enable Post button
+[firstName,lastName,commentText].forEach(el => el.addEventListener('input',()=> {
+  submitBtn.disabled = !(firstName.value.trim() && lastName.value.trim() && commentText.value.trim());
+}));
+
+// Toggle admin login
+loginToggle.addEventListener('click', ()=> {
+  navbarLogin.style.display = navbarLogin.style.display==='flex' ? 'none':'flex';
+});
+
+// Admin login
+modLoginBtn.addEventListener('click', async ()=>{
+  const user = modUsername.value.trim();
+  const pass = modPassword.value.trim();
+  const admin = ADMINS.find(a=>a.username===user && a.password===pass);
+  if(admin){
+    modMessage.style.color='green';
+    modMessage.textContent=`Logged in as ${user}`;
+    modPanel.style.display='block';
+    renderAdmin();
+  } else {
+    modMessage.style.color='red';
+    modMessage.textContent='Invalid username or password';
+  }
+});
+
+// Firebase references
+const commentsRef = ref(db,'comments');
+const blockedRef = ref(db,'blocked');
+
+// Render comments
+onValue(commentsRef, snapshot=>{
+  commentsList.innerHTML='';
+  snapshot.forEach(child=>{
+    const c = child.val();
+    const div = document.createElement('div');
+    div.className='comment-card';
+    div.innerHTML=`
+      <div class="avatar">${(c.firstName[0]||'')+(c.lastName[0]||'')}</div>
+      <div class="comment-body">
+        <div class="meta">
+          <span class="name">${c.firstName} ${c.lastName}</span>
+          <span class="time">${new Date(c.time).toLocaleString()}</span>
+        </div>
+        <div class="text">${c.body}</div>
+      </div>`;
+    commentsList.appendChild(div);
+  });
+});
+
+// Post comment
+commentForm.addEventListener('submit', async e=>{
+  e.preventDefault();
+  const fname = firstName.value.trim();
+  const lname = lastName.value.trim();
+  const body = commentText.value.trim();
+
+  const blockedSnap = await get(blockedRef);
+  const blockedUsers = Object.values(blockedSnap.val()||{});
+
+  if(blockedUsers.includes((fname+' '+lname).toLowerCase())){
+    commentForm.style.display='none';
+    blockedWarning.style.display='block';
+    return;
+  }
+
+  await push(commentsRef,{
+    firstName: fname,
+    lastName: lname,
+    body: body,
+    time: Date.now()
+  });
+
+  commentText.value='';
+  submitBtn.disabled=true;
+});
+
+// Render admin panel
+async function renderAdmin(){
+  adminList.innerHTML='';
+  const snap = await get(commentsRef);
+  snap.forEach(child=>{
+    const c = child.val();
+    const id = child.key;
+    const div = document.createElement('div');
+    div.innerHTML=`<strong>${c.firstName} ${c.lastName}</strong>: ${c.body}`;
+    const delBtn = document.createElement('button');
+    delBtn.className='admin-btn';
+    delBtn.textContent='Delete';
+    delBtn.onclick=()=>remove(ref(db,'comments/'+id));
+    const blockBtn = document.createElement('button');
+    blockBtn.className='admin-btn';
+    blockBtn.textContent='Block User';
+    blockBtn.onclick=()=> {
+      push(blockedRef,(c.firstName+' '+c.lastName).toLowerCase());
+      remove(ref(db,'comments/'+id));
+    };
+    div.appendChild(delBtn);
+    div.appendChild(blockBtn);
+    adminList.appendChild(div);
+  });
+
+  // Render blocked users
+  blockedList.innerHTML='';
+  const blockedSnap = await get(blockedRef);
+  Object.entries(blockedSnap.val()||{}).forEach(([key,name])=>{
+    const div = document.createElement('div');
+    div.textContent=name;
+    const unblockBtn = document.createElement('button');
+    unblockBtn.className='admin-btn';
+    unblockBtn.textContent='Unblock';
+    unblockBtn.onclick=()=>remove(ref(db,'blocked/'+key));
+    div.appendChild(unblockBtn);
+    blockedList.appendChild(div);
+  });
+}
+</script>
+</body>
+</html>
