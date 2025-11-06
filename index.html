@@ -9,6 +9,138 @@
   rel="stylesheet"
   href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
     />
+    
+    <script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js";
+import { getAnalytics, logEvent } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-analytics.js";
+
+// --- Firebase config ---
+const firebaseConfig = {
+  apiKey: "AIzaSyByXfVkKxz166ghpEVD4xuaQtLDpeNCzUE",
+  authDomain: "dirtbowl-page.firebaseapp.com",
+  databaseURL: "https://dirtbowl-page-default-rtdb.firebaseio.com",
+  projectId: "dirtbowl-page",
+  storageBucket: "dirtbowl-page.firebasestorage.app",
+  messagingSenderId: "948778986865",
+  appId: "1:948778986865:web:0f66d810d77310ec459ad0",
+  measurementId: "G-0HV8M44Z3J"
+};
+
+// --- Initialize Firebase ---
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+
+// --- Track page view ---
+logEvent(analytics, 'page_view', { path: window.location.pathname });
+
+// --- Track clicks on buttons with <a> inside ---
+document.querySelectorAll('.main__btn a').forEach(link => {
+  link.addEventListener('click', (e) => {
+    e.preventDefault(); // temporarily stop navigation
+
+    let eventName = 'button_click';
+    const text = link.textContent.trim();
+
+    if (text.includes("Explore")) eventName = "explore_click";
+    else if (text.includes("Get in contact")) eventName = "contact_click";
+    else if (text.includes("Full Stats")) eventName = "fullstats_click";
+
+    console.log('Logging button event:', eventName);
+    logEvent(analytics, eventName);
+
+    // Continue navigation after short delay
+    setTimeout(() => {
+      if (link.target === "_blank") window.open(link.href, "_blank");
+      else window.location.href = link.href;
+    }, 200);
+  });
+});
+
+// --- Track all <a> links (Comments, Instagram, Facebook, others) ---
+document.querySelectorAll('a').forEach(link => {
+  link.addEventListener('click', (e) => {
+    e.preventDefault();
+
+    const href = link.href;
+    let eventName = "link_click";
+
+    if (href.includes("instagram.com")) eventName = "instagram_click";
+    else if (href.includes("facebook.com")) eventName = "facebook_click";
+    else if (href.endsWith("Comments.html")) eventName = "comments_click";
+
+    console.log('Logging link event:', eventName, href);
+    logEvent(analytics, eventName, { url: href });
+
+    // Navigate after short delay
+    setTimeout(() => {
+      if (link.target === "_blank") window.open(href, "_blank");
+      else window.location.href = href;
+    }, 200);
+  });
+});
+
+// --- Track scroll depth ---
+let lastScrollPercent = 0;
+window.addEventListener('scroll', () => {
+  const scrollTop = window.scrollY;
+  const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+  if (docHeight <= 0) return;
+  const scrollPercent = Math.floor((scrollTop / docHeight) * 100);
+
+  const milestones = [25, 50, 75, 100];
+  milestones.forEach(percent => {
+    if (scrollPercent >= percent && lastScrollPercent < percent) {
+      logEvent(analytics, 'scroll_depth', { percent: percent });
+    }
+  });
+
+  lastScrollPercent = scrollPercent;
+});
+
+// --- Track overall time on page ---
+const startTime = Date.now();
+window.addEventListener('beforeunload', () => {
+  const timeSpentSec = Math.round((Date.now() - startTime) / 1000);
+  logEvent(analytics, 'time_on_page', { seconds: timeSpentSec, path: window.location.pathname });
+
+  for (const [sectionId, duration] of Object.entries(sectionTimes)) {
+    if (duration > 0) {
+      logEvent(analytics, 'time_in_section', { section: sectionId, seconds: Math.round(duration / 1000) });
+    }
+  }
+});
+
+// --- Track time spent per section ---
+const sections = document.querySelectorAll('section, .hero, .main, .history, .schedule, .stats, .footer__container');
+const sectionTimes = {};
+const sectionEnter = {};
+
+sections.forEach(section => {
+  const id = section.id || section.className || "unknown_section";
+  sectionTimes[id] = 0;
+  sectionEnter[id] = 0;
+});
+
+const observer = new IntersectionObserver(entries => {
+  const now = Date.now();
+  entries.forEach(entry => {
+    const id = entry.target.id || entry.target.className || "unknown_section";
+    if (entry.isIntersecting) {
+      sectionEnter[id] = now;
+    } else if (sectionEnter[id] > 0) {
+      sectionTimes[id] += now - sectionEnter[id];
+      sectionEnter[id] = 0;
+    }
+  });
+}, { threshold: 0.5 });
+
+sections.forEach(section => observer.observe(section));
+
+</script>
+
+
+
+
 
 </head>
 <body>
@@ -149,5 +281,6 @@
          </section>
         </div>
      <script src="apps.js"></script>
+     
 </body>
 </html>
