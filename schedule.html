@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Basketball Schedules — ESPN Style</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#0b0b0b;
+  --card:#111;
+  --accent:#1da1f2;
+  --white:#fff;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Poppins', sans-serif;
+  background: url(dirtbowl.jpg) no-repeat center center;
+  color: var(--white);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center; /* horizontal center */
+  align-items: center;     /* vertical center */
+  background-size: cover;       /* cover the full viewport */
+  background-attachment: fixed;
+}
+
+body {
+  padding: 20px; /* so container isn't flush against edges on mobile */
+  box-sizing: border-box;
+}
+
+.container {
+  max-width: 1000px;
+  width: 100%;
+  padding-top: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.container h1{
+    color: black;
+    opacity: 85%;
+    -webkit-text-stroke: #fff 1px;
+}
+
+/* Admin login button */
+#adminLoginBtn {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 9999;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: none;
+  background: white;
+  opacity: 50%;
+  color: #000000;
+  cursor: pointer;
+}
+
+#loginModal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.85);
+  
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+}
+
+#loginModal > div {
+  background: #111;
+  padding: 20px;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 320px;
+}
+
+/* Teams & schedule */
+#teamsContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.teamCard {
+  background: var(--card);
+  opacity: 85%;
+  padding: 12px;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 120px;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.teamCard:hover {
+  transform: scale(1.05);
+}
+
+.teamCard img {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 8px;
+}
+
+.scheduleList {
+  margin-top: 20px;
+  background: var(--card);
+  opacity: 85%;
+  padding: 12px;
+  border-radius: 12px;
+  width: 100%;
+}
+
+.scheduleList h3 {
+  margin-top: 0;
+  margin-bottom: 10px;
+}
+
+input, select, textarea, button {
+  font-family: 'Poppins', sans-serif;
+  margin-bottom: 8px;
+}
+
+input, select, textarea {
+  width: 100%;
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #333;
+  background: #222;
+  color: #fff;
+}
+
+button {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 6px;
+  background: var(--accent);
+  color: #fff;
+  cursor: pointer;
+}
+
+#adminPanel {
+  display: none;
+  margin-top: 20px;
+  background: #222;
+  padding: 12px;
+  border-radius: 12px;
+  width: 100%;
+}
+
+.scheduleRow {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+  align-items: center;
+}
+
+.scheduleRow select,
+.scheduleRow input {
+  flex: 1;
+}
+
+/* Responsive tweaks */
+@media screen and (max-width: 960px){
+  .container {
+    width: 90%;
+  }
+}
+
+@media screen and (max-width: 740px){
+  .container {
+    width: 95%;
+  }
+
+  .container h1 {
+    text-align: center;
+  }
+
+  #adminLoginBtn {
+    display: none;
+  }
+}
+
+</style>
+</head>
+<body>
+
+<button id="adminLoginBtn">Admin Login</button>
+
+<!-- Login Modal -->
+<div id="loginModal">
+  <div>
+    <h3>Admin Login</h3>
+    <input id="adminEmail" type="email" placeholder="Email">
+    <input id="adminPass" type="password" placeholder="Password">
+    <div style="display:flex; justify-content:flex-end; gap:8px;">
+      <button id="loginCancel">Cancel</button>
+      <button id="loginSubmit">Login</button>
+    </div>
+    <p id="loginError" style="color:#ff8b8b; display:none;"></p>
+  </div>
+</div>
+
+<div class="container">
+  <h1>Team Schedules</h1>
+  
+  <div id="teamsContainer"></div>
+
+  <div class="scheduleList" id="scheduleList">
+    <h3>Schedule</h3>
+    <div id="scheduleContent">Click a team to view their schedule.</div>
+  </div>
+
+  <div id="adminPanel">
+    <h3>Admin Panel — Build Schedule</h3>
+    <div id="scheduleBuilder"></div>
+    <button id="addGameBtn">Add Game</button>
+    <button id="saveScheduleBtn">Save Schedule</button>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+
+<script>
+// Firebase config (replace with your own)
+const firebaseConfig = {
+  apiKey: "AIzaSyByXfVkKxz166ghpEVD4xuaQtLDpeNCzUE",
+  authDomain: "dirtbowl-page.firebaseapp.com",
+  databaseURL: "https://dirtbowl-page-default-rtdb.firebaseio.com",
+  projectId: "dirtbowl-page",
+  storageBucket: "dirtbowl-page.appspot.com",
+  messagingSenderId: "948778986865",
+  appId: "1:948778986865:web:0f66d810d77310ec459ad0",
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.database();
+
+let isAdmin = false;
+let teams = {
+  "bulls": {name:"Bulls", logoURL:"data:image/png;base64,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", schedule:[]},
+  "knicks": {name:"Knicks", logoURL:"https://via.placeholder.com/80/0033CC/FFFFFF?text=KNICKS", schedule:[]},
+  "magic": {name:"Magic", logoURL:"https://via.placeholder.com/80/0000FF/FFFFFF?text=MAGIC", schedule:[]},
+  "rockets": {name:"Rockets", logoURL:"https://via.placeholder.com/80/FF6600/FFFFFF?text=ROCKETS", schedule:[]},
+  "wizards": {name:"Wizards", logoURL:"https://via.placeholder.com/80/3366FF/FFFFFF?text=WIZARDS", schedule:[]},
+  "76ers": {name:"76ers", logoURL:"https://via.placeholder.com/80/0066CC/FFFFFF?text=PHILA76", schedule:[]},
+  "86ers": {name:"86ers", logoURL:"https://via.placeholder.com/80/0066CC/FFFFFF?text=PHILA76", schedule:[]}
+};
+
+// Admin login
+
+// Admin login
+const adminLoginBtn = document.getElementById('adminLoginBtn');
+const loginModal = document.getElementById('loginModal');
+const loginCancel = document.getElementById('loginCancel');
+const loginSubmit = document.getElementById('loginSubmit');
+const loginError = document.getElementById('loginError');
+const adminPanel = document.getElementById('adminPanel');
+
+// Initially hide the admin panel
+adminPanel.style.display = 'none';
+
+// Show login modal when clicking admin login button
+adminLoginBtn.addEventListener('click', () => {
+    loginModal.style.display = 'flex';
+});
+
+// Cancel button hides the login modal
+loginCancel.addEventListener('click', () => {
+    loginModal.style.display = 'none';
+    loginError.style.display = 'none';
+});
+
+// Handle login
+loginSubmit.addEventListener('click', async () => {
+    const email = document.getElementById('adminEmail').value.trim();
+    const pass = document.getElementById('adminPass').value;
+    loginError.style.display = 'none';
+
+    if (!email || !pass) {
+        loginError.textContent = 'Enter credentials';
+        loginError.style.display = 'block';
+        return;
+    }
+
+    try {
+        await auth.signInWithEmailAndPassword(email, pass);
+        isAdmin = true;
+        adminPanel.style.display = 'block';  // Show admin panel
+        loginModal.style.display = 'none';   // Hide login modal
+        adminLoginBtn.style.display = 'none'; // Optional: hide login button
+        loadTeams();                          // Load teams after login
+    } catch (err) {
+        loginError.textContent = 'Login failed: ' + err.message;
+        loginError.style.display = 'block';
+    }
+});
+
+
+// Load teams
+const teamsContainer = document.getElementById('teamsContainer');
+const scheduleContent = document.getElementById('scheduleContent');
+const scheduleBuilder = document.getElementById('scheduleBuilder');
+
+function loadTeams(){
+  teamsContainer.innerHTML='';
+  Object.keys(teams).forEach(key=>{
+    const t = teams[key];
+    const div = document.createElement('div');
+    div.className='teamCard';
+    div.innerHTML=`<img src="${t.logoURL}" alt="${t.name}"><div>${t.name}</div>`;
+    div.onclick = ()=>showTeamSchedule(key);
+    teamsContainer.appendChild(div);
+  });
+  renderScheduleBuilder();
+}
+
+function showTeamSchedule(teamId){
+  const schedule = teams[teamId].schedule || [];
+  scheduleContent.innerHTML='';
+  schedule.forEach(game=>{
+    const p = document.createElement('div');
+    p.textContent = `${game.date} - ${game.home} vs ${game.away} (${game.score||'TBD'})`;
+    scheduleContent.appendChild(p);
+  });
+}
+
+// Schedule Builder
+function renderScheduleBuilder(){
+  scheduleBuilder.innerHTML='';
+  Object.keys(teams).forEach(teamId=>{
+    // Initial empty row placeholder
+  });
+}
+
+// Add game row
+document.getElementById('addGameBtn').addEventListener('click', ()=>{
+  const row = document.createElement('div'); row.className='scheduleRow';
+  const selectHome = document.createElement('select'); const selectAway = document.createElement('select');
+  Object.keys(teams).forEach(id=>{
+    const option1 = document.createElement('option'); option1.value=id; option1.textContent=teams[id].name; selectHome.appendChild(option1);
+    const option2 = document.createElement('option'); option2.value=id; option2.textContent=teams[id].name; selectAway.appendChild(option2);
+  });
+  const dateInput = document.createElement('input'); dateInput.type='date';
+  const scoreInput = document.createElement('input'); scoreInput.type='text'; scoreInput.placeholder='Score';
+  row.appendChild(selectHome); row.appendChild(selectAway); row.appendChild(dateInput); row.appendChild(scoreInput);
+  scheduleBuilder.appendChild(row);
+});
+
+// Save schedule
+document.getElementById('saveScheduleBtn').addEventListener('click', async ()=>{
+  const rows = document.querySelectorAll('.scheduleRow');
+  const scheduleData = [];
+  rows.forEach(r=>{
+    const [homeSelect, awaySelect, dateInput, scoreInput] = r.children;
+    if(!dateInput.value) return;
+    scheduleData.push({
+      home: teams[homeSelect.value].name,
+      away: teams[awaySelect.value].name,
+      date: dateInput.value,
+      score: scoreInput.value || ''
+    });
+  });
+  // Save to each team's schedule
+  Object.keys(teams).forEach(teamId=>{
+    const teamGames = scheduleData.filter(g=>g.home===teams[teamId].name || g.away===teams[teamId].name);
+    teams[teamId].schedule = teamGames;
+  });
+  alert('Schedule saved!');
+  loadTeams();
+});
+
+loadTeams();
+</script>
+</body>
+</html>

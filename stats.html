@@ -1,0 +1,1196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Lexington Dirtbowl Stats</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   GLOBAL
+============================================================ */
+:root{ --bg:#0a0c8d; --card:#111; --muted:#6b7280; --accent:#2948ff; }
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background: url('dirtbowl.jpg') no-repeat center center fixed;
+    background-size: cover;   /* makes the image cover entire screen */
+    color: #fff;
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+    padding-top: 120px;      /* leave space for fixed navbar */
+}
+
+
+@media (max-width: 780px) {
+    body::before {
+        content: "";
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: url('dirtbowl.jpg') no-repeat center center;
+        background-size: cover;
+        z-index: -1;
+    }
+}
+
+
+
+/* Score Navbar */
+#scoreNav {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 5000;
+    background: rgba(10, 10, 10, 0.85);
+    border-radius: 20px;
+    padding: 10px 20px;
+    backdrop-filter: blur(8px);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    overflow: hidden; /* hide overflowing scores */
+    transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.hidden {
+  transform: translateY(-120%); /* moves off top of screen */
+  opacity: 0;
+}
+
+/* Keep yesterday label always visible */
+#yesterdayLabel {
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #fff;
+    white-space: nowrap;
+    flex-shrink: 0;
+    margin-right: 20px;
+}
+
+
+/* Scroller container */
+.scoreScroller {
+    display: flex;
+    gap: 24px;               /* space between scores */
+    white-space: nowrap;
+    flex-shrink: 0;
+    overflow-x: auto;        /* allow horizontal scroll */
+    scroll-behavior: smooth; /* smooth scrolling */
+    -webkit-overflow-scrolling: touch; /* mobile momentum scroll */
+    padding: 5px 0;          /* optional padding inside the scroll area */
+}
+
+/* Each score item - keeps border and spacing */
+.scoreItem {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: #161616;
+    border-radius: 50px;
+    border: 1px solid #2a2a2a; /* keeps the border around each score */
+    font-weight: 600;
+    white-space: nowrap;
+    flex-shrink: 0;           /* prevents items from shrinking */
+}
+
+/* Track container - remove animation */
+.scoreTrack {
+    display: flex;
+    gap: 16px;
+    position: relative;
+    animation: none;          /* disable auto scroll */
+}
+
+/* Optional: hide scrollbar for cleaner look */
+.scoreScroller::-webkit-scrollbar {
+    height: 6px;
+}
+
+.scoreScroller::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.2);
+    border-radius: 3px;
+}
+
+.scoreScroller::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+
+/* MOBILE */
+/* ============================================================
+   SCORE NAVBAR - MOBILE CENTERED
+============================================================ */
+/* MOBILE */
+/* ============================================================ */
+@media (max-width: 780px) {
+  
+    #scoreNav {
+        position: fixed;
+        top: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: calc(100% - 20px);
+        max-width: 480px;
+        padding: 8px 12px;
+        display: flex;
+        align-items: center;
+        background: rgba(10, 10, 10, 0.85);
+        border-radius: 20px;
+        gap: 10px;
+        overflow: hidden;          /* hide extra */
+        backdrop-filter: blur(8px);
+        z-index: 5000;
+    }
+
+    #yesterdayLabel {
+        flex-shrink: 0;
+        margin-right: 10px;
+        position: relative;
+        z-index: 2;
+        font-size: 0.85rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        color: #fff;
+        white-space: nowrap;
+    }
+
+    .scoreScroller {
+        flex: 1;
+        display: flex;
+        gap: 16px;
+        overflow-x: auto;          /* manual scroll */
+        scroll-behavior: smooth;
+        -webkit-overflow-scrolling: touch;
+        padding: 5px 0;
+    }
+
+    .scoreItem {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 16px;
+        background: #161616;
+        border-radius: 50px;
+        border: 1px solid #2a2a2a; /* keep border */
+        font-weight: 600;
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+
+    /* Optional scrollbar styling */
+    .scoreScroller::-webkit-scrollbar {
+        height: 6px;
+    }
+
+    .scoreScroller::-webkit-scrollbar-thumb {
+        background: rgba(255,255,255,0.2);
+        border-radius: 3px;
+    }
+
+    .scoreScroller::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    /* Left & right fade for aesthetics */
+    .scoreScroller::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 50px;
+        height: 100%;
+        z-index: 1;
+        pointer-events: none;
+        background: linear-gradient(to right, rgba(10,10,10,0.85), rgba(10,10,10,0)); 
+    }
+
+    .scoreScroller::after {
+        content: '';
+        position: absolute;
+        right: 0;
+        top: 0;
+        width: 50px;
+        height: 100%;
+        z-index: 1;
+        pointer-events: none;
+        background: linear-gradient(to left, rgba(10,10,10,0.85), rgba(10,10,10,0));
+    }
+
+    /* VERY SMALL SCREENS */
+    @media (max-width: 480px) {
+        #scoreNav {
+            top: 5px;
+            width: calc(100% - 16px);
+            padding: 6px 10px;
+        }
+
+        .scoreScroller {
+            gap: 12px;
+        }
+
+        #yesterdayLabel {
+            font-size: 0.75rem;
+        }
+
+        .scoreItem {
+            padding: 6px 10px;
+            font-size: 0.8rem;
+        }
+    }
+}
+
+
+
+
+
+
+
+/* ============================================================
+   MAIN LAYOUT
+============================================================ */
+#mainSection {
+    flex: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+
+/* ============================================================
+   GAME CARDS — NBA.COM STYLE (NO RECAP)
+============================================================ */
+
+#gamesContainer {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(460px, 1fr));
+    gap: 25px;
+    width: 100%;
+    max-width: 1300px;
+    margin-top: 20px;
+}
+
+.gameCard {
+    background: var(--card);
+    opacity: 85%;
+    border-radius: 18px;
+    padding: 20px;
+    display: grid;
+    grid-template-columns: 1.3fr 1fr; /* TWO COLUMNS */
+    gap: 20px;
+    color: #fff;
+    box-shadow: 0 6px 18px rgba(145, 143, 143, 0.6);
+    align-items: start;
+}
+
+/* ------------------------------------------------------------
+   LEFT SIDE — TEAMS + SCORE
+------------------------------------------------------------ */
+.gameLeft {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.teamRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.teamInfo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.teamLogo {
+    width: 42px;
+    height: 42px;
+    background: #222;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.teamName {
+    font-size: 1.15rem;
+    font-weight: 600;
+}
+
+.teamScore {
+    font-size: 2.1rem;
+    font-weight: 700;
+}
+
+.finalLabel {
+    margin: 2px auto 0 auto;
+    font-size: .9rem;
+    opacity: .7;
+}
+
+/* Buttons */
+.cardButtons {
+    margin-top: 10px;
+    display: flex;
+    gap: 10px;
+}
+
+.cardButtons button {
+    background: #222;
+    color: #fff;
+    border: 1px solid #333;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: .9rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.cardButtons button:hover {
+    background: #333;
+}
+
+/* small header above each card (date + actions) */
+.gameHeadBar {
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:10px;
+    margin-bottom:6px;
+    width:100%;
+}
+
+/* ------------------------------------------------------------
+   RIGHT SIDE — GAME LEADERS
+------------------------------------------------------------ */
+.gameMiddle {
+    background: #161616;
+    padding: 14px;
+    border-radius: 12px;
+    min-width: 180px;
+}
+
+.middleTitle {
+    font-size: .95rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+    opacity: .85;
+}
+
+.leaderItem {
+    display: grid;
+    grid-template-columns: 1fr auto auto auto;
+    gap: 8px;
+    padding: 8px 0;
+    border-bottom: 1px solid #333;
+    align-items:center;
+}
+
+.leaderItem:last-child {
+    border-bottom: none;
+}
+
+.playerName {
+    font-weight: 600;
+}
+
+.statNum {
+    width: 32px;
+    text-align: center;
+}
+
+/* ============================================================
+   TOP SCORERS
+============================================================ */
+#topScorers {
+    flex: 1;
+    max-width: 300px;
+    background: rgba(20,20,20,0.85);
+    padding: 20px;
+    border-radius: 30px;
+    position: sticky;
+    top: 20px;
+    height: fit-content;
+}
+
+#topScorers h2 {
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+#topScorers ul { list-style: none; padding: 0; margin: 0; }
+#topScorers li {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0;
+    border-bottom: 1px solid #444;
+}
+
+/* ============================================================
+   ADMIN PANEL + LOGIN
+============================================================ */
+#adminPanel { position: fixed; top: 100px; left: 20px; z-index: 9999; display: none; }
+#adminContent {
+    display: none;
+    background: rgba(0,0,0,0.9);
+    padding: 15px;
+    border-radius: 10px;
+    width: 350px;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+#adminContent input, #adminContent select, #adminContent button {
+    width: 100%;
+    margin-bottom: 8px;
+    padding: 8px;
+    border: none;
+    border-radius: 6px;
+    background: #111;
+    color: #fff;
+    cursor: pointer;
+}
+#adminContent button.primary { background: var(--accent); color:#fff; border: none; }
+#adminContent button.danger { background: #ff4747; color: #fff; border: none; }
+
+#teamList { max-height: 150px; overflow-y: auto; padding: 5px; border: 1px solid #444; border-radius: 6px; margin-bottom: 10px; }
+
+#loginModal { position: fixed; top: 20px; right: 20px; display: none; flex-direction: column; gap: 10px; z-index: 10001; }
+#loginBox { background: rgba(0,0,0,0.9); padding: 15px; border-radius: 10px; display: flex; flex-direction: column; gap: 10px; width: 280px; }
+#loginBox input { padding: 8px; border-radius: 6px; border: none; background: #111; color: #fff; }
+#loginBox button { padding: 8px; border-radius: 6px; background: var(--accent); border: none; color: #fff; cursor: pointer; }
+#loginError { color: #ff6b6b; font-size: 0.85rem; display: none; }
+
+#adminLoginBtn {
+    position: fixed;
+    top: 90px;        /* below navbar */
+    left: 10px;       /* stick to left */
+    transform: none;  /* remove centering */
+    padding: 8px 12px;
+    background: #727272;
+    border: none;
+    border-radius: 50%; /* small rounded for icon */
+    color: #fff;
+    cursor: pointer;
+    z-index: 6000;
+    font-size: 1.5rem;
+}
+
+#adminLoginBtn::before {
+    content: "\2630"; /* ☰ hamburger icon */
+}
+
+@media (max-width: 780px) {
+    #adminLoginBtn {
+        top: 80px;
+        padding: 6px 10px;
+        font-size: 1.3rem;
+    }
+}
+
+
+/* delete button */
+.deleteGameBtn {
+    background: #ff4747;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 6px 8px;
+    cursor: pointer;
+    margin-left: 10px;
+}
+
+/* MOBILE: stack columns */
+@media (max-width: 780px) {
+    body { padding-top: 140px; }
+    #gamesContainer { grid-template-columns: 1fr; }
+    .gameCard { grid-template-columns: 1fr; }
+    #topScorers { display: none; }
+}
+
+/* MOBILE OPTIMIZATION */
+@media (max-width: 480px) {
+    body {
+        padding-top: 120px; /* navbar + score spacing */
+        gap: 12px;
+    }
+
+   
+
+    /* Game Cards */
+    #gamesContainer {
+        grid-template-columns: 1fr; /* single column for small screens */
+        gap: 15px;
+    }
+
+    .gameCard {
+        padding: 12px;
+        gap: 12px;
+    }
+
+    .teamLogo {
+        width: 32px;
+        height: 32px;
+    }
+
+    .teamName {
+        font-size: 0.95rem;
+    }
+
+    .teamScore {
+        font-size: 1.6rem;
+    }
+
+    .finalLabel {
+        font-size: 0.8rem;
+    }
+
+    .cardButtons button {
+        padding: 6px 10px;
+        font-size: 0.8rem;
+    }
+
+    /* Game Middle / Leaders */
+    .gameMiddle {
+        min-width: 140px;
+        padding: 10px;
+    }
+
+    .middleTitle {
+        font-size: 0.8rem;
+    }
+
+    .statNum {
+        width: 24px;
+        font-size: 0.75rem;
+    }
+
+    .playerName {
+        font-size: 0.85rem;
+    }
+
+    /* Admin button */
+    #adminLoginBtn {
+        top: 70px;
+        padding: 5px 8px;
+        font-size: 1.2rem;
+    }
+
+    /* General small tweaks */
+    #mainSection {
+        flex: 1;
+    }
+}
+
+</style>
+</head>
+<body>
+
+
+<!-- Admin Hamburger -->
+<button id="adminLoginBtn" aria-label="Admin Menu"></button>
+
+
+<!-- Admin Login Modal -->
+<div id="loginModal" aria-hidden="true">
+  <div id="loginBox">
+    <h3 style="margin:0 0 6px 0;">Admin Login</h3>
+    <input type="email" id="email" placeholder="Email" autocomplete="username">
+    <input type="password" id="password" placeholder="Password" autocomplete="current-password">
+    <button id="loginBtn">Login</button>
+    <p id="loginError">Login failed — check credentials</p>
+    <button id="closeLogin" style="background:#444;border:none;color:#fff;padding:6px;border-radius:6px;cursor:pointer;">Close</button>
+  </div>
+</div>
+
+<!-- Admin Panel -->
+<div id="adminPanel" aria-hidden="true">
+  <div id="adminContent">
+    <h4 style="margin:0 0 8px 0;">Create Team & Players</h4>
+    <input type="text" id="teamName" placeholder="Team Name">
+    <button id="addTeamBtn" class="primary">Add Team</button>
+
+    <div id="teamList"></div>
+
+    <select id="teamSelect"><option value="">Select Team</option></select>
+    <input type="text" id="playerName" placeholder="Player Name">
+    <button id="addPlayerBtn" class="primary">Add Player</button>
+
+    <hr style="border:none;border-top:1px solid #333;margin:12px 0;">
+
+    <h4 style="margin:0 0 8px 0;">Add Game</h4>
+    <input type="date" id="gameDateInput">
+    <div style="display:flex;gap:8px;">
+      <select id="teamASelect" style="flex:1;"><option value="">Team A</option></select>
+      <input id="scoreA" type="number" placeholder="A" min="0" style="width:68px;">
+    </div>
+    <div style="display:flex;gap:8px;margin-top:6px;">
+      <select id="teamBSelect" style="flex:1;"><option value="">Team B</option></select>
+      <input id="scoreB" type="number" placeholder="B" min="0" style="width:68px;">
+    </div>
+
+    <div id="playerSelectionA" style="margin-top:10px;"></div>
+    <div id="playerSelectionB" style="margin-top:10px;"></div>
+
+    <button id="addGameBtn" class="primary" style="margin-top:10px;">Add Game</button>
+    <button id="closeAdminBtn" class="danger" style="margin-top:6px;">Close Panel</button>
+    <button id="logoutBtn" style="margin-top:6px;background:#444;border:none;color:#fff;padding:8px;border-radius:6px;cursor:pointer;">Logout Admin</button>
+  </div>
+</div>
+
+<!-- Stats Section -->
+<div id="mainSection">
+  <h1 style="margin:0 0 6px 0;">Dirtbowl Stats 2026</h1>
+  <div id="gamesContainer" aria-live="polite"></div>
+</div>
+
+<!-- NBA.com-style Scoreboard Navbar -->
+<div id="scoreNav">
+  
+  
+  
+  <div class="scoreScroller" id="yesterdayGames">
+    <!-- JS will inject scores here -->
+    <div class="scoreItem">Team A 101</div>
+    <div class="scoreItem">Team B 99</div>
+    <div class="scoreItem">Team C 120</div>
+    <div class="scoreItem">Team D 115</div>
+    
+    <!-- duplicate the score items ONLY for seamless scroll -->
+    <div class="scoreItem">Team A 101</div>
+    <div class="scoreItem">Team B 99</div>
+    <div class="scoreItem">Team C 120</div>
+    <div class="scoreItem">Team D 115</div>
+  </div>
+</div>
+
+<!-- Top Scorers -->
+<div id="topScorers">
+  <h2>Top 10 Scorers</h2>
+  <ul id="top10List"></ul>
+</div>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+
+<script>
+// ---------- Firebase config (kept from your file) ----------
+const firebaseConfig = {
+  apiKey: "AIzaSyByXfVkKxz166ghpEVD4xuaQtLDpeNCzUE",
+  authDomain: "dirtbowl-page.firebaseapp.com",
+  databaseURL: "https://dirtbowl-page-default-rtdb.firebaseio.com",
+  projectId: "dirtbowl-page",
+  storageBucket: "dirtbowl-page.firebasestorage.app",
+  messagingSenderId: "948778986865",
+  appId: "1:948778986865:web:0f66d810d77310ec459ad0",
+  measurementId: "G-0HV8M44Z3J"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.database();
+
+let isAdmin = false;
+
+
+    // Select all score items
+    const scoreItems = document.querySelectorAll('.scoreItem');
+    const scoreTrack = document.querySelector('.scoreTrack');
+
+    scoreItems.forEach(item => {
+        item.addEventListener('click', () => {
+            // Pause the scroll
+            scoreTrack.style.animationPlayState = 'paused';
+        });
+    });
+
+    
+
+
+
+/* ----------------- Helper: load yesterday navbar ----------------- */
+function loadYesterdayScores() {
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+  const yyyy = yesterday.getFullYear();
+  const mm = String(yesterday.getMonth() + 1).padStart(2, '0');
+  const dd = String(yesterday.getDate()).padStart(2, '0');
+  const yesterdayKey = `${yyyy}-${mm}-${dd}`;
+
+  const container = document.getElementById('yesterdayGames');
+  container.innerHTML = '<div class="scoreItem">Loading...</div>';
+
+  db.ref(`games/${yesterdayKey}`).once('value').then(snapshot => {
+    container.innerHTML = '';
+    if (!snapshot.exists()) {
+      container.innerHTML = '<div class="scoreItem">No games yesterday</div>';
+      return;
+    }
+
+    snapshot.forEach(gameSnap => {
+      const game = gameSnap.val();
+      const item = document.createElement('div');
+      item.className = 'scoreItem';
+      item.innerHTML = `
+        <span class="teamName">${game.teamA}</span>
+        <span class="teamScore">${game.scoreA}</span>
+        <span class="dash">-</span>
+        <span class="teamScore">${game.scoreB}</span>
+        <span class="teamName">${game.teamB}</span>
+      `;
+      item.addEventListener('click', () => {
+        // Scroll to matching card (by data-id attr)
+        const el = document.querySelector(`[data-gameid="${gameSnap.key}"]`);
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+      container.appendChild(item);
+    });
+  }).catch(err => {
+    container.innerHTML = '<div class="scoreItem">Error loading</div>';
+    console.error(err);
+  });
+}
+
+/* ----------------- Admin UI handlers ----------------- */
+document.getElementById('adminLoginBtn').addEventListener('click', () => {
+    if (!isAdmin) {
+        // Show login modal if not logged in
+        document.getElementById('loginModal').style.display = 'flex';
+        document.getElementById('loginModal').setAttribute('aria-hidden','false');
+    } else {
+        // Toggle admin panel if logged in
+        const panel = document.getElementById('adminPanel');
+        const isHidden = panel.style.display === 'none' || panel.style.display === '';
+        if (isHidden) {
+            showAdminPanel();
+        } else {
+            hideAdminPanel();
+        }
+    }
+});
+
+let lastScroll = 0;
+const scoreNav = document.getElementById('scoreNav');
+
+
+window.addEventListener('scroll', () => {
+  const currentScroll = window.pageYOffset;
+
+  if (currentScroll > lastScroll && currentScroll > 90) {
+    // scrolling down → hide
+    scoreNav.classList.add('hidden');
+    
+  } else {
+    // scrolling up → show
+    scoreNav.classList.remove('hidden');
+    
+  }
+
+  lastScroll = currentScroll;
+});
+
+
+
+// Sign in
+document.getElementById('loginBtn').addEventListener('click', () => {
+  const email = document.getElementById('email').value.trim();
+  const pass = document.getElementById('password').value.trim();
+  if (!email || !pass) {
+    document.getElementById('loginError').style.display = 'block';
+    document.getElementById('loginError').textContent = 'Enter email & password';
+    return;
+  }
+  auth.signInWithEmailAndPassword(email, pass)
+    .then(() => {
+      isAdmin = true;
+      document.getElementById('loginError').style.display = 'none';
+      document.getElementById('loginModal').style.display = 'none';
+      showAdminPanel();
+    })
+    .catch((err) => {
+      console.error(err);
+      document.getElementById('loginError').style.display = 'block';
+      document.getElementById('loginError').textContent = 'Login failed';
+    });
+});
+
+document.getElementById('logoutBtn').addEventListener('click', () => {
+  auth.signOut().then(()=>{
+    isAdmin = false;
+    hideAdminPanel();
+  });
+});
+
+function showAdminPanel() {
+  document.getElementById('adminPanel').style.display = 'block';
+  document.getElementById('adminPanel').setAttribute('aria-hidden','false');
+  document.getElementById('adminContent').style.display = 'block';
+  document.getElementById('adminLoginBtn').style.display = 'none';
+  populateTeamDropdowns();
+  showTeamsAndPlayers();
+}
+
+function hideAdminPanel() {
+  document.getElementById('adminPanel').style.display = 'none';
+  document.getElementById('adminPanel').setAttribute('aria-hidden','true');
+  document.getElementById('adminContent').style.display = 'none';
+  document.getElementById('adminLoginBtn').style.display = 'block';
+}
+
+/* Close admin panel */
+document.getElementById('closeAdminBtn').addEventListener('click', () => {
+  hideAdminPanel();
+});
+
+// Close login modal
+document.getElementById('closeLogin').addEventListener('click', () => {
+  const loginModal = document.getElementById('loginModal');
+  loginModal.style.display = 'none';
+  loginModal.setAttribute('aria-hidden', 'true');
+});
+
+/* ----------------- Teams & Players ----------------- */
+document.getElementById('addTeamBtn').addEventListener('click', () => {
+  const teamName = document.getElementById('teamName').value.trim();
+  if (!teamName) return alert('Enter a valid team name');
+  const newRef = db.ref('teams').push();
+  newRef.set({ name: teamName })
+    .then(()=> {
+      document.getElementById('teamName').value = '';
+      populateTeamDropdowns();
+      showTeamsAndPlayers();
+    }).catch(err => { console.error(err); alert('Failed to add team'); });
+});
+
+document.getElementById('addPlayerBtn').addEventListener('click', () => {
+  const teamKey = document.getElementById('teamSelect').value;
+  const player = document.getElementById('playerName').value.trim();
+  if (!teamKey || !player) return alert('Select team & provide player name');
+  db.ref(`teams/${teamKey}/players/${player}`).set(true)
+    .then(()=> {
+      document.getElementById('playerName').value = '';
+      showTeamsAndPlayers();
+      populateTeamDropdowns();
+    }).catch(err => { console.error(err); alert('Failed to add player'); });
+});
+
+function showTeamsAndPlayers(){
+  db.ref('teams').once('value').then(snapshot => {
+    const teams = snapshot.val() || {};
+    const container = document.getElementById('teamList');
+    container.innerHTML = '';
+    Object.entries(teams).forEach(([key, teamData]) => {
+      const div = document.createElement('div');
+      div.className = 'teamItem';
+      const players = teamData.players ? Object.keys(teamData.players).join(', ') : '(no players)';
+      div.textContent = `${teamData.name}: ${players}`;
+      container.appendChild(div);
+    });
+  });
+}
+
+function populateTeamDropdowns(){
+  db.ref('teams').once('value').then(snapshot => {
+    const teams = [];
+    snapshot.forEach(childSnap => {
+      teams.push({ key: childSnap.key, name: childSnap.val().name });
+    });
+
+    const teamA = document.getElementById('teamASelect');
+    const teamB = document.getElementById('teamBSelect');
+    const teamSel = document.getElementById('teamSelect');
+
+    [teamA, teamB, teamSel].forEach(sel => { sel.innerHTML = ''; const opt = document.createElement('option'); opt.value=''; opt.textContent = sel === teamSel ? 'Select Team' : (sel === teamA ? 'Team A' : 'Team B'); sel.appendChild(opt); });
+
+    teams.forEach(t => {
+      [teamA, teamB, teamSel].forEach(sel => {
+        const o = document.createElement('option'); o.value = t.key; o.textContent = t.name; sel.appendChild(o);
+      });
+    });
+
+    updatePlayerDropdowns();
+  });
+}
+
+/* ----------------- Player inputs for adding a game ----------------- */
+function updatePlayerDropdowns(){
+  const teamASelect = document.getElementById('teamASelect');
+  const teamBSelect = document.getElementById('teamBSelect');
+  const playerSelectionA = document.getElementById('playerSelectionA');
+  const playerSelectionB = document.getElementById('playerSelectionB');
+  playerSelectionA.innerHTML = '';
+  playerSelectionB.innerHTML = '';
+
+  if (teamASelect.value) {
+    db.ref(`teams/${teamASelect.value}/players`).once('value').then(snap => {
+      const players = snap.val() ? Object.keys(snap.val()) : [];
+      playerSelectionA.innerHTML = `<strong style="display:block;margin-bottom:6px;">${teamASelect.options[teamASelect.selectedIndex].text} Players (points):</strong>`;
+      players.forEach(p => {
+        const row = document.createElement('div'); row.style.display='flex'; row.style.gap='8px'; row.style.marginBottom='6px';
+        const label = document.createElement('div'); label.style.flex='1'; label.textContent = p;
+        const input = document.createElement('input'); input.type='number'; input.min='0'; input.placeholder='pts'; input.dataset.player = p; input.style.width='80px'; input.style.padding='6px'; input.style.borderRadius='6px'; input.style.border='none'; input.style.background='#111'; input.style.color='#fff';
+        row.appendChild(label); row.appendChild(input);
+        playerSelectionA.appendChild(row);
+      });
+    });
+  }
+  if (teamBSelect.value) {
+    db.ref(`teams/${teamBSelect.value}/players`).once('value').then(snap => {
+      const players = snap.val() ? Object.keys(snap.val()) : [];
+      playerSelectionB.innerHTML = `<strong style="display:block;margin-bottom:6px;">${teamBSelect.options[teamBSelect.selectedIndex].text} Players (points):</strong>`;
+      players.forEach(p => {
+        const row = document.createElement('div'); row.style.display='flex'; row.style.gap='8px'; row.style.marginBottom='6px';
+        const label = document.createElement('div'); label.style.flex='1'; label.textContent = p;
+        const input = document.createElement('input'); input.type='number'; input.min='0'; input.placeholder='pts'; input.dataset.player = p; input.style.width='80px'; input.style.padding='6px'; input.style.borderRadius='6px'; input.style.border='none'; input.style.background='#111'; input.style.color='#fff';
+        row.appendChild(label); row.appendChild(input);
+        playerSelectionB.appendChild(row);
+      });
+    });
+  }
+}
+document.getElementById('teamASelect').addEventListener('change', updatePlayerDropdowns);
+document.getElementById('teamBSelect').addEventListener('change', updatePlayerDropdowns);
+
+/* ----------------- Add Game ----------------- */
+document.getElementById('addGameBtn').addEventListener('click', () => {
+  const date = document.getElementById('gameDateInput').value;
+  const teamAKey = document.getElementById('teamASelect').value;
+  const teamBKey = document.getElementById('teamBSelect').value;
+  const scoreA = parseInt(document.getElementById('scoreA').value) || 0;
+  const scoreB = parseInt(document.getElementById('scoreB').value) || 0;
+  if (!date || !teamAKey || !teamBKey) return alert('Enter date and both teams');
+
+  // Build players object by reading the inputs
+  const players = {};
+  document.querySelectorAll('#playerSelectionA input').forEach(inp => {
+    const name = inp.dataset.player;
+    const pts = parseInt(inp.value) || 0;
+    players[name] = { points: pts, teamKey: teamAKey, teamName: document.getElementById('teamASelect').options[document.getElementById('teamASelect').selectedIndex].text };
+  });
+  document.querySelectorAll('#playerSelectionB input').forEach(inp => {
+    const name = inp.dataset.player;
+    const pts = parseInt(inp.value) || 0;
+    players[name] = { points: pts, teamKey: teamBKey, teamName: document.getElementById('teamBSelect').options[document.getElementById('teamBSelect').selectedIndex].text };
+  });
+
+  const gameRef = db.ref(`games/${date}`).push();
+  gameRef.set({
+    teamA: document.getElementById('teamASelect').options[document.getElementById('teamASelect').selectedIndex].text,
+    teamB: document.getElementById('teamBSelect').options[document.getElementById('teamBSelect').selectedIndex].text,
+    scoreA, scoreB, players
+  }).then(()=> {
+    alert('Game added');
+    // clear form
+    document.getElementById('scoreA').value=''; document.getElementById('scoreB').value='';
+    document.getElementById('playerSelectionA').innerHTML=''; document.getElementById('playerSelectionB').innerHTML='';
+  }).catch(err => { console.error(err); alert('Failed to add game'); });
+});
+
+/* ----------------- Render games & top scorers ----------------- */
+function updateGamesAndTopScorers() {
+    const gamesContainer = document.getElementById('gamesContainer');
+    const top10List = document.getElementById('top10List');
+
+    db.ref('games').on('value', snapshot => {
+        gamesContainer.innerHTML = '';
+        const scorers = {}; // { "Player Name": totalPoints }
+
+        // Collect date keys and sort descending (newest first)
+        const dateKeys = [];
+        snapshot.forEach(dateSnap => {
+            dateKeys.push(dateSnap.key);
+        });
+        dateKeys.sort((a, b) => new Date(b) - new Date(a)); // newest dates first
+
+        dateKeys.forEach(dateKey => {
+            const dateSnap = snapshot.child(dateKey);
+            dateSnap.forEach(gameSnap => {
+                const game = gameSnap.val();
+                const gameId = gameSnap.key;
+
+                // Add player points into scorers tally
+                if (game.players) {
+                    Object.entries(game.players).forEach(([pName, pdata]) => {
+                        const pts = Number(pdata.points || 0);
+                        scorers[pName] = (scorers[pName] || 0) + pts;
+                    });
+                }
+
+                // Build game card DOM
+                const card = document.createElement('div');
+                card.className = 'gameCard';
+                card.dataset.gameid = gameId;
+
+                // LEFT: Teams + buttons
+                const left = document.createElement('div');
+                left.className = 'gameLeft';
+
+                // Header bar with date + quick score summary + delete if admin
+                const headBar = document.createElement('div');
+                headBar.className = 'gameHeadBar';
+                const headText = document.createElement('div');
+                headText.innerHTML = `<strong style="font-size:0.95rem;">${dateKey}</strong>
+                                      <div style="opacity:.8;font-size:.9rem;margin-left:8px;">${game.teamA} ${game.scoreA} - ${game.scoreB} ${game.teamB}</div>`;
+                headText.style.display = 'flex'; 
+                headText.style.alignItems = 'center'; 
+                headText.style.gap = '8px';
+                headBar.appendChild(headText);
+
+                if (isAdmin) {
+                    const delBtn = document.createElement('button');
+                    delBtn.className = 'deleteGameBtn';
+                    delBtn.textContent = 'Delete';
+                    delBtn.addEventListener('click', (ev) => {
+                        ev.stopPropagation();
+                        if (!confirm('Delete this game?')) return;
+                        db.ref(`games/${dateKey}/${gameId}`).remove();
+                    });
+                    headBar.appendChild(delBtn);
+                }
+                left.appendChild(headBar);
+
+                // Team rows
+                const rowA = document.createElement('div'); rowA.className = 'teamRow';
+                const infoA = document.createElement('div'); infoA.className = 'teamInfo';
+                const logoA = document.createElement('div'); logoA.className='teamLogo';
+                const nameA = document.createElement('div'); nameA.className='teamName'; nameA.textContent = game.teamA;
+                infoA.appendChild(logoA); infoA.appendChild(nameA);
+                const scoreAElem = document.createElement('div'); scoreAElem.className='teamScore'; scoreAElem.textContent = game.scoreA;
+                rowA.appendChild(infoA); rowA.appendChild(scoreAElem);
+
+                const rowB = document.createElement('div'); rowB.className = 'teamRow';
+                const infoB = document.createElement('div'); infoB.className = 'teamInfo';
+                const logoB = document.createElement('div'); logoB.className='teamLogo';
+                const nameB = document.createElement('div'); nameB.className='teamName'; nameB.textContent = game.teamB;
+                infoB.appendChild(logoB); infoB.appendChild(nameB);
+                const scoreBElem = document.createElement('div'); scoreBElem.className='teamScore'; scoreBElem.textContent = game.scoreB;
+                rowB.appendChild(infoB); rowB.appendChild(scoreBElem);
+
+                left.appendChild(rowA);
+                left.appendChild(rowB);
+
+                // FINAL label
+                const final = document.createElement('div');
+                final.className = 'finalLabel';
+                final.textContent = 'FINAL';
+                left.appendChild(final);
+
+                // Buttons (only Box Score active now)
+                const btnWrap = document.createElement('div');
+                btnWrap.className = 'cardButtons';
+                const boxBtn = document.createElement('button'); boxBtn.textContent='Box Score';
+                btnWrap.appendChild(boxBtn);
+                left.appendChild(btnWrap);
+
+                // RIGHT: Leaders
+                const right = document.createElement('div');
+                right.className = 'gameMiddle';
+                const title = document.createElement('div'); title.className='middleTitle'; title.textContent='GAME LEADERS';
+                right.appendChild(title);
+
+                const players = game.players || {};
+                const leaderArray = Object.entries(players).map(([name, data]) => ({ name, points: Number(data.points || 0) }));
+                leaderArray.sort((a,b) => b.points - a.points);
+                const topLeaders = leaderArray.slice(0, 2);
+
+                if (topLeaders.length === 0) {
+                    const none = document.createElement('div'); none.style.opacity = '.7'; none.textContent = 'No player stats';
+                    right.appendChild(none);
+                } else {
+                    topLeaders.forEach(ld => {
+                        const li = document.createElement('div'); li.className = 'leaderItem';
+                        const pname = document.createElement('div'); pname.className='playerName'; pname.textContent = ld.name;
+                        const ppts = document.createElement('div'); ppts.className='statNum'; ppts.textContent = ld.points;
+                        const prel = document.createElement('div'); prel.className='statNum'; prel.textContent='PTS';
+                        const dummy = document.createElement('div'); dummy.className='statNum'; dummy.textContent='';
+                        li.appendChild(pname); li.appendChild(ppts); li.appendChild(prel); li.appendChild(dummy);
+                        right.appendChild(li);
+                    });
+                }
+
+                // HIDDEN full player stats (toggle on Box Score click)
+                const playerListA = document.createElement('div'); playerListA.style.display='none'; playerListA.className='playerList';
+                const playerListB = document.createElement('div'); playerListB.style.display='none'; playerListB.className='playerList';
+                Object.entries(players).forEach(([name, pdata]) => {
+                    const pItem = document.createElement('div'); pItem.className='playerItem';
+                    pItem.style.display='flex'; pItem.style.justifyContent='space-between'; pItem.style.padding='6px 0';
+                    pItem.innerHTML = `<div style="font-weight:600">${name}</div><div style="min-width:50px;text-align:center">${pdata.points || 0}</div>`;
+                    if (pdata.teamName === game.teamA) playerListA.appendChild(pItem); else playerListB.appendChild(pItem);
+                });
+
+                const teamAHeader = document.createElement('div'); teamAHeader.className='teamHeader'; teamAHeader.style.display='none'; teamAHeader.textContent = game.teamA;
+                const teamBHeader = document.createElement('div'); teamBHeader.className='teamHeader'; teamBHeader.style.display='none'; teamBHeader.textContent = game.teamB;
+
+                left.appendChild(teamAHeader);
+                left.appendChild(playerListA);
+                left.appendChild(teamBHeader);
+                left.appendChild(playerListB);
+
+                // Box Score button toggles stats
+                boxBtn.addEventListener('click', () => {
+                    const showing = playerListA.style.display !== 'none' || playerListB.style.display !== 'none';
+                    playerListA.style.display = showing ? 'none' : 'flex';
+                    playerListB.style.display = showing ? 'none' : 'flex';
+                    teamAHeader.style.display = showing ? 'none' : 'block';
+                    teamBHeader.style.display = showing ? 'none' : 'block';
+                });
+
+                card.appendChild(left);
+                card.appendChild(right);
+                gamesContainer.appendChild(card);
+            });
+        });
+
+        // Update top scorers
+        const topPlayers = Object.entries(scorers).sort((a,b)=>b[1]-a[1]).slice(0,10);
+        top10List.innerHTML = '';
+        topPlayers.forEach(([p, pts]) => {
+            const li = document.createElement('li');
+            li.innerHTML = `<span>${p}</span><span>${pts}</span>`;
+            top10List.appendChild(li);
+        });
+
+        // Refresh yesterday navbar
+        loadYesterdayScores();
+    }, err => {
+        console.error('games.on error', err);
+    });
+}
+
+
+/* ----------------- Listen for teams changes to keep UI fresh ----------------- */
+db.ref('teams').on('value', () => {
+  populateTeamDropdowns();
+  showTeamsAndPlayers();
+});
+
+/* ----------------- Auth state to set admin UI on page load ----------------- */
+auth.onAuthStateChanged(user => {
+  if (user) {
+    isAdmin = true;
+    showAdminPanel();
+  } else {
+    isAdmin = false;
+    hideAdminPanel();
+  }
+});
+
+/* ----------------- Init ----------------- */
+populateTeamDropdowns();
+loadYesterdayScores();
+updateGamesAndTopScorers();
+
+</script>
+</body>
+</html>
