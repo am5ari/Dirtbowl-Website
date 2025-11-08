@@ -108,12 +108,13 @@ html, body {
     }
 
     .navbar__menu.active {
-        height: 350px; /* adjust based on number of items */
+        height: auto; /* adjust based on number of items */
         padding-bottom: 10px;
     }
 
     .navbar__item {
         width: 100%;
+        text-align: center;
     }
 
     .navbar__link {
@@ -688,4 +689,5 @@ html, body {
         padding: 10px;
         width: 100%;
     }
+
 }
