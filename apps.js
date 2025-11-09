@@ -70,3 +70,7 @@ const highlightMenu = () => {
 window.addEventListener('scroll', highlightMenu);
 window.addEventListener('click', highlightMenu);
 
+window.addEventListener("load", () => {
+    document.body.classList.add("loaded");
+  });
+
