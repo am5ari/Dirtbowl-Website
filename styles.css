@@ -13,7 +13,7 @@ html, body {
 
 .btnwrap {
   display: flex;
-  flex-direction: row;      /* horizontal layout */
+  flex-direction: column;      /* horizontal layout */
   gap: 12px;                /* space between buttons */
   justify-content: center;  /* center buttons horizontally */
   margin-top: 16px;         /* optional spacing from heading */
@@ -750,4 +750,5 @@ html, body {
         width: 100%;
     }
 }
+
 
