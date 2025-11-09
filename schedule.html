@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Basketball Schedules — ESPN Style</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#0b0b0b;
+  --card:#111;
+  --accent:#1da1f2;
+  --white:#fff;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Poppins', sans-serif;
+  background: url(dirtbowl.jpg) no-repeat center center;
+  color: var(--white);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-size: cover;
+  background-attachment: fixed;
+}
+
+body { padding: 20px; box-sizing: border-box; }
+
+.container {
+  max-width: 1000px;
+  width: 100%;
+  padding-top: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.container h1 {
+  color: black;
+  opacity: 85%;
+  -webkit-text-stroke: #fff 1px;
+}
+
+#adminLoginBtn {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 9999;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: none;
+  background: white;
+  opacity: 50%;
+  color: #000;
+  cursor: pointer;
+}
+
+#loginModal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.85);
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+}
+
+#loginModal > div {
+  background: #111;
+  padding: 20px;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 320px;
+}
+
+#teamsContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.teamCard {
+  background: var(--card);
+  opacity: 85%;
+  padding: 12px;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 120px;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.teamCard:hover { transform: scale(1.05); }
+
+.teamCard img {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 8px;
+}
+
+.scheduleList {
+  margin-top: 20px;
+  background: var(--card);
+  opacity: 85%;
+  padding: 12px;
+  border-radius: 12px;
+  width: 100%;
+}
+
+.scheduleList h3 { margin-top: 0; margin-bottom: 10px; }
+
+input, select, textarea, button {
+  font-family: 'Poppins', sans-serif;
+  margin-bottom: 8px;
+}
+
+input, select, textarea {
+  width: 100%;
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #333;
+  background: #222;
+  color: #fff;
+}
+
+button {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 6px;
+  background: var(--accent);
+  color: #fff;
+  cursor: pointer;
+}
+
+#adminPanel {
+  display: none;
+  margin-top: 20px;
+  background: #222;
+  padding: 12px;
+  border-radius: 12px;
+  width: 100%;
+}
+
+.scheduleRow {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+  align-items: center;
+}
+
+.scheduleRow select,
+.scheduleRow input { flex: 1; }
+
+@media screen and (max-width: 960px){
+  .container { width: 90%; }
+}
+
+@media screen and (max-width: 740px){
+  .container { width: 95%; }
+  .container h1 { text-align: center; }
+  #adminLoginBtn { display: none; }
+}
+
+#todayGamesNav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background: rgba(11,11,11,0.95);
+  padding: 8px 0;
+  display: flex;
+  overflow-x: auto;
+  gap: 12px;
+  z-index: 9998;
+  scrollbar-width: none;
+}
+
+#todayGamesNav::-webkit-scrollbar { display: none; }
+
+.todayGameBtn {
+  flex: 0 0 auto;
+  background: var(--accent);
+  color: #fff;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: transform 0.2s;
+}
+
+.todayGameBtn:hover { transform: scale(1.05); }
+
+.todayGameBtn img { width: 20px; height: 20px; border-radius: 50%; vertical-align: middle; margin-right: 4px; }
+</style>
+</head>
+<body>
+
+<div id="todayGamesNav"></div>
+<button id="adminLoginBtn">Admin Login</button>
+
+<div id="loginModal">
+  <div>
+    <h3>Admin Login</h3>
+    <input id="adminEmail" type="email" placeholder="Email">
+    <input id="adminPass" type="password" placeholder="Password">
+    <div style="display:flex; justify-content:flex-end; gap:8px;">
+      <button id="loginCancel">Cancel</button>
+      <button id="loginSubmit">Login</button>
+    </div>
+    <p id="loginError" style="color:#ff8b8b; display:none;"></p>
+  </div>
+</div>
+
+<div class="container">
+  <h1>Team Schedules</h1>
+  <div id="teamsContainer"></div>
+  <div class="scheduleList" id="scheduleList">
+    <h3>Schedule</h3>
+    <div id="scheduleContent">Click a team to view their schedule.</div>
+  </div>
+<div id="adminPanel">
+  <h3>Admin Panel — Build Schedule</h3>
+
+  <!-- Add New Team -->
+  <h4>Add New Team</h4>
+  <div id="addTeamForm" style="display:flex; flex-direction:column; gap:8px; margin-bottom:12px;">
+    <input id="newTeamName" type="text" placeholder="Team Name">
+    <input id="newTeamLogo" type="file" accept="image/*">
+    <img id="logoPreview" src="" style="width:80px;height:80px;border-radius:50%;display:none;margin-bottom:8px;">
+    <button id="addTeamBtn">Add Team</button>
+  </div>
+
+  <!-- Schedule Builder -->
+  <h4>Build Team Schedule</h4>
+  <div id="scheduleBuilder"></div>
+  <button id="addGameBtn">Add Game</button>
+  <button id="saveScheduleBtn">Save Schedule</button>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+
+<script>
+// Firebase config
+const firebaseConfig = {
+  apiKey: "AIzaSyByXfVkKxz166ghpEVD4xuaQtLDpeNCzUE",
+  authDomain: "dirtbowl-page.firebaseapp.com",
+  databaseURL: "https://dirtbowl-page-default-rtdb.firebaseio.com",
+  projectId: "dirtbowl-page",
+  storageBucket: "dirtbowl-page.appspot.com",
+  messagingSenderId: "948778986865",
+  appId: "1:948778986865:web:0f66d810d77310ec459ad0",
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.database();
+
+let isAdmin = false;
+let teams = {};
+
+// Admin login
+const adminLoginBtn = document.getElementById('adminLoginBtn');
+const loginModal = document.getElementById('loginModal');
+const loginCancel = document.getElementById('loginCancel');
+const loginSubmit = document.getElementById('loginSubmit');
+const loginError = document.getElementById('loginError');
+const adminPanel = document.getElementById('adminPanel');
+
+adminLoginBtn.addEventListener('click', () => loginModal.style.display='flex');
+loginCancel.addEventListener('click', () => { loginModal.style.display='none'; loginError.style.display='none'; });
+
+loginSubmit.addEventListener('click', async () => {
+    const email = document.getElementById('adminEmail').value.trim();
+    const pass = document.getElementById('adminPass').value;
+    loginError.style.display='none';
+    if(!email||!pass){ loginError.textContent='Enter credentials'; loginError.style.display='block'; return; }
+    try{
+        await auth.signInWithEmailAndPassword(email, pass);
+        isAdmin = true;
+        adminPanel.style.display='block';
+        loginModal.style.display='none';
+        adminLoginBtn.style.display='none';
+        loadTeams();
+    }catch(err){
+        loginError.textContent='Login failed: '+err.message;
+        loginError.style.display='block';
+    }
+});
+
+// Load teams from Firebase
+async function loadTeams(){
+    const snapshot = await db.ref('teams').get();
+    if(snapshot.exists()){
+        teams = snapshot.val();
+    } else {
+        // Default teams if none exist
+        teams = {
+        };
+    }
+    displayTeams();
+    buildScheduleUI();
+    displayTodayGames();
+}
+
+// Display teams
+function displayTeams(){
+    const container = document.getElementById('teamsContainer');
+    container.innerHTML='';
+    for(const key in teams){
+        const team = teams[key];
+        const div = document.createElement('div');
+        div.className='teamCard';
+        div.innerHTML=`<img src="${team.logoURL}" alt="${team.name}"><span>${team.name}</span>`;
+        div.onclick=()=>showTeamSchedule(key);
+        container.appendChild(div);
+    }
+}
+
+// Show schedule with logos
+const scheduleContent = document.getElementById('scheduleContent');
+
+function showTeamSchedule(teamId){
+    const schedule = teams[teamId].schedule || [];
+    scheduleContent.innerHTML='';
+    schedule.forEach(game=>{
+        const div = document.createElement('div');
+        div.style.display='flex';
+        div.style.alignItems='center';
+        div.style.gap='8px';
+
+        const homeTeam = Object.values(teams).find(t=>t.name===game.home);
+        const awayTeam = Object.values(teams).find(t=>t.name===game.away);
+
+        const homeDiv=document.createElement('div');
+        homeDiv.style.display='flex'; homeDiv.style.alignItems='center';
+        const homeLogo = document.createElement('img'); homeLogo.src=homeTeam.logoURL;
+        homeLogo.style.width='24px'; homeLogo.style.height='24px'; homeLogo.style.borderRadius='50%';
+        homeDiv.appendChild(homeLogo);
+        homeDiv.appendChild(document.createTextNode(' '+homeTeam.name));
+
+        const awayDiv=document.createElement('div');
+        awayDiv.style.display='flex'; awayDiv.style.alignItems='center';
+        const awayLogo = document.createElement('img'); awayLogo.src=awayTeam.logoURL;
+        awayLogo.style.width='24px'; awayLogo.style.height='24px'; awayLogo.style.borderRadius='50%';
+        awayDiv.appendChild(awayLogo);
+        awayDiv.appendChild(document.createTextNode(' '+awayTeam.name));
+
+        div.appendChild(document.createTextNode(game.date+' - '));
+        div.appendChild(homeDiv);
+        div.appendChild(document.createTextNode(' vs '));
+        div.appendChild(awayDiv);
+        div.appendChild(document.createTextNode(` (${game.score||'TBD'})`));
+
+        scheduleContent.appendChild(div);
+    });
+}
+
+// Admin Schedule Builder
+const scheduleBuilder = document.getElementById('scheduleBuilder');
+document.getElementById('addGameBtn').addEventListener('click', addGameRow);
+document.getElementById('saveScheduleBtn').addEventListener('click', saveSchedule);
+
+function buildScheduleUI(){
+    scheduleBuilder.innerHTML='';
+    if(!teams) return;
+    addGameRow();
+}
+
+function addGameRow(game=null){
+    const row = document.createElement('div'); row.className='scheduleRow';
+    const dateInput = document.createElement('input'); dateInput.type='date'; dateInput.value=game?.date||'';
+    const homeSelect = document.createElement('select'); 
+    const awaySelect = document.createElement('select');
+    for(const key in teams){
+        const opt = document.createElement('option');
+        opt.value=teams[key].name; opt.textContent=teams[key].name;
+        homeSelect.appendChild(opt.cloneNode(true));
+        awaySelect.appendChild(opt.cloneNode(true));
+    }
+    if(game){ homeSelect.value=game.home; awaySelect.value=game.away; }
+    const scoreInput = document.createElement('input'); scoreInput.placeholder='Score'; scoreInput.value=game?.score||'';
+
+    const removeBtn = document.createElement('button'); removeBtn.textContent='X';
+    removeBtn.onclick=()=>row.remove();
+
+    row.appendChild(dateInput); row.appendChild(homeSelect); row.appendChild(awaySelect); row.appendChild(scoreInput); row.appendChild(removeBtn);
+    scheduleBuilder.appendChild(row);
+}
+
+// 1. Show a team's schedule
+function showTeamSchedule(teamId){
+    const schedule = teams[teamId].schedule || [];
+    const scheduleContent = document.getElementById('scheduleContent');
+    scheduleContent.innerHTML = '';
+    schedule.forEach(game=>{
+        const p = document.createElement('div');
+        p.textContent = `${game.date} - ${game.home} vs ${game.away} (${game.score || 'TBD'})`;
+        scheduleContent.appendChild(p);
+    });
+}
+
+// 2. Display Teams (team cards)
+function displayTeams(){
+    const container = document.getElementById('teamsContainer');
+    container.innerHTML = '';
+    Object.keys(teams).forEach(key=>{
+        const t = teams[key];
+        const div = document.createElement('div');
+        div.className = 'teamCard';
+        div.innerHTML = `<img src="${t.logoURL}" alt="${t.name}"><div>${t.name}</div>`;
+        div.addEventListener('click', ()=>{
+            showTeamSchedule(key);
+            document.getElementById('scheduleList').scrollIntoView({behavior:'smooth'});
+        });
+        container.appendChild(div);
+    });
+}
+
+// 3. Display Today Games (navbar)
+function displayTodayGames() {
+    const nav = document.getElementById('todayGamesNav');
+    nav.innerHTML = '';
+    const todayStr = new Date().toISOString().slice(0,10);
+    const addedGames = new Set(); // to track displayed games
+
+    for (const key in teams) {
+        const gamesToday = teams[key].schedule.filter(g => g.date === todayStr);
+        gamesToday.forEach(game => {
+            // Create a unique identifier for the game
+            const gameId = [game.home, game.away, game.date].sort().join('|');
+            if (addedGames.has(gameId)) return; // skip if already added
+            addedGames.add(gameId);
+
+            const btn = document.createElement('button'); 
+            btn.className = 'todayGameBtn';
+
+            const homeTeam = Object.values(teams).find(t => t.name === game.home);
+            const awayTeam = Object.values(teams).find(t => t.name === game.away);
+
+            btn.innerHTML = `<img src="${homeTeam.logoURL}">${homeTeam.name} vs <img src="${awayTeam.logoURL}">${awayTeam.name}`;
+            
+            // Scroll to the home team schedule when clicked
+            btn.onclick = () => showTeamSchedule(Object.keys(teams).find(k => teams[k].name === game.home));
+
+            nav.appendChild(btn);
+        });
+    }
+}
+
+
+// 4. Save Schedule
+function saveSchedule(){
+    const rows = scheduleBuilder.querySelectorAll('.scheduleRow');
+    const newSchedule = [];
+    rows.forEach(r=>{
+        const inputs = r.querySelectorAll('input,select');
+        if(inputs[0].value && inputs[1].value && inputs[2].value){
+            newSchedule.push({date:inputs[0].value, home:inputs[1].value, away:inputs[2].value, score:inputs[3].value});
+        }
+    });
+    for(const key in teams){
+        teams[key].schedule = newSchedule.filter(g=>g.home===teams[key].name || g.away===teams[key].name);
+    }
+    db.ref('teams').set(teams);
+    displayTeams();
+    displayTodayGames();
+    alert('Schedule saved with logos!');
+}
+
+// ----------------------
+// ADD TEAM WITH LOGO JS
+// ----------------------
+const addTeamBtn = document.getElementById('addTeamBtn');
+const newTeamName = document.getElementById('newTeamName');
+const newTeamLogo = document.getElementById('newTeamLogo');
+const logoPreview = document.getElementById('logoPreview');
+
+newTeamLogo.addEventListener('change', e => {
+    const file = e.target.files[0];
+    if(file){
+        const reader = new FileReader();
+        reader.onload = function(ev){ 
+            logoPreview.src = ev.target.result; 
+            logoPreview.style.display='block'; 
+        }
+        reader.readAsDataURL(file);
+    }
+});
+
+addTeamBtn.addEventListener('click', () => {
+    const name = newTeamName.value.trim();
+    const logoURL = logoPreview.src;
+    if(!name || !logoURL){ 
+        alert('Enter team name and select a logo'); 
+        return; 
+    }
+
+    const key = name.toLowerCase().replace(/\s+/g,'_');
+    teams[key] = { name, logoURL, schedule: [] };
+
+    db.ref('teams').set(teams).then(() => {
+        displayTeams();
+        alert('Team added successfully!');
+        newTeamName.value = '';
+        newTeamLogo.value = '';
+        logoPreview.src = '';
+        logoPreview.style.display = 'none';
+    }).catch(err => alert('Error adding team: ' + err.message));
+});
+
+// Initial load
+loadTeams();
+
+
+
+// Initial load
+loadTeams();
+</script>
+</body>
+</html>
