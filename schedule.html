@@ -203,11 +203,15 @@ button {
 /* ✅ MOBILE FIX */
 @media screen and (max-width: 600px) {
   #teamsContainer {
-    gap: 12px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    justify-items: center;
   }
 
   .teamCard {
-    width: 42%; /* ✅ 2 per row, perfectly centered */
+    width: 100%;
+    max-width: 100px;
   }
 }
 
