@@ -37,9 +37,8 @@ html, body {
 
 /* Body content */
 body {
-  display: flex;
-  justify-content: center;
-  align-items: flex-start; /* ✅ prevents vertical cutoff */
+  
+   /* ✅ prevents vertical cutoff */
   min-height: 100dvh;
   padding: 20px;
   box-sizing: border-box;
@@ -48,12 +47,13 @@ body {
 
 /* Main container */
 .container {
-  max-width: 1000px;
-  width: 100%;
-  padding-top: 16px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+    max-width: 1000px;
+    width: 100%;
+    margin: 90px auto 0 auto;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .container h1 {
@@ -61,6 +61,93 @@ body {
   opacity: 85%;
   -webkit-text-stroke: #fff 1px;
   text-align: center;
+}
+
+#upcomingGamesNav {
+    position: fixed;
+    top: 15px;
+    left: 50%;
+    transform: translateX(-50%);
+
+    z-index: 9999;
+
+    display: flex;
+    align-items: center;
+
+    width: fit-content;
+    max-width: 90vw;
+
+    overflow: hidden;
+
+    background: rgba(15, 15, 15, 0.85);
+    backdrop-filter: blur(12px);
+
+    border: 1px solid rgba(255,255,255,.15);
+    border-radius: 999px;
+
+    padding: 10px 20px;
+
+    box-shadow:
+        0 8px 25px rgba(0,0,0,.35),
+        inset 0 1px 0 rgba(255,255,255,.08);
+}
+
+#upcomingGamesTrack {
+    display: flex;
+    align-items: center;
+    gap: 40px;
+
+    white-space: nowrap;
+
+    animation: scrollGames 50s linear infinite;
+}
+
+@keyframes scrollGames {
+    from {
+        transform: translateX(0%);
+    }
+    to {
+        transform: translateX(-50%);
+    }
+}
+
+.gameTickerItem {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    color: white;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.gameTickerItem img {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.upcomingGameCard {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    background: transparent;
+    border: none;
+
+    color: white;
+    font-size: 14px;
+    white-space: nowrap;
+
+    padding: 4px 8px;
+    cursor: pointer;
+}
+
+.upcomingGameCard img {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
 }
 
 /* Buttons & modals */
@@ -222,6 +309,9 @@ button {
 </head>
 <body>
 <div class="bg-wrapper"></div>
+<div id="upcomingGamesNav">
+    <div id="upcomingGamesTrack"></div>
+</div>
 <div id="todayGamesNav"></div>
 <button id="adminLoginBtn">Admin Login</button>
 
@@ -238,9 +328,12 @@ button {
   </div>
 </div>
 
+
+
 <div class="container">
   <h1>Team Schedules</h1>
   <div id="teamsContainer"></div>
+  
   <div class="scheduleList" id="scheduleList">
     <h3>Schedule</h3>
     <div id="scheduleContent">Click a team to view their schedule.</div>
@@ -342,6 +435,7 @@ async function loadTeams(){
     displayTeams();
     buildScheduleUI();
     displayTodayGames();
+    displayUpcomingGames();
 }
 
 // Display teams
@@ -402,10 +496,44 @@ const scheduleBuilder = document.getElementById('scheduleBuilder');
 document.getElementById('addGameBtn').addEventListener('click', addGameRow);
 document.getElementById('saveScheduleBtn').addEventListener('click', saveSchedule);
 
-function buildScheduleUI(){
-    scheduleBuilder.innerHTML='';
-    if(!teams) return;
-    addGameRow();
+function buildScheduleUI() {
+    scheduleBuilder.innerHTML = '';
+
+    const addedGames = new Set();
+    const allGames = [];
+
+    // Collect all unique games
+    for (const key in teams) {
+        const schedule = teams[key].schedule || [];
+
+        schedule.forEach(game => {
+
+            const gameId =
+                `${game.date}-${game.time || ''}-${game.home}-${game.away}`;
+
+            if (addedGames.has(gameId)) return;
+
+            addedGames.add(gameId);
+            allGames.push(game);
+        });
+    }
+
+    // Sort by date and time
+    allGames.sort((a, b) => {
+        const dateA = new Date(`${a.date}T${a.time || '00:00'}`);
+        const dateB = new Date(`${b.date}T${b.time || '00:00'}`);
+        return dateA - dateB;
+    });
+
+    // Build rows in order
+    allGames.forEach(game => {
+        addGameRow(game);
+    });
+
+    // Show one blank row if no games exist
+    if (allGames.length === 0) {
+        addGameRow();
+    }
 }
 
 function addGameRow(game=null){
@@ -433,16 +561,29 @@ timeInput.value = game?.time || '';
 }
 
 function formatDate(dateStr) {
-    return new Date(dateStr).toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric'
-    });
+    const [year, month, day] = dateStr.split('-');
+
+    return new Date(year, month - 1, day)
+        .toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric'
+        });
 }
 
 // 1. Show a team's schedule
+
 function showTeamSchedule(teamId){
-    const schedule = teams[teamId].schedule || [];
     const scheduleContent = document.getElementById('scheduleContent');
+
+    // make a COPY so we don't touch Firebase data
+    const schedule = [...(teams[teamId].schedule || [])];
+
+    // sort by date + time
+    schedule.sort((a, b) => {
+        const dateA = new Date(`${a.date}T${a.time || '00:00'}`);
+        const dateB = new Date(`${b.date}T${b.time || '00:00'}`);
+        return dateA - dateB;
+    });
 
     scheduleContent.innerHTML = '';
 
@@ -462,8 +603,6 @@ function showTeamSchedule(teamId){
             vs
             <img src="${awayTeam.logoURL}" style="width:24px;height:24px;border-radius:50%;vertical-align:middle;">
             ${game.away}
-            <br>
-            
         `;
 
         scheduleContent.appendChild(div);
@@ -528,28 +667,45 @@ function displayTodayGames() {
 
 
 // 4. Save Schedule
-function saveSchedule(){
+function saveSchedule() {
     const rows = scheduleBuilder.querySelectorAll('.scheduleRow');
     const newSchedule = [];
-    rows.forEach(r=>{
-        const inputs = r.querySelectorAll('input,select');
-        if(inputs[0].value && inputs[1].value && inputs[2].value){
+
+    rows.forEach(row => {
+        const inputs = row.querySelectorAll('input, select');
+
+        if (
+            inputs[0].value &&
+            inputs[2].value &&
+            inputs[3].value
+        ) {
             newSchedule.push({
-    date: inputs[0].value,
-    time: inputs[1].value,
-    home: inputs[2].value,
-    away: inputs[3].value,
-    score: inputs[4].value
-});
+                date: inputs[0].value,
+                time: inputs[1].value,
+                home: inputs[2].value,
+                away: inputs[3].value,
+                score: inputs[4].value
+            });
         }
     });
-    for(const key in teams){
-        teams[key].schedule = newSchedule.filter(g=>g.home===teams[key].name || g.away===teams[key].name);
+
+    for (const key in teams) {
+        teams[key].schedule = newSchedule.filter(
+            g => g.home === teams[key].name || g.away === teams[key].name
+        );
     }
-    db.ref('teams').set(teams);
-    displayTeams();
-    displayTodayGames();
-    alert('Schedule saved with logos!');
+
+    db.ref('teams').set(teams)
+        .then(() => {
+            displayTeams();
+            displayTodayGames();
+            displayUpcomingGames();
+            alert('Schedule saved!');
+        })
+        .catch(err => {
+            console.error(err);
+            alert('Error saving schedule');
+        });
 }
 
 // ----------------------
@@ -592,6 +748,103 @@ addTeamBtn.addEventListener('click', () => {
         logoPreview.style.display = 'none';
     }).catch(err => alert('Error adding team: ' + err.message));
 });
+
+function displayUpcomingGames() {
+
+    const track = document.getElementById('upcomingGamesTrack');
+    track.innerHTML = '';
+
+    const allGames = [];
+    const addedGames = new Set();
+
+    for (const key in teams) {
+        const schedule = teams[key].schedule || [];
+
+        schedule.forEach(game => {
+
+            const gameId = `${game.home}-${game.away}-${game.date}`;
+
+            if (addedGames.has(gameId)) return;
+            addedGames.add(gameId);
+
+            const gameDate = new Date(
+                `${game.date}T${game.time || '00:00'}`
+            );
+
+            if (gameDate >= new Date()) {
+                allGames.push(game);
+            }
+        });
+    }
+
+    if (!allGames.length) {
+        track.innerHTML = '<div class="gameTickerItem">No Upcoming Games</div>';
+        return;
+    }
+
+    allGames.sort((a,b)=>
+        new Date(`${a.date}T${a.time || '00:00'}`) -
+        new Date(`${b.date}T${b.time || '00:00'}`)
+    );
+
+    const nextDate = allGames[0].date;
+
+    const nextDayGames = allGames.filter(
+        g => g.date === nextDate
+    );
+    const label = document.createElement('div');
+label.className = 'gameTickerItem';
+label.innerHTML = '🏀 <strong>NEXT GAMES</strong>';
+track.appendChild(label);
+
+    nextDayGames.forEach(game => {
+
+        const homeTeam = Object.values(teams)
+            .find(t => t.name === game.home);
+
+        const awayTeam = Object.values(teams)
+            .find(t => t.name === game.away);
+
+        const item = document.createElement('div');
+        item.className = 'gameTickerItem';
+
+      item.innerHTML = `
+    <img src="${homeTeam.logoURL}">
+    ${homeTeam.name}
+
+    <span style="opacity:.6">vs</span>
+
+    <img src="${awayTeam.logoURL}">
+    ${awayTeam.name}
+
+    <span style="color:#1da1f2;font-weight:700;">•</span>
+
+    ${formatDate(game.date)}
+
+    <span style="opacity:.7">|</span>
+
+    ${formatTime(game.time)}
+`;
+
+        track.appendChild(item);
+    });
+    const separator = document.createElement('div');
+
+separator.innerHTML = `
+    <span style="
+        font-size:18px;
+        opacity:.5;
+        padding:0 15px;
+    ">
+        🏀
+    </span>
+`;
+
+track.appendChild(separator);
+
+    // Duplicate for seamless scrolling
+    track.innerHTML += track.innerHTML;
+}
 
 // Initial load
 loadTeams();
