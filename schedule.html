@@ -92,15 +92,15 @@ body {
         inset 0 1px 0 rgba(255,255,255,.08);
 }
 
-.tickerViewport {
-    overflow: hidden;
-    width: 100%;
+#upcomingGamesTrack {
+    display: flex;
+    align-items: center;
+    gap: 40px;
+    white-space: nowrap;
 }
 
-#upcomingGamesTrack {
-    width: max-content;
-    display: flex;
-    animation: none;
+#upcomingGamesTrack.animate {
+    animation: scrollGames 50s linear infinite;
 }
 
 @keyframes scrollGames {
@@ -755,7 +755,9 @@ addTeamBtn.addEventListener('click', () => {
 function displayUpcomingGames() {
 
     const track = document.getElementById('upcomingGamesTrack');
-    track.innerHTML = '';
+    track.classList.remove("animate");
+track.innerHTML = "";
+  
 
     const allGames = [];
     const addedGames = new Set();
@@ -845,8 +847,15 @@ separator.innerHTML = `
 
 track.appendChild(separator);
 
-    // Duplicate for seamless scrolling
-    track.innerHTML += track.innerHTML;
+    const originalHTML = track.innerHTML;
+track.innerHTML += originalHTML;
+
+// wait until browser finishes layout
+requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+        track.classList.add("animate");
+    });
+});
 }
 
 
