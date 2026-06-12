@@ -92,14 +92,15 @@ body {
         inset 0 1px 0 rgba(255,255,255,.08);
 }
 
+.tickerViewport {
+    overflow: hidden;
+    width: 100%;
+}
+
 #upcomingGamesTrack {
+    width: max-content;
     display: flex;
-    align-items: center;
-    gap: 40px;
-
-    white-space: nowrap;
-
-    animation: scrollGames 50s linear infinite;
+    animation: scrollGames 40s linear infinite;
 }
 
 @keyframes scrollGames {
@@ -310,7 +311,9 @@ button {
 <body>
 <div class="bg-wrapper"></div>
 <div id="upcomingGamesNav">
-    <div id="upcomingGamesTrack"></div>
+    <div class="tickerViewport">
+        <div id="upcomingGamesTrack"></div>
+    </div>
 </div>
 <div id="todayGamesNav"></div>
 <button id="adminLoginBtn">Admin Login</button>
