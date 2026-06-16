@@ -74,7 +74,7 @@ body {
     display: flex;
     align-items: center;
 
-    width: fit-content;
+    width: 90vw;
     max-width: 90vw;
 
     overflow: hidden;
@@ -96,9 +96,10 @@ body {
     display: flex;
     align-items: center;
     gap: 40px;
-
     white-space: nowrap;
+}
 
+#upcomingGamesTrack.animate {
     animation: scrollGames 50s linear infinite;
 }
 
@@ -305,15 +306,14 @@ button {
 }
 
 
-
-
 </style>
 </head>
 <body>
-
 <div class="bg-wrapper"></div>
 <div id="upcomingGamesNav">
-    <div id="upcomingGamesTrack"></div>
+    <div class="tickerViewport">
+        <div id="upcomingGamesTrack"></div>
+    </div>
 </div>
 <div id="todayGamesNav"></div>
 <button id="adminLoginBtn">Admin Login</button>
@@ -755,7 +755,9 @@ addTeamBtn.addEventListener('click', () => {
 function displayUpcomingGames() {
 
     const track = document.getElementById('upcomingGamesTrack');
-    track.innerHTML = '';
+    track.classList.remove("animate");
+track.innerHTML = "";
+  
 
     const allGames = [];
     const addedGames = new Set();
@@ -845,9 +847,15 @@ separator.innerHTML = `
 
 track.appendChild(separator);
 
-    // Duplicate for seamless scrolling
-const clone = track.innerHTML;
-track.innerHTML += clone;
+    const originalHTML = track.innerHTML;
+track.innerHTML += originalHTML;
+
+// wait until browser finishes layout
+requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+        track.classList.add("animate");
+    });
+});
 }
 
 
