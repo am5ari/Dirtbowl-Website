@@ -305,6 +305,8 @@ button {
 }
 
 
+
+
 </style>
 </head>
 <body>
@@ -844,11 +846,11 @@ separator.innerHTML = `
 track.appendChild(separator);
 
     // Duplicate for seamless scrolling
-    track.innerHTML += track.innerHTML;
+const clone = track.innerHTML;
+track.innerHTML += clone;
 }
 
-// Initial load
-loadTeams();
+
 
 
 
