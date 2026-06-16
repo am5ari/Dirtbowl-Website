@@ -613,7 +613,98 @@ body {
         flex: 1;
     }
 }
+/* ================================
+   MOBILE BOX SCORE MODAL
+================================ */
 
+.boxScoreModal {
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.85);
+    z-index:99999;
+    padding:20px;
+    overflow-y:auto;
+}
+
+.boxScoreContent {
+    background:#111;
+    border-radius:18px;
+    padding:15px;
+    max-width:600px;
+    margin:40px auto;
+    box-shadow:0 10px 30px rgba(0,0,0,.7);
+}
+
+
+.boxScoreHeader {
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:15px;
+}
+
+
+.closeBox {
+    background:#ff4747;
+    border:none;
+    color:white;
+    padding:6px 12px;
+    border-radius:8px;
+    cursor:pointer;
+}
+
+
+.boxTable {
+    width:100%;
+    border-collapse:collapse;
+    font-size:.85rem;
+}
+
+
+.boxTable th {
+    text-align:center;
+    padding:8px;
+    background:#222;
+}
+
+
+.boxTable td {
+    padding:8px 5px;
+    border-bottom:1px solid #333;
+    text-align:center;
+}
+
+
+.boxTable td:first-child,
+.boxTable th:first-child {
+    text-align:left;
+}
+
+
+@media(max-width:480px){
+
+    .boxScoreModal{
+        padding:10px;
+    }
+
+
+    .boxScoreContent{
+        margin:20px auto;
+        padding:12px;
+    }
+
+
+    .boxTable{
+        font-size:.75rem;
+    }
+
+
+    .boxTable td,
+    .boxTable th{
+        padding:6px 3px;
+    }
+}
 </style>
 </head>
 <body>
@@ -703,6 +794,25 @@ body {
 <div id="topScorers">
   <h2>Top 10 Scorers</h2>
   <ul id="top10List"></ul>
+</div>
+<!-- BOX SCORE POPUP -->
+<div id="boxScoreModal" class="boxScoreModal">
+    <div class="boxScoreContent">
+
+        <div class="boxScoreHeader">
+            <h3 id="boxScoreTitle">
+                Box Score
+            </h3>
+
+            <button class="closeBox" onclick="closeBoxScore()">
+                X
+            </button>
+        </div>
+
+
+        <div id="boxScoreBody"></div>
+
+    </div>
 </div>
 
 <!-- Firebase -->
@@ -1104,9 +1214,22 @@ document.getElementById('addGameBtn').addEventListener('click', async () => {
     }
 
     const players = await buildEmptyBoxScore(
-        teamAKey,
-        teamBKey
-    );
+    teamAKey,
+    teamBKey
+);
+
+
+// Save player points from inputs
+document.querySelectorAll("#playerSelectionA input, #playerSelectionB input")
+.forEach(input => {
+
+    const playerName = input.dataset.player;
+
+    if(players[playerName]) {
+        players[playerName].points = Number(input.value) || 0;
+    }
+
+});
 
     const gameRef = db.ref(`games/${date}`).push();
 
@@ -1168,10 +1291,17 @@ async function updateGamesAndTopScorers() {
 
             // Collect player points for top scorers
             if (game.players) {
-                Object.entries(game.players).forEach(([pName, pdata]) => {
-                    scorers[pName] = (scorers[pName] || 0) + Number(pdata.points || 0);
-                });
-            }
+    Object.entries(game.players).forEach(([pName, pdata]) => {
+
+        const points = Number(pdata.points || 0);
+
+        // Only add players who actually scored
+        if (points > 0) {
+            scorers[pName] = (scorers[pName] || 0) + points;
+        }
+
+    });
+}
 
             // Create game card
             const card = document.createElement('div');
@@ -1270,12 +1400,14 @@ async function updateGamesAndTopScorers() {
             left.appendChild(teamBHeader); left.appendChild(playerListB);
 
             boxBtn.addEventListener('click', () => {
-                const showing = playerListA.style.display !== 'none';
-                playerListA.style.display = showing ? 'none' : 'flex';
-                playerListB.style.display = showing ? 'none' : 'flex';
-                teamAHeader.style.display = showing ? 'none' : 'block';
-                teamBHeader.style.display = showing ? 'none' : 'block';
-            });
+
+    openBoxScore(
+        game.teamA,
+        game.teamB,
+        game.players
+    );
+
+});
 
             // Right side: game leaders
             const right = document.createElement('div'); right.className = 'gameMiddle';
@@ -1336,6 +1468,133 @@ auth.onAuthStateChanged(user => {
     hideAdminPanel();
   }
 });
+
+function openBoxScore(teamA, teamB, players){
+
+    const modal = document.getElementById("boxScoreModal");
+    const body = document.getElementById("boxScoreBody");
+    const title = document.getElementById("boxScoreTitle");
+
+
+    title.textContent = `${teamA} vs ${teamB}`;
+
+    body.innerHTML="";
+
+
+    // Team sections
+    const teams = [
+        {
+            name: teamA,
+            players:[]
+        },
+        {
+            name: teamB,
+            players:[]
+        }
+    ];
+
+
+    Object.entries(players).forEach(([name,p])=>{
+
+        // Only include players with points
+        if(Number(p.points || 0) > 0){
+
+            const team = teams.find(t => t.name === p.teamName);
+
+            if(team){
+                team.players.push({
+                    name,
+                    number:p.number || 0,
+                    points:p.points || 0
+                });
+            }
+
+        }
+
+    });
+
+
+
+    teams.forEach(team=>{
+
+
+        if(team.players.length === 0) return;
+
+
+        const section=document.createElement("div");
+
+
+        section.innerHTML=`
+
+            <h4 style="
+            margin:15px 0 8px;
+            border-bottom:1px solid #333;
+            padding-bottom:6px;
+            ">
+            ${team.name}
+            </h4>
+
+
+        `;
+
+
+        team.players
+        .sort((a,b)=>b.points-a.points)
+        .forEach(player=>{
+
+
+            const row=document.createElement("div");
+
+
+            row.style.display="flex";
+            row.style.justifyContent="space-between";
+            row.style.padding="8px 5px";
+            row.style.borderBottom="1px solid #333";
+
+
+            row.innerHTML=`
+
+            <span>
+            #${player.number} ${player.name}
+            </span>
+
+            <strong>
+            ${player.points} PTS
+            </strong>
+
+            `;
+
+
+            section.appendChild(row);
+
+        });
+
+
+        body.appendChild(section);
+
+
+    });
+
+
+    if(body.innerHTML===""){
+        body.innerHTML=
+        `<p style="opacity:.7;text-align:center">
+        No scoring recorded
+        </p>`;
+    }
+
+
+    modal.style.display="block";
+
+}
+
+
+
+function closeBoxScore(){
+
+    document.getElementById("boxScoreModal").style.display="none";
+
+}
 
 /* ----------------- Init ----------------- */
 populateTeamDropdowns();
