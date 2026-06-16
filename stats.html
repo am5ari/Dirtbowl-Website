@@ -648,6 +648,7 @@ body {
 
     <select id="teamSelect"><option value="">Select Team</option></select>
     <input type="text" id="playerName" placeholder="Player Name">
+    <input type="number" id="playerNumber" placeholder="Jersey Number">
     <button id="addPlayerBtn" class="primary">Add Player</button>
 
     <hr style="border:none;border-top:1px solid #333;margin:12px 0;">
@@ -900,13 +901,49 @@ document.getElementById('addTeamBtn').addEventListener('click', () => {
 document.getElementById('addPlayerBtn').addEventListener('click', () => {
   const teamKey = document.getElementById('teamSelect').value;
   const player = document.getElementById('playerName').value.trim();
-  if (!teamKey || !player) return alert('Select team & provide player name');
-  db.ref(`teams/${teamKey}/players/${player}`).set(true)
-    .then(()=> {
-      document.getElementById('playerName').value = '';
-      showTeamsAndPlayers();
-      populateTeamDropdowns();
-    }).catch(err => { console.error(err); alert('Failed to add player'); });
+  const number = document.getElementById('playerNumber').value;
+
+  if (!teamKey || !player) {
+    return alert('Select team & provide player name');
+  }
+
+  db.ref(`teams/${teamKey}/players/${player}`).set({
+    number: Number(number) || 0
+  })
+  .then(() => {
+    document.getElementById('playerName').value = '';
+    document.getElementById('playerNumber').value = '';
+
+    showTeamsAndPlayers();
+    populateTeamDropdowns();
+  })
+  .catch(err => {
+    console.error(err);
+    alert('Failed to add player');
+  });
+});document.getElementById('addPlayerBtn').addEventListener('click', () => {
+  const teamKey = document.getElementById('teamSelect').value;
+  const player = document.getElementById('playerName').value.trim();
+  const number = document.getElementById('playerNumber').value;
+
+  if (!teamKey || !player) {
+    return alert('Select team & provide player name');
+  }
+
+  db.ref(`teams/${teamKey}/players/${player}`).set({
+    number: Number(number) || 0
+  })
+  .then(() => {
+    document.getElementById('playerName').value = '';
+    document.getElementById('playerNumber').value = '';
+
+    showTeamsAndPlayers();
+    populateTeamDropdowns();
+  })
+  .catch(err => {
+    console.error(err);
+    alert('Failed to add player');
+  });
 });
 
 document.getElementById('addTeamLogoBtn').addEventListener('click', () => {
@@ -943,7 +980,11 @@ function showTeamsAndPlayers(){
     Object.entries(teams).forEach(([key, teamData]) => {
       const div = document.createElement('div');
       div.className = 'teamItem';
-      const players = teamData.players ? Object.keys(teamData.players).join(', ') : '(no players)';
+      const players = teamData.players
+    ? Object.entries(teamData.players)
+        .map(([name,p]) => `#${p.number} ${name}`)
+        .join(', ')
+    : '(no players)';
       div.textContent = `${teamData.name}: ${players}`;
       container.appendChild(div);
     });
@@ -1013,38 +1054,78 @@ document.getElementById('teamASelect').addEventListener('change', updatePlayerDr
 document.getElementById('teamBSelect').addEventListener('change', updatePlayerDropdowns);
 
 /* ----------------- Add Game ----------------- */
-document.getElementById('addGameBtn').addEventListener('click', () => {
-  const date = document.getElementById('gameDateInput').value;
-  const teamAKey = document.getElementById('teamASelect').value;
-  const teamBKey = document.getElementById('teamBSelect').value;
-  const scoreA = parseInt(document.getElementById('scoreA').value) || 0;
-  const scoreB = parseInt(document.getElementById('scoreB').value) || 0;
-  if (!date || !teamAKey || !teamBKey) return alert('Enter date and both teams');
+async function buildEmptyBoxScore(teamAKey, teamBKey) {
 
-  // Build players object by reading the inputs
-  const players = {};
-  document.querySelectorAll('#playerSelectionA input').forEach(inp => {
-    const name = inp.dataset.player;
-    const pts = parseInt(inp.value) || 0;
-    players[name] = { points: pts, teamKey: teamAKey, teamName: document.getElementById('teamASelect').options[document.getElementById('teamASelect').selectedIndex].text };
-  });
-  document.querySelectorAll('#playerSelectionB input').forEach(inp => {
-    const name = inp.dataset.player;
-    const pts = parseInt(inp.value) || 0;
-    players[name] = { points: pts, teamKey: teamBKey, teamName: document.getElementById('teamBSelect').options[document.getElementById('teamBSelect').selectedIndex].text };
-  });
+    const players = {};
 
-  const gameRef = db.ref(`games/${date}`).push();
-  gameRef.set({
-    teamA: document.getElementById('teamASelect').options[document.getElementById('teamASelect').selectedIndex].text,
-    teamB: document.getElementById('teamBSelect').options[document.getElementById('teamBSelect').selectedIndex].text,
-    scoreA, scoreB, players
-  }).then(()=> {
-    alert('Game added');
-    // clear form
-    document.getElementById('scoreA').value=''; document.getElementById('scoreB').value='';
-    document.getElementById('playerSelectionA').innerHTML=''; document.getElementById('playerSelectionB').innerHTML='';
-  }).catch(err => { console.error(err); alert('Failed to add game'); });
+    const teamASnap = await db.ref(`teams/${teamAKey}/players`).once('value');
+    const teamBSnap = await db.ref(`teams/${teamBKey}/players`).once('value');
+
+    const teamAPlayers = teamASnap.val() || {};
+    const teamBPlayers = teamBSnap.val() || {};
+
+Object.entries(teamAPlayers).forEach(([player, pdata]) => {
+    players[player] = {
+        teamKey: teamAKey,
+        teamName: document.getElementById('teamASelect').selectedOptions[0].text,
+        number: pdata.number || 0,
+
+        points: 0,
+        rebounds: 0,
+        assists: 0,
+        steals: 0,
+        blocks: 0
+    };
+});
+
+    Object.entries(teamBPlayers).forEach(([player, pdata]) => {
+        players[player] = {
+            teamKey: teamBKey,
+            teamName: document.getElementById('teamBSelect').selectedOptions[0].text,
+            number: pdata.number || 0,
+            points: 0,
+            rebounds: 0,
+            assists: 0,
+            steals: 0,
+            blocks: 0
+        };
+    });
+
+    return players;
+}
+document.getElementById('addGameBtn').addEventListener('click', async () => {
+
+    const date = document.getElementById('gameDateInput').value;
+    const teamAKey = document.getElementById('teamASelect').value;
+    const teamBKey = document.getElementById('teamBSelect').value;
+
+    if (!date || !teamAKey || !teamBKey) {
+        return alert('Enter date and both teams');
+    }
+
+    const players = await buildEmptyBoxScore(
+        teamAKey,
+        teamBKey
+    );
+
+    const gameRef = db.ref(`games/${date}`).push();
+
+    await gameRef.set({
+        teamA: document.getElementById('teamASelect').selectedOptions[0].text,
+        teamB: document.getElementById('teamBSelect').selectedOptions[0].text,
+
+        scoreA: 0,
+        scoreB: 0,
+
+        status: 'scheduled',
+
+        players
+    });
+
+    alert('Game Scheduled');
+
+    updateGamesAndTopScorers();
+
 });
 
 async function updateGamesAndTopScorers() {
@@ -1172,7 +1253,15 @@ async function updateGamesAndTopScorers() {
             Object.entries(game.players || {}).forEach(([name, pdata]) => {
                 const pItem = document.createElement('div'); pItem.className='playerItem';
                 pItem.style.display='flex'; pItem.style.justifyContent='space-between'; pItem.style.padding='6px 0';
-                pItem.innerHTML = `<div style="font-weight:600">${name}</div><div style="min-width:50px;text-align:center">${pdata.points||0}</div>`;
+                pItem.innerHTML = `
+                <div style="font-weight:600">
+                 #${pdata.number || 0} ${name}
+                </div>
+
+                <div style="min-width:50px;text-align:center">
+                 ${pdata.points || 0}
+                </div>
+                `;
                 if (pdata.teamName === game.teamA) playerListA.appendChild(pItem);
                 else playerListB.appendChild(pItem);
             });
