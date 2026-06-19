@@ -63,6 +63,21 @@ h1{
 
 }
 
+#modalTeamName{
+    font-size:30px;
+    font-weight:700;
+    margin-bottom:20px;
+}
+
+.modal-logo{
+    width:120px;
+    height:120px;
+    object-fit:contain;
+
+    display:block;
+    margin:0 auto 20px;
+}
+
 
 .team-grid {
 
@@ -182,24 +197,20 @@ h1{
 }
 
 
-.modal-content {
-
-    background:#111;
+.modal-content{
+    background:rgba(15,15,15,.97);
 
     width:90%;
-
-    max-width:500px;
+    max-width:550px;
 
     max-height:80vh;
-
     overflow-y:auto;
 
-    border-radius:20px;
+    border-radius:24px;
 
     padding:25px;
 
     position:absolute;
-
     top:50%;
     left:50%;
 
@@ -207,6 +218,10 @@ h1{
 
     color:white;
 
+    border:1px solid rgba(255,255,255,.08);
+
+    box-shadow:
+    0 0 30px rgba(0,0,0,.5);
 }
 
 
@@ -234,24 +249,26 @@ h1{
 
 
 
-.modal-player {
+.modal-player{
+    background:rgba(255,255,255,.05);
+    border:1px solid rgba(255,255,255,.08);
 
-    background:#222;
-
-    padding:15px;
-
+    padding:14px 18px;
     margin:10px 0;
 
-    border-radius:12px;
+    border-radius:14px;
 
     display:flex;
+    align-items:center;
+    gap:15px;
 
-    justify-content:center;
-
-    gap:20px;
-
+    transition:.2s;
 }
 
+.modal-player:hover{
+    transform:translateY(-2px);
+    background:rgba(255,255,255,.08);
+}
 .modal-logo {
 
     display:block;
@@ -264,6 +281,42 @@ h1{
 
     margin:0 auto 15px;
 
+}
+
+.player-number{
+    width:44px;
+    height:44px;
+
+    background:#525a61;
+
+    clip-path:polygon(
+        25% 0%,
+        75% 0%,
+        100% 25%,
+        85% 40%,
+        85% 100%,
+        15% 100%,
+        15% 40%,
+        0% 25%
+    );
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    color:white;
+    font-weight:700;
+    font-size:12px;
+
+    flex-shrink:0;
+}
+
+.player-name{
+    flex:1;
+    text-align:left;
+
+    font-size:17px;
+    font-weight:600;
 }
 
 .home-btn {
@@ -511,49 +564,46 @@ logo.src = team.logoURL;
 
 
 
-const playersRef=
+const playersRef =
 ref(db,"teams/"+teamID+"/players");
-
-
 
 onValue(playersRef,(snapshot)=>{
 
+    playersDiv.innerHTML="";
 
-playersDiv.innerHTML="";
+    let players = [];
 
+    snapshot.forEach((player)=>{
 
+        players.push({
+            id: player.key,
+            ...player.val()
+        });
 
-snapshot.forEach((player)=>{
+    });
 
+    // Sort by jersey number
+    players.sort((a,b)=>{
+        return Number(a.number ?? 999) - Number(b.number ?? 999);
+    });
 
-let data=player.val();
+    players.forEach((data)=>{
 
-
-
-playersDiv.innerHTML += `
-
-
+        playersDiv.innerHTML += `
 <div class="modal-player">
 
+    <div class="player-number">
+        ${data.number ?? ""}
+    </div>
 
-<span>
-${player.key}
-</span>
-
-
-<span>
-#${data.number || ""}
-</span>
-
+    <div class="player-name">
+        ${data.id}
+    </div>
 
 </div>
-
-
 `;
 
-
-});
-
+    });
 
 });
 
