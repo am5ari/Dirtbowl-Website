@@ -255,6 +255,8 @@ const observer = new IntersectionObserver(entries => {
   });
 }, { threshold: 0.5 });
 sections.forEach(section => observer.observe(section));
+
+
 </script>
 
 
@@ -294,10 +296,15 @@ sections.forEach(section => observer.observe(section));
             <li class="navbar__item">
                 <a href="Comments.html" target="_blank" class="navbar__link" id="Comments-link">Comments</a>
             </li>
+            <li class="navbar__item">
+                <a href="admin-signup.html" target="_blank" class="navbar__link" id="Admin-link">Admin</a>
+            </li>
            </ul>
 
         </div>
      </nav> 
+
+     
 
      <!-- Hero Sectionn -->
      
@@ -310,7 +317,7 @@ sections.forEach(section => observer.observe(section));
       <a class="about__btn" href="stats.html">Box Scores</a>
       <a class="about__btn" href="Comments.html">Live Feed</a>
       <a class="about__btn" href="schedule.html">Schedule</a>
-        <a class="about__btn" href="Rosters.html">Rosters</a>
+      <a class="about__btn" href="Rosters.html">Rosters</a>
     </div>
     
   </div>
