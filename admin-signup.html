@@ -180,10 +180,7 @@ signupBtn.onclick = async () => {
 
     const codeData = codeSnap.val();
 
-    if(codeData.used === true){
-      showError("This invite code has already been used.");
-      return;
-    }
+    
 
     const cred = await createUserWithEmailAndPassword(auth, email, password);
 
@@ -194,12 +191,7 @@ signupBtn.onclick = async () => {
       createdAt: Date.now()
     });
 
-    await update(codeRef, {
-      used: true,
-      usedBy: cred.user.uid,
-      usedEmail: email,
-      usedAt: Date.now()
-    });
+    
 
     showSuccess("Admin account created. Redirecting...");
 
