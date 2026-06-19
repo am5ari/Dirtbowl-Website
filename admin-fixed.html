@@ -222,27 +222,34 @@ function loadTeams(){
 }
 
 function loadSchedule(){
-  // Your existing games are saved inside each team like:
-  // teams / bucks / schedule / 0
-  // This pulls schedules from every team instead of only looking at root /schedule.
   onValue(ref(db,"teams"), snap=>{
     const allTeams = snap.val() || {};
     const allGames = {};
+    const seenGames = {};
 
     Object.entries(allTeams).forEach(([teamId, team])=>{
       Object.entries(team.schedule || {}).forEach(([gameKey, game])=>{
-        const id = `${teamId}__${gameKey}`;
-        allGames[id] = {
-          ...game,
-          id,
-          _teamId: teamId,
-          _gameKey: gameKey,
-          _path: `teams/${teamId}/schedule/${gameKey}`
-        };
+
+        const realId = `${teamId}__${gameKey}`;
+        const uniqueKey = `${game.date}_${game.time}_${game.home}_${game.away}`;
+
+        if (!seenGames[uniqueKey]) {
+          seenGames[uniqueKey] = true;
+
+          allGames[realId] = {
+            ...game,
+            id: realId,
+            _teamId: teamId,
+            _gameKey: gameKey,
+            _path: `teams/${teamId}/schedule/${gameKey}`
+          };
+        }
+
       });
     });
 
     schedule = allGames;
+
     renderGames();
     fillBoxGameSelect();
     updateCounts();
