@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Dirtbowl Admin Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#070707;
+  --panel:#111;
+  --panel2:#181818;
+  --card:#151515;
+  --line:rgba(255,255,255,.1);
+  --text:#fff;
+  --muted:#aaa;
+  --accent:#1da1f2;
+  --danger:#ff4d4d;
+  --success:#25d366;
+}
+body {
+  display: none;
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;font-family:Poppins,sans-serif;background:#050505;color:var(--text);overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0;background:url('dirtbowl.jpg') center/cover no-repeat;z-index:-2}
+body::after{content:"";position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:-1}
+button,input,select,textarea{font-family:inherit}
+.app{display:flex;min-height:100vh}
+.sidebar{width:260px;background:rgba(10,10,10,.92);border-right:1px solid var(--line);padding:22px 16px;position:fixed;top:0;bottom:0;left:0;backdrop-filter:blur(12px);z-index:10}
+.logoBox{display:flex;align-items:center;gap:12px;margin-bottom:24px}.logoMark{width:44px;height:44px;border-radius:14px;background:linear-gradient(135deg,#1da1f2,#2948ff);display:grid;place-items:center;font-size:24px;font-weight:800}.logoText h2{margin:0;font-size:18px}.logoText p{margin:0;color:var(--muted);font-size:12px}
+.navBtn{width:100%;border:0;background:transparent;color:#ddd;padding:13px 14px;border-radius:14px;text-align:left;font-weight:700;cursor:pointer;margin:4px 0;display:flex;align-items:center;gap:10px}.navBtn:hover,.navBtn.active{background:rgba(29,161,242,.15);color:#fff}.navBtn.active{border:1px solid rgba(29,161,242,.35)}
+.main{margin-left:260px;width:calc(100% - 260px);padding:24px}.topbar{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:22px}.topbar h1{margin:0;font-size:30px}.topbar p{margin:3px 0 0;color:var(--muted)}
+.mobileMenu{display:none;border:1px solid var(--line);background:#111;color:white;border-radius:12px;padding:10px 12px}.panel{background:rgba(17,17,17,.92);border:1px solid var(--line);border-radius:22px;padding:20px;box-shadow:0 10px 30px rgba(0,0,0,.25);backdrop-filter:blur(10px)}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:18px}.statCard{background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:18px;padding:18px}.statCard h3{margin:0;color:var(--muted);font-size:13px}.statCard strong{display:block;font-size:30px;margin-top:8px}
+.section{display:none}.section.active{display:block}.sectionHead{display:flex;justify-content:space-between;align-items:center;gap:14px;margin-bottom:16px}.sectionHead h2{margin:0}.sectionHead p{margin:4px 0 0;color:var(--muted);font-size:14px}
+.formGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}.formGrid.two{grid-template-columns:repeat(2,1fr)}.field label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px;font-weight:700}.field input,.field select,.field textarea{width:100%;background:#0b0b0b;border:1px solid var(--line);color:white;border-radius:12px;padding:12px;outline:none}.field textarea{min-height:90px;resize:vertical}.btn{border:0;border-radius:12px;padding:12px 16px;font-weight:800;cursor:pointer;color:white;background:var(--accent)}.btn:hover{filter:brightness(1.08)}.btn.dark{background:#222;border:1px solid var(--line)}.btn.danger{background:var(--danger)}.btn.success{background:var(--success);color:#06120b}.btn.small{padding:8px 10px;font-size:12px}.btn.full{width:100%}
+.tableWrap{overflow-x:auto}.adminTable{width:100%;border-collapse:collapse;min-width:760px}.adminTable th,.adminTable td{padding:13px;border-bottom:1px solid var(--line);text-align:left}.adminTable th{font-size:12px;color:var(--muted);text-transform:uppercase}.adminTable tr:hover td{background:rgba(255,255,255,.03)}.teamLogo{width:42px;height:42px;border-radius:10px;object-fit:contain;background:#050505;border:1px solid var(--line)}.actions{display:flex;gap:8px;flex-wrap:wrap}.pill{display:inline-flex;align-items:center;gap:6px;border-radius:99px;padding:6px 10px;background:rgba(255,255,255,.08);font-size:12px;color:#ddd}
+.split{display:grid;grid-template-columns:320px 1fr;gap:18px}.listBox{display:flex;flex-direction:column;gap:10px;max-height:65vh;overflow:auto}.teamPick{background:#151515;border:1px solid var(--line);border-radius:16px;padding:13px;cursor:pointer;display:flex;align-items:center;gap:10px}.teamPick.active{border-color:var(--accent);background:rgba(29,161,242,.12)}.playerRow{display:grid;grid-template-columns:70px 1fr auto;gap:12px;align-items:center;background:rgba(255,255,255,.045);border:1px solid var(--line);border-radius:16px;padding:12px}.numBadge{width:46px;height:46px;background:#1e88e5;clip-path:polygon(25% 0%,75% 0%,100% 25%,85% 40%,85% 100%,15% 100%,15% 40%,0% 25%);display:grid;place-items:center;font-weight:900;font-size:12px}.playerName{font-weight:800}.playerMeta{font-size:12px;color:var(--muted)}
+.gameCard{background:rgba(255,255,255,.045);border:1px solid var(--line);border-radius:18px;padding:14px;margin-bottom:12px}.gameTop{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.gameTitle{font-weight:900;font-size:18px}.gameSub{color:var(--muted);font-size:13px;margin-top:4px}.scoreBox{display:flex;gap:8px;align-items:center;margin-top:10px}.scoreBox input{width:80px;background:#0b0b0b;border:1px solid var(--line);color:white;border-radius:12px;padding:10px;text-align:center}.statsGrid{display:grid;grid-template-columns:1.5fr repeat(5,80px);gap:8px;align-items:center;margin-bottom:8px}.statsGrid.header{color:var(--muted);font-size:12px;font-weight:800}.statsGrid input{width:100%;background:#0b0b0b;border:1px solid var(--line);color:#fff;border-radius:10px;padding:9px;text-align:center}.notice{padding:12px 14px;border-radius:14px;background:rgba(29,161,242,.12);border:1px solid rgba(29,161,242,.25);color:#dcefff;margin-bottom:14px}.empty{color:var(--muted);padding:18px;text-align:center;border:1px dashed var(--line);border-radius:18px}.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.72);backdrop-filter:blur(8px);z-index:100}.modalContent{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:92%;max-width:520px;background:#111;border:1px solid var(--line);border-radius:22px;padding:22px}.close{position:absolute;right:18px;top:12px;font-size:28px;cursor:pointer;color:#fff}.modalContent h2{margin-top:0}.muted{color:var(--muted)}
+@media(max-width:900px){.sidebar{transform:translateX(-100%);transition:.2s}.sidebar.open{transform:translateX(0)}.main{margin-left:0;width:100%;padding:16px}.mobileMenu{display:block}.grid{grid-template-columns:repeat(2,1fr)}.formGrid,.formGrid.two{grid-template-columns:1fr}.split{grid-template-columns:1fr}.topbar h1{font-size:24px}.statsGrid{grid-template-columns:1fr repeat(5,54px);font-size:12px}.statsGrid input{padding:8px 4px}}
+@media(max-width:520px){.grid{grid-template-columns:1fr}.sectionHead,.topbar,.gameTop{flex-direction:column;align-items:flex-start}.playerRow{grid-template-columns:50px 1fr}.playerRow .actions{grid-column:1/-1}.numBadge{width:42px;height:42px}}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar" id="sidebar">
+    <div class="logoBox"><div class="logoMark">🏀</div><div class="logoText"><h2>Dirtbowl Admin</h2><p>Roster • Schedule • Scores</p></div></div>
+    <button class="navBtn active" data-page="dashboard">📊 Dashboard</button>
+    <button class="navBtn" data-page="teams">🏀 Teams</button>
+    <button class="navBtn" data-page="players">👤 Players</button>
+    <button class="navBtn" data-page="schedule">📅 Schedule</button>
+    <button class="navBtn" data-page="boxscores">📋 Box Scores</button>
+    <button class="navBtn" data-page="admins">🔐 Admin Signup</button>
+    <hr style="border-color:rgba(255,255,255,.08);margin:18px 0">
+    <a href="index.html" class="navBtn" style="text-decoration:none">← Back to Site</a>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <div><button class="mobileMenu" id="mobileMenu">☰ Menu</button><h1 id="pageTitle">Dashboard</h1><p>Manage your teams, rosters, schedule, and box scores.</p></div>
+      <span class="pill" id="saveStatus">Connected to Firebase</span>
+    </div>
+
+    <section id="dashboard" class="section active">
+      <div class="grid">
+        <div class="statCard"><h3>Teams</h3><strong id="teamCount">0</strong></div>
+        <div class="statCard"><h3>Players</h3><strong id="playerCount">0</strong></div>
+        <div class="statCard"><h3>Games</h3><strong id="gameCount">0</strong></div>
+        <div class="statCard"><h3>Admins</h3><strong id="adminCount">0</strong></div>
+      </div>
+      <div class="panel"><h2>Quick Start</h2><p class="muted">Add teams first, then add players, then create schedule games. Box scores pull rosters from your teams automatically.</p></div>
+    </section>
+
+    <section id="teams" class="section">
+      <div class="panel">
+        <div class="sectionHead"><div><h2>Teams</h2><p>Add, edit, or delete teams.</p></div></div>
+        <div class="formGrid">
+          <div class="field"><label>Team ID</label><input id="teamId" placeholder="bucks"></div>
+          <div class="field"><label>Team Name</label><input id="teamName" placeholder="Bucks"></div>
+          <div class="field"><label>Logo URL / Base64</label><input id="teamLogo" placeholder="Paste logo URL"></div>
+          <div class="field"><label>&nbsp;</label><button class="btn full" id="saveTeamBtn">Save Team</button></div>
+        </div>
+        <div class="tableWrap"><table class="adminTable"><thead><tr><th>Logo</th><th>Team</th><th>ID</th><th>Players</th><th>Actions</th></tr></thead><tbody id="teamsTable"></tbody></table></div>
+      </div>
+    </section>
+
+    <section id="players" class="section">
+      <div class="split">
+        <div class="panel"><h2>Select Team</h2><div class="listBox" id="teamList"></div></div>
+        <div class="panel">
+          <div class="sectionHead"><div><h2 id="selectedTeamTitle">Players</h2><p>Add, edit, or delete roster players.</p></div></div>
+          <div class="formGrid">
+            <div class="field"><label>Player Name</label><input id="playerName" placeholder="John Smith"></div>
+            <div class="field"><label>Jersey Number</label><input id="playerNumber" type="number" placeholder="0"></div>
+            <div class="field"><label>&nbsp;</label><button class="btn full" id="savePlayerBtn">Save Player</button></div>
+            <div class="field"><label>&nbsp;</label><button class="btn dark full" id="clearPlayerBtn">Clear</button></div>
+          </div>
+          <div id="playersList"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="schedule" class="section">
+      <div class="panel">
+        <div class="sectionHead"><div><h2>Schedule</h2><p>Create and edit games under your current <b>teams / teamId / schedule</b> structure.</p></div></div>
+        <div class="formGrid">
+          <div class="field"><label>Date</label><input id="gameDate" type="date"></div>
+          <div class="field"><label>Time</label><input id="gameTime" type="time"></div>
+          <div class="field"><label>Home Team</label><select id="gameHome"></select></div>
+          <div class="field"><label>Away Team</label><select id="gameAway"></select></div>
+        </div>
+        <div class="formGrid two">
+          <button class="btn" id="saveGameBtn">Save Game</button>
+          <button class="btn dark" id="clearGameBtn">Clear Game Form</button>
+        </div>
+        <div id="gamesList"></div>
+      </div>
+    </section>
+
+    <section id="boxscores" class="section">
+      <div class="panel">
+        <div class="sectionHead"><div><h2>Box Scores</h2><p>Edit final score and player stats for each game.</p></div></div>
+        <div class="notice">Player stats save inside <b>boxScores / gameId / players</b>. Final scores save back to <b>teams / teamId / schedule / gameId / score</b>.</div>
+        <div class="field" style="margin-bottom:16px"><label>Select Game</label><select id="boxGameSelect"></select></div>
+        <div id="boxScoreEditor"></div>
+      </div>
+    </section>
+
+    <section id="admins" class="section">
+      <div class="panel">
+        <h2>Admin Account Signup</h2>
+        <div class="notice">This creates Firebase Auth accounts from the website. Keep this page private. For stronger security later, add invite codes or Firebase rules.</div>
+        <div class="formGrid two">
+          <div class="field"><label>Email</label><input id="adminEmail" type="email" placeholder="coach@email.com"></div>
+          <div class="field"><label>Password</label><input id="adminPassword" type="password" placeholder="Minimum 6 characters"></div>
+        </div>
+        <button class="btn" id="createAdminBtn">Create Admin Account</button>
+        <p class="muted" id="adminMsg"></p>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div class="modal" id="editModal"><div class="modalContent"><span class="close" id="closeModal">&times;</span><h2 id="modalTitle">Edit</h2><div id="modalBody"></div></div></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getDatabase, ref, onValue, set, update, remove, get, child } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+import {
+  getAuth,
+  createUserWithEmailAndPassword,
+  onAuthStateChanged,
+  signOut
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyByXfVkKxz166ghpEVD4xuaQtLDpeNCzUE",
+  authDomain: "dirtbowl-page.firebaseapp.com",
+  databaseURL: "https://dirtbowl-page-default-rtdb.firebaseio.com",
+  projectId: "dirtbowl-page",
+  storageBucket: "dirtbowl-page.appspot.com",
+  messagingSenderId: "948778986865",
+  appId: "1:948778986865:web:0f66d810d77310ec459ad0",
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+const auth = getAuth(app);
+
+let teams = {};
+let schedule = {};
+let selectedTeamId = null;
+let editingGameId = null;
+let editingPlayerName = null;
+
+const $ = (id) => document.getElementById(id);
+const cleanId = (text) => text.trim().toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
+const setStatus = (msg) => { $("saveStatus").textContent = msg; setTimeout(()=>$("saveStatus").textContent="Connected to Firebase",1800); };
+
+window.addEventListener("DOMContentLoaded", () => {
+  setupNav();
+  loadTeams();
+  loadSchedule();
+  bindButtons();
+});
+
+function setupNav(){
+  document.querySelectorAll(".navBtn[data-page]").forEach(btn=>{
+    btn.onclick = () => {
+      document.querySelectorAll(".navBtn").forEach(b=>b.classList.remove("active"));
+      btn.classList.add("active");
+      document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
+      $(btn.dataset.page).classList.add("active");
+      $("pageTitle").textContent = btn.textContent.replace(/[📊🏀👤📅📋🔐]/g,"").trim();
+      $("sidebar").classList.remove("open");
+    };
+  });
+  $("mobileMenu").onclick = () => $("sidebar").classList.toggle("open");
+}
+
+function bindButtons(){
+  $("saveTeamBtn").onclick = saveTeam;
+  $("savePlayerBtn").onclick = savePlayer;
+  $("clearPlayerBtn").onclick = clearPlayerForm;
+  $("saveGameBtn").onclick = saveGame;
+  $("clearGameBtn").onclick = clearGameForm;
+  $("createAdminBtn").onclick = createAdmin;
+  $("boxGameSelect").onchange = renderBoxScoreEditor;
+  $("closeModal").onclick = () => $("editModal").style.display="none";
+}
+
+function loadTeams(){
+  onValue(ref(db,"teams"), snap=>{
+    teams = snap.val() || {};
+    renderTeams();
+    renderTeamList();
+    fillTeamSelects();
+    updateCounts();
+    if(!selectedTeamId && Object.keys(teams).length){ selectedTeamId = Object.keys(teams)[0]; renderTeamList(); renderPlayers(); }
+  });
+}
+
+function loadSchedule(){
+  // Your existing games are saved inside each team like:
+  // teams / bucks / schedule / 0
+  // This pulls schedules from every team instead of only looking at root /schedule.
+  onValue(ref(db,"teams"), snap=>{
+    const allTeams = snap.val() || {};
+    const allGames = {};
+
+    Object.entries(allTeams).forEach(([teamId, team])=>{
+      Object.entries(team.schedule || {}).forEach(([gameKey, game])=>{
+        const id = `${teamId}__${gameKey}`;
+        allGames[id] = {
+          ...game,
+          id,
+          _teamId: teamId,
+          _gameKey: gameKey,
+          _path: `teams/${teamId}/schedule/${gameKey}`
+        };
+      });
+    });
+
+    schedule = allGames;
+    renderGames();
+    fillBoxGameSelect();
+    updateCounts();
+  });
+}
+
+function updateCounts(){
+  const teamIds = Object.keys(teams);
+  let pCount = 0;
+  teamIds.forEach(id=> pCount += Object.keys(teams[id].players || {}).length);
+  $("teamCount").textContent = teamIds.length;
+  $("playerCount").textContent = pCount;
+  $("gameCount").textContent = Object.keys(schedule).length;
+  get(ref(db,"admins")).then(snap => $("adminCount").textContent = snap.exists() ? Object.keys(snap.val()).length : 0).catch(()=>{});
+}
+
+function renderTeams(){
+  const tbody = $("teamsTable"); tbody.innerHTML = "";
+  Object.entries(teams).forEach(([id,team])=>{
+    const count = Object.keys(team.players || {}).length;
+    tbody.innerHTML += `<tr>
+      <td><img class="teamLogo" src="${team.logoURL || 'logo.png'}" onerror="this.src='logo.png'"></td>
+      <td><b>${team.name || id}</b></td><td>${id}</td><td>${count}</td>
+      <td><div class="actions"><button class="btn small dark" onclick="editTeam('${id}')">Edit</button><button class="btn small danger" onclick="deleteTeam('${id}')">Delete</button></div></td>
+    </tr>`;
+  });
+}
+
+function renderTeamList(){
+  const box = $("teamList"); box.innerHTML = "";
+  Object.entries(teams).forEach(([id,team])=>{
+    const div = document.createElement("div");
+    div.className = "teamPick" + (id === selectedTeamId ? " active" : "");
+    div.innerHTML = `<img class="teamLogo" src="${team.logoURL || 'logo.png'}"><div><b>${team.name || id}</b><br><span class="muted">${Object.keys(team.players || {}).length} players</span></div>`;
+    div.onclick = () => { selectedTeamId = id; clearPlayerForm(); renderTeamList(); renderPlayers(); };
+    box.appendChild(div);
+  });
+  if(!box.innerHTML) box.innerHTML = `<div class="empty">No teams yet.</div>`;
+}
+
+function renderPlayers(){
+  const list = $("playersList"); list.innerHTML = "";
+  if(!selectedTeamId || !teams[selectedTeamId]){ list.innerHTML = `<div class="empty">Select a team first.</div>`; return; }
+  const team = teams[selectedTeamId];
+  $("selectedTeamTitle").textContent = `${team.name || selectedTeamId} Players`;
+  const players = Object.entries(team.players || {}).map(([name,data])=>({name,...data}));
+  players.sort((a,b)=>Number(a.number ?? 999)-Number(b.number ?? 999));
+  if(!players.length){ list.innerHTML = `<div class="empty">No players on this roster yet.</div>`; return; }
+  players.forEach(p=>{
+    list.innerHTML += `<div class="playerRow">
+      <div class="numBadge">${p.number ?? ""}</div>
+      <div><div class="playerName">${p.name}</div><div class="playerMeta">Jersey #${p.number ?? ""}</div></div>
+      <div class="actions"><button class="btn small dark" onclick="editPlayer('${escapeQuotes(p.name)}')">Edit</button><button class="btn small danger" onclick="deletePlayer('${escapeQuotes(p.name)}')">Delete</button></div>
+    </div>`;
+  });
+}
+
+function fillTeamSelects(){
+  const selects = [$("gameHome"), $("gameAway")];
+  selects.forEach(sel=>{
+    const current = sel.value;
+    sel.innerHTML = Object.values(teams).map(t=>`<option value="${t.name}">${t.name}</option>`).join("");
+    if(current) sel.value = current;
+  });
+}
+
+async function saveTeam(){
+  const id = cleanId($("teamId").value || $("teamName").value);
+  const name = $("teamName").value.trim();
+  const logoURL = $("teamLogo").value.trim();
+  if(!id || !name) return alert("Add a team ID and team name.");
+  await update(ref(db,"teams/"+id), { name, logoURL });
+  $("teamId").value=""; $("teamName").value=""; $("teamLogo").value="";
+  setStatus("Team saved");
+}
+
+window.editTeam = (id) => {
+  const t = teams[id];
+  $("teamId").value = id; $("teamName").value = t.name || ""; $("teamLogo").value = t.logoURL || "";
+  showPage("teams");
+};
+window.deleteTeam = async (id) => {
+  if(confirm(`Delete ${teams[id]?.name || id}? This deletes its players too.`)){ await remove(ref(db,"teams/"+id)); setStatus("Team deleted"); }
+};
+
+async function savePlayer(){
+  if(!selectedTeamId) return alert("Select a team first.");
+  const name = $("playerName").value.trim();
+  const numberRaw = $("playerNumber").value;
+  if(!name) return alert("Enter player name.");
+  const number = numberRaw === "" ? "" : Number(numberRaw);
+  if(editingPlayerName && editingPlayerName !== name){ await remove(ref(db,`teams/${selectedTeamId}/players/${editingPlayerName}`)); }
+  await set(ref(db,`teams/${selectedTeamId}/players/${name}`), { number });
+  clearPlayerForm(); setStatus("Player saved");
+}
+window.editPlayer = (name) => {
+  const p = teams[selectedTeamId].players[name];
+  editingPlayerName = name; $("playerName").value = name; $("playerNumber").value = p.number ?? "";
+};
+window.deletePlayer = async (name) => {
+  if(confirm(`Delete ${name}?`)){ await remove(ref(db,`teams/${selectedTeamId}/players/${name}`)); setStatus("Player deleted"); }
+};
+function clearPlayerForm(){ editingPlayerName=null; $("playerName").value=""; $("playerNumber").value=""; }
+
+function renderGames(){
+  const box = $("gamesList"); box.innerHTML = "";
+  const games = Object.entries(schedule).map(([id,g])=>({id,...g}));
+  games.sort((a,b)=>((a.date||"")+(a.time||"")).localeCompare((b.date||"")+(b.time||"")));
+  if(!games.length){ box.innerHTML = `<div class="empty">No games yet.</div>`; return; }
+  games.forEach(g=>{
+    box.innerHTML += `<div class="gameCard">
+      <div class="gameTop"><div><div class="gameTitle">${g.away} @ ${g.home}</div><div class="gameSub">${g.date || "No date"} • ${formatTime(g.time)} • Score: ${g.score || "Not set"}</div></div>
+      <div class="actions"><button class="btn small dark" onclick="editGame('${g.id}')">Edit</button><button class="btn small danger" onclick="deleteGame('${g.id}')">Delete</button></div></div>
+    </div>`;
+  });
+}
+
+async function saveGame(){
+  const date = $("gameDate").value, time = $("gameTime").value, home = $("gameHome").value, away = $("gameAway").value;
+  if(!date || !time || !home || !away) return alert("Fill out date, time, home, and away.");
+  if(home === away) return alert("Home and away cannot be the same team.");
+
+  const gameData = { date, time, home, away, score: editingGameId ? (schedule[editingGameId]?.score || "") : "" };
+
+  if(editingGameId && schedule[editingGameId]?._path){
+    await set(ref(db, schedule[editingGameId]._path), gameData);
+  }else{
+    const homeTeamId = findTeamIdByName(home);
+    if(!homeTeamId) return alert("Could not find the home team in Firebase.");
+    const newKey = Date.now().toString();
+    await set(ref(db, `teams/${homeTeamId}/schedule/${newKey}`), gameData);
+  }
+
+  clearGameForm(); setStatus("Game saved");
+}
+window.editGame = (id) => { const g = schedule[id]; editingGameId = id; $("gameDate").value=g.date||""; $("gameTime").value=g.time||""; $("gameHome").value=g.home||""; $("gameAway").value=g.away||""; showPage("schedule"); };
+window.deleteGame = async (id) => { if(confirm("Delete this game?")){ await remove(ref(db, schedule[id]._path)); await remove(ref(db,"boxScores/"+id)); setStatus("Game deleted"); } };
+function clearGameForm(){ editingGameId=null; $("gameDate").value=""; $("gameTime").value=""; }
+
+function fillBoxGameSelect(){
+  const sel = $("boxGameSelect");
+  const current = sel.value;
+  const games = Object.entries(schedule).map(([id,g])=>({id,...g})).sort((a,b)=>((a.date||"")+(a.time||"")).localeCompare((b.date||"")+(b.time||"")));
+  sel.innerHTML = `<option value="">Choose a game</option>` + games.map(g=>`<option value="${g.id}">${g.date} - ${g.away} @ ${g.home}</option>`).join("");
+  if(current) sel.value = current;
+  renderBoxScoreEditor();
+}
+
+async function renderBoxScoreEditor(){
+  const gameId = $("boxGameSelect").value;
+  const editor = $("boxScoreEditor"); editor.innerHTML = "";
+  if(!gameId || !schedule[gameId]){ editor.innerHTML = `<div class="empty">Choose a game to edit box score.</div>`; return; }
+  const g = schedule[gameId];
+  const savedSnap = await get(ref(db,"boxScores/"+gameId));
+  const saved = savedSnap.val() || {};
+  editor.innerHTML = `<div class="gameCard"><div class="gameTitle">${g.away} @ ${g.home}</div><div class="gameSub">${g.date} • ${formatTime(g.time)}</div>
+    <div class="scoreBox"><input id="awayScore" type="number" placeholder="${g.away}" value="${saved.awayScore ?? parseScore(g.score).away ?? ""}"><b>-</b><input id="homeScore" type="number" placeholder="${g.home}" value="${saved.homeScore ?? parseScore(g.score).home ?? ""}"></div></div>
+    <div id="statsArea"></div><button class="btn success" onclick="saveBoxScore('${gameId}')">Save Box Score</button>`;
+  renderStatsRows(gameId, g.away, "away", saved.players || {});
+  renderStatsRows(gameId, g.home, "home", saved.players || {});
+}
+
+function renderStatsRows(gameId, teamName, side, savedPlayers){
+  const area = $("statsArea");
+  const teamEntry = Object.entries(teams).find(([id,t])=>t.name === teamName);
+  const players = teamEntry ? Object.entries(teamEntry[1].players || {}).map(([name,data])=>({name,...data})) : [];
+  players.sort((a,b)=>Number(a.number ?? 999)-Number(b.number ?? 999));
+  let html = `<h3>${teamName}</h3><div class="statsGrid header"><div>Player</div><div>PTS</div><div>REB</div><div>AST</div><div>STL</div><div>BLK</div></div>`;
+  if(!players.length) html += `<div class="empty">No players found for ${teamName}.</div>`;
+  players.forEach(p=>{
+    const key = `${side}__${safeKey(p.name)}`;
+    const s = savedPlayers[key] || {};
+    html += `<div class="statsGrid statRow" data-key="${key}" data-name="${p.name}" data-team="${teamName}" data-number="${p.number ?? ""}">
+      <div><b>#${p.number ?? ""} ${p.name}</b></div>
+      <input data-stat="pts" type="number" value="${s.pts ?? ""}">
+      <input data-stat="reb" type="number" value="${s.reb ?? ""}">
+      <input data-stat="ast" type="number" value="${s.ast ?? ""}">
+      <input data-stat="stl" type="number" value="${s.stl ?? ""}">
+      <input data-stat="blk" type="number" value="${s.blk ?? ""}">
+    </div>`;
+  });
+  area.innerHTML += html;
+}
+
+window.saveBoxScore = async (gameId) => {
+  const g = schedule[gameId];
+  const awayScore = $("awayScore").value === "" ? "" : Number($("awayScore").value);
+  const homeScore = $("homeScore").value === "" ? "" : Number($("homeScore").value);
+  const players = {};
+  document.querySelectorAll(".statRow").forEach(row=>{
+    const key = row.dataset.key;
+    players[key] = { name: row.dataset.name, team: row.dataset.team, number: row.dataset.number };
+    row.querySelectorAll("input").forEach(input=> players[key][input.dataset.stat] = input.value === "" ? "" : Number(input.value));
+  });
+  const score = `${g.away} ${awayScore} - ${g.home} ${homeScore}`;
+await update(ref(db,"boxScores/"+gameId), {
+  gameId,
+  home:g.home,
+  away:g.away,
+  date:g.date,
+  time:g.time,
+  homeScore,
+  awayScore,
+  players
+});
+
+const fixedPlayers = {};
+
+Object.values(players).forEach((p) => {
+  fixedPlayers[p.name] = {
+    teamName: p.team,
+    number: p.number ?? 0,
+
+    points: p.pts ?? 0,
+    rebounds: p.reb ?? 0,
+    assists: p.ast ?? 0,
+    steals: p.stl ?? 0,
+    blocks: p.blk ?? 0
+  };
+});
+
+await set(ref(db, "games/" + g.date + "/" + gameId), {
+  teamA: g.away,
+  teamB: g.home,
+  scoreA: awayScore,
+  scoreB: homeScore,
+  status: "final",
+  players: fixedPlayers
+});
+
+if(g._path){
+  await update(ref(db,g._path), {
+    score: `${awayScore}-${homeScore}`
+  });
+}
+
+setStatus("Box score saved");
+};
+
+async function createAdmin(){
+  const email = $("adminEmail").value.trim();
+  const password = $("adminPassword").value;
+  const msg = $("adminMsg");
+  msg.textContent = "";
+  if(!email || password.length < 6) return msg.textContent = "Enter an email and password with at least 6 characters.";
+  try{
+    const cred = await createUserWithEmailAndPassword(auth,email,password);
+    await set(ref(db,"admins/"+cred.user.uid), { email, role:"admin", createdAt:Date.now() });
+    msg.textContent = "Admin account created.";
+    $("adminEmail").value=""; $("adminPassword").value=""; updateCounts();
+  }catch(err){ msg.textContent = err.message; }
+}
+
+onAuthStateChanged(auth, (user) => {
+  if (!user) {
+    window.location.href = "admin-login.html";
+    return;
+  }
+
+  const adminRef = ref(db, "admins/" + user.uid);
+
+  onValue(adminRef, (snapshot) => {
+    if (!snapshot.exists()) {
+      alert("You are not an admin.");
+      signOut(auth);
+      window.location.href = "admin-login.html";
+      return;
+    }
+
+    document.body.style.display = "block";
+  });
+});
+function showPage(page){ document.querySelector(`.navBtn[data-page="${page}"]`)?.click(); }
+function findTeamIdByName(name){ return Object.entries(teams).find(([id,t]) => t.name === name)?.[0]; }
+function formatTime(t){ if(!t) return "No time"; const [h,m]=t.split(":"); let hr=Number(h); const ampm=hr>=12?"PM":"AM"; hr=hr%12||12; return `${hr}:${m} ${ampm}`; }
+function escapeQuotes(str){ return String(str).replace(/'/g,"\\'"); }
+function safeKey(str){ return String(str).replace(/[^a-zA-Z0-9]/g,"_"); }
+function parseScore(score){ const nums = String(score||"").match(/\d+/g); return nums && nums.length>=2 ? {away:Number(nums[0]),home:Number(nums[1])} : {}; }
+</script>
+</body>
+</html>
