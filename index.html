@@ -34,74 +34,115 @@ const dbRT = getDatabase(app);
 
 // --- Get TODAY in YYYY-MM-DD ---
 function getToday() {
-  return new Date().toISOString().split("T")[0];
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
 }
+
+function formatTime(time) {
+  if (!time) return "TBD";
+
+  const [hours, minutes] = time.split(":");
+  let h = Number(hours);
+  const ampm = h >= 12 ? "PM" : "AM";
+
+  h = h % 12 || 12;
+
+  return `${h}:${minutes} ${ampm}`;
+}
+
+
 
 // --- Load today’s games from Firebase ---
 async function loadScores() {
   const track = document.getElementById("score-track");
   if (!track) return;
 
-const now = new Date();
-const today = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+  const now = new Date();
+  const today = getToday();
 
   try {
-    // 🔥 Get games + teams
     const [gamesSnap, teamsSnap] = await Promise.all([
       get(ref(dbRT, "games/" + today)),
       get(ref(dbRT, "teams"))
     ]);
 
-    let scoresHTML = "";
-    let hasGames = false;
-
     const teams = teamsSnap.exists() ? teamsSnap.val() : {};
 
-    // Helper to get logo
     function getLogo(teamName) {
       for (const key in teams) {
-        if (teams[key].name === teamName) {
-          return teams[key].logoURL || "";
-        }
+        if (teams[key].name === teamName) return teams[key].logoURL || "";
       }
       return "";
     }
 
+    let scoresHTML = "";
+    let hasGames = false;
+    const added = new Set();
+
+    // 1. Finished/saved box scores
     if (gamesSnap.exists()) {
       gamesSnap.forEach(child => {
         const game = child.val();
-        hasGames = true;
+        const unique = `${game.teamA}-${game.teamB}-${today}`;
 
-        const logoA = getLogo(game.teamA);
-        const logoB = getLogo(game.teamB);
+        if (added.has(unique)) return;
+        added.add(unique);
+        hasGames = true;
 
         scoresHTML += `
           <div class="score-item">
-            
             <div class="team">
-              <img class="team-logo" src="${logoA}" />
+              <img class="team-logo" src="${getLogo(game.teamA)}" />
               ${game.teamA}
             </div>
 
             <div class="score">
-              ${game.scoreA} - ${game.scoreB}
+              ${game.scoreA ?? 0} - ${game.scoreB ?? 0}
             </div>
 
             <div class="team">
-              <img class="team-logo" src="${logoB}" />
+              <img class="team-logo" src="${getLogo(game.teamB)}" />
               ${game.teamB}
             </div>
-
           </div>
         `;
       });
     }
 
+    // 2. Scheduled games for today
+    Object.values(teams).forEach(team => {
+      Object.values(team.schedule || {}).forEach(game => {
+        if (game.date !== today) return;
+
+        const unique = `${game.away}-${game.home}-${game.date}-${game.time || ""}`;
+        if (added.has(unique)) return;
+        added.add(unique);
+        hasGames = true;
+
+        scoresHTML += `
+          <div class="score-item">
+            <div class="team">
+              <img class="team-logo" src="${getLogo(game.away)}" />
+              ${game.away}
+            </div>
+
+            <div class="score">
+              ${game.score ? game.score : formatTime(game.time)}
+            </div>
+
+            <div class="team">
+              <img class="team-logo" src="${getLogo(game.home)}" />
+              ${game.home}
+            </div>
+          </div>
+        `;
+      });
+    });
+
     if (!hasGames) {
       scoresHTML = `<div class="score-item">No games today</div>`;
     }
 
-    // duplicate for smooth loop
     track.innerHTML = scoresHTML + scoresHTML;
 
     startHighlightRotation();
