@@ -74,7 +74,7 @@ body {
     display: flex;
     align-items: center;
 
-    width: 90vw;
+    width: fit-content;
     max-width: 90vw;
 
     overflow: hidden;
@@ -96,10 +96,9 @@ body {
     display: flex;
     align-items: center;
     gap: 40px;
-    white-space: nowrap;
-}
 
-#upcomingGamesTrack.animate {
+    white-space: nowrap;
+
     animation: scrollGames 50s linear infinite;
 }
 
@@ -306,14 +305,15 @@ button {
 }
 
 
+
+
 </style>
 </head>
 <body>
+
 <div class="bg-wrapper"></div>
 <div id="upcomingGamesNav">
-    <div class="tickerViewport">
-        <div id="upcomingGamesTrack"></div>
-    </div>
+    <div id="upcomingGamesTrack"></div>
 </div>
 <div id="todayGamesNav"></div>
 <button id="adminLoginBtn">Admin Login</button>
@@ -425,6 +425,12 @@ function formatTime(time) {
     });
 }
 
+
+function getScheduleArray(schedule){
+  if (!schedule) return [];
+  return Array.isArray(schedule) ? schedule : Object.values(schedule);
+}
+
 // Load teams from Firebase
 async function loadTeams(){
     const snapshot = await db.ref('teams').get();
@@ -507,7 +513,7 @@ function buildScheduleUI() {
 
     // Collect all unique games
     for (const key in teams) {
-        const schedule = teams[key].schedule || [];
+        const schedule = getScheduleArray(teams[key].schedule);
 
         schedule.forEach(game => {
 
@@ -579,7 +585,7 @@ function showTeamSchedule(teamId){
     const scheduleContent = document.getElementById('scheduleContent');
 
     // make a COPY so we don't touch Firebase data
-    const schedule = [...(teams[teamId].schedule || [])];
+    const schedule = [...getScheduleArray(teams[teamId].schedule)];;
 
     // sort by date + time
     schedule.sort((a, b) => {
@@ -637,7 +643,7 @@ function displayTodayGames() {
     const addedGames = new Set(); // to track displayed games
 
     for (const key in teams) {
-        const gamesToday = teams[key].schedule.filter(g => g.date === todayStr);
+        const gamesToday = getScheduleArray(teams[key].schedule).filter(g => g.date === todayStr);
         gamesToday.forEach(game => {
             // Create a unique identifier for the game
             const gameId = [game.home, game.away, game.date].sort().join('|');
@@ -753,109 +759,99 @@ addTeamBtn.addEventListener('click', () => {
 });
 
 function displayUpcomingGames() {
-
     const track = document.getElementById('upcomingGamesTrack');
-    track.classList.remove("animate");
-track.innerHTML = "";
-  
+    track.innerHTML = '';
 
-    const allGames = [];
+    const now = new Date();
+    const todayStr =
+        `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+
+    const todayGames = [];
+    const futureGames = [];
     const addedGames = new Set();
 
-    for (const key in teams) {
-        const schedule = teams[key].schedule || [];
+    Object.values(teams).forEach(team => {
+        const schedule = team.schedule || {};
 
-        schedule.forEach(game => {
+        Object.values(schedule).forEach(game => {
+            if (!game || !game.date) return;
 
-            const gameId = `${game.home}-${game.away}-${game.date}`;
+            const home = game.home || game.teamB;
+            const away = game.away || game.teamA;
 
-            if (addedGames.has(gameId)) return;
-            addedGames.add(gameId);
+            if (!home || !away) return;
 
-            const gameDate = new Date(
-                `${game.date}T${game.time || '00:00'}`
-            );
+            const uniqueKey = `${game.date}-${game.time || ''}-${home}-${away}`;
 
-            if (gameDate >= new Date()) {
-                allGames.push(game);
+            if (addedGames.has(uniqueKey)) return;
+            addedGames.add(uniqueKey);
+
+            const fixedGame = {
+                ...game,
+                home,
+                away
+            };
+
+            if (game.date === todayStr) {
+                todayGames.push(fixedGame);
+            } else if (game.date > todayStr) {
+                futureGames.push(fixedGame);
             }
         });
+    });
+
+    let gamesToShow = todayGames;
+    let labelText = "🏀 TODAY'S GAMES";
+
+    if (gamesToShow.length === 0) {
+        futureGames.sort((a,b)=>
+            `${a.date} ${a.time || ''}`.localeCompare(`${b.date} ${b.time || ''}`)
+        );
+
+        if (futureGames.length > 0) {
+            const nextDate = futureGames[0].date;
+            gamesToShow = futureGames.filter(g => g.date === nextDate);
+            labelText = "🏀 NEXT GAMES";
+        }
     }
 
-    if (!allGames.length) {
-        track.innerHTML = '<div class="gameTickerItem">No Upcoming Games</div>';
+    if (!gamesToShow.length) {
+        track.innerHTML = `<div class="gameTickerItem">No Games Scheduled</div>`;
         return;
     }
 
-    allGames.sort((a,b)=>
-        new Date(`${a.date}T${a.time || '00:00'}`) -
-        new Date(`${b.date}T${b.time || '00:00'}`)
-    );
+    track.innerHTML = `
+        <div class="gameTickerItem">
+            <strong>${labelText}</strong>
+        </div>
+    `;
 
-    const nextDate = allGames[0].date;
+    gamesToShow.forEach(game => {
+        const homeTeam = Object.values(teams).find(t => t.name === game.home);
+        const awayTeam = Object.values(teams).find(t => t.name === game.away);
 
-    const nextDayGames = allGames.filter(
-        g => g.date === nextDate
-    );
-    const label = document.createElement('div');
-label.className = 'gameTickerItem';
-label.innerHTML = '🏀 <strong>NEXT GAMES</strong>';
-track.appendChild(label);
+        track.innerHTML += `
+            <div class="gameTickerItem">
+                <img src="${awayTeam?.logoURL || 'logo.png'}">
+                ${game.away}
 
-    nextDayGames.forEach(game => {
+                <span style="opacity:.6">vs</span>
 
-        const homeTeam = Object.values(teams)
-            .find(t => t.name === game.home);
+                <img src="${homeTeam?.logoURL || 'logo.png'}">
+                ${game.home}
 
-        const awayTeam = Object.values(teams)
-            .find(t => t.name === game.away);
+                <span style="color:#1da1f2;font-weight:700;">•</span>
 
-        const item = document.createElement('div');
-        item.className = 'gameTickerItem';
+                ${formatDate(game.date)}
 
-      item.innerHTML = `
-    <img src="${homeTeam.logoURL}">
-    ${homeTeam.name}
+                <span style="opacity:.7">|</span>
 
-    <span style="opacity:.6">vs</span>
-
-    <img src="${awayTeam.logoURL}">
-    ${awayTeam.name}
-
-    <span style="color:#1da1f2;font-weight:700;">•</span>
-
-    ${formatDate(game.date)}
-
-    <span style="opacity:.7">|</span>
-
-    ${formatTime(game.time)}
-`;
-
-        track.appendChild(item);
+                ${formatTime(game.time)}
+            </div>
+        `;
     });
-    const separator = document.createElement('div');
 
-separator.innerHTML = `
-    <span style="
-        font-size:18px;
-        opacity:.5;
-        padding:0 15px;
-    ">
-        🏀
-    </span>
-`;
-
-track.appendChild(separator);
-
-    const originalHTML = track.innerHTML;
-track.innerHTML += originalHTML;
-
-// wait until browser finishes layout
-requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-        track.classList.add("animate");
-    });
-});
+    track.innerHTML += track.innerHTML;
 }
 
 
