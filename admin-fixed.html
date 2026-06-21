@@ -40,6 +40,60 @@ button,input,select,textarea{font-family:inherit}
 .gameCard{background:rgba(255,255,255,.045);border:1px solid var(--line);border-radius:18px;padding:14px;margin-bottom:12px}.gameTop{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.gameTitle{font-weight:900;font-size:18px}.gameSub{color:var(--muted);font-size:13px;margin-top:4px}.scoreBox{display:flex;gap:8px;align-items:center;margin-top:10px}.scoreBox input{width:80px;background:#0b0b0b;border:1px solid var(--line);color:white;border-radius:12px;padding:10px;text-align:center}.statsGrid{display:grid;grid-template-columns:1.5fr repeat(5,80px);gap:8px;align-items:center;margin-bottom:8px}.statsGrid.header{color:var(--muted);font-size:12px;font-weight:800}.statsGrid input{width:100%;background:#0b0b0b;border:1px solid var(--line);color:#fff;border-radius:10px;padding:9px;text-align:center}.notice{padding:12px 14px;border-radius:14px;background:rgba(29,161,242,.12);border:1px solid rgba(29,161,242,.25);color:#dcefff;margin-bottom:14px}.empty{color:var(--muted);padding:18px;text-align:center;border:1px dashed var(--line);border-radius:18px}.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.72);backdrop-filter:blur(8px);z-index:100}.modalContent{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:92%;max-width:520px;background:#111;border:1px solid var(--line);border-radius:22px;padding:22px}.close{position:absolute;right:18px;top:12px;font-size:28px;cursor:pointer;color:#fff}.modalContent h2{margin-top:0}.muted{color:var(--muted)}
 @media(max-width:900px){.sidebar{transform:translateX(-100%);transition:.2s}.sidebar.open{transform:translateX(0)}.main{margin-left:0;width:100%;padding:16px}.mobileMenu{display:block}.grid{grid-template-columns:repeat(2,1fr)}.formGrid,.formGrid.two{grid-template-columns:1fr}.split{grid-template-columns:1fr}.topbar h1{font-size:24px}.statsGrid{grid-template-columns:1fr repeat(5,54px);font-size:12px}.statsGrid input{padding:8px 4px}}
 @media(max-width:520px){.grid{grid-template-columns:1fr}.sectionHead,.topbar,.gameTop{flex-direction:column;align-items:flex-start}.playerRow{grid-template-columns:50px 1fr}.playerRow .actions{grid-column:1/-1}.numBadge{width:42px;height:42px}}
+@media(max-width:900px){
+
+  .sidebar{
+    z-index:99999;
+    pointer-events:none;
+  }
+
+  .sidebar.open{
+    pointer-events:auto;
+  }
+
+  .main{
+    position:relative;
+    z-index:1;
+  }
+
+  button,
+  .btn,
+  select,
+  input{
+    min-height:48px;
+    touch-action:manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .actions{
+    width:100%;
+    display:flex;
+    gap:10px;
+  }
+
+  .actions .btn{
+    flex:1;
+    min-width:85px;
+    position:relative;
+    z-index:20;
+  }
+
+  .playerRow,
+  .gameCard,
+  .adminTable tr,
+  .panel{
+    position:relative;
+    z-index:2;
+  }
+
+  .tableWrap{
+    overflow-x:visible;
+  }
+
+  .adminTable{
+    min-width:0;
+  }
+}
 </style>
 </head>
 <body>
@@ -291,19 +345,56 @@ function renderTeamList(){
 }
 
 function renderPlayers(){
-  const list = $("playersList"); list.innerHTML = "";
-  if(!selectedTeamId || !teams[selectedTeamId]){ list.innerHTML = `<div class="empty">Select a team first.</div>`; return; }
+  const list = $("playersList");
+  list.innerHTML = "";
+
+  if(!selectedTeamId || !teams[selectedTeamId]){
+    list.innerHTML = `<div class="empty">Select a team first.</div>`;
+    return;
+  }
+
   const team = teams[selectedTeamId];
   $("selectedTeamTitle").textContent = `${team.name || selectedTeamId} Players`;
-  const players = Object.entries(team.players || {}).map(([name,data])=>({name,...data}));
+
+  const players = Object.entries(team.players || {}).map(([name,data])=>({
+    name,
+    ...data
+  }));
+
   players.sort((a,b)=>Number(a.number ?? 999)-Number(b.number ?? 999));
-  if(!players.length){ list.innerHTML = `<div class="empty">No players on this roster yet.</div>`; return; }
+
+  if(!players.length){
+    list.innerHTML = `<div class="empty">No players on this roster yet.</div>`;
+    return;
+  }
+
   players.forEach(p=>{
-    list.innerHTML += `<div class="playerRow">
+    const row = document.createElement("div");
+    row.className = "playerRow";
+
+    row.innerHTML = `
       <div class="numBadge">${p.number ?? ""}</div>
-      <div><div class="playerName">${p.name}</div><div class="playerMeta">Jersey #${p.number ?? ""}</div></div>
-      <div class="actions"><button class="btn small dark" onclick="editPlayer('${escapeQuotes(p.name)}')">Edit</button><button class="btn small danger" onclick="deletePlayer('${escapeQuotes(p.name)}')">Delete</button></div>
-    </div>`;
+
+      <div>
+        <div class="playerName">${p.name}</div>
+        <div class="playerMeta">Jersey #${p.number ?? ""}</div>
+      </div>
+
+      <div class="actions">
+        <button type="button" class="btn small dark editPlayerBtn">Edit</button>
+        <button type="button" class="btn small danger deletePlayerBtn">Delete</button>
+      </div>
+    `;
+
+    row.querySelector(".editPlayerBtn").addEventListener("click", () => {
+      editPlayer(p.name);
+    });
+
+    row.querySelector(".deletePlayerBtn").addEventListener("click", () => {
+      deletePlayer(p.name);
+    });
+
+    list.appendChild(row);
   });
 }
 
