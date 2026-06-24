@@ -569,6 +569,13 @@ body {
         font-size: 0.95rem;
     }
 
+    .teamRecord{
+    color:#ffc107;
+    font-size:.8rem;
+    font-weight:700;
+    margin-left:6px;
+}
+
     .teamScore {
         font-size: 1.6rem;
     }
@@ -791,10 +798,7 @@ body {
 </div>
 
 <!-- Top Scorers -->
-<div id="topScorers">
-  <h2>Top 10 Scorers</h2>
-  <ul id="top10List"></ul>
-</div>
+
 <!-- BOX SCORE POPUP -->
 <div id="boxScoreModal" class="boxScoreModal">
     <div class="boxScoreContent">
@@ -1251,6 +1255,48 @@ document.querySelectorAll("#playerSelectionA input, #playerSelectionB input")
 
 });
 
+function calculateRecords(allGames) {
+
+    const records = {};
+
+    allGames.forEach(({ game }) => {
+
+        const teamA = game.teamA;
+        const teamB = game.teamB;
+
+        if (!records[teamA]) {
+            records[teamA] = { wins: 0, losses: 0 };
+        }
+
+        if (!records[teamB]) {
+            records[teamB] = { wins: 0, losses: 0 };
+        }
+
+        const scoreA = Number(game.scoreA || 0);
+        const scoreB = Number(game.scoreB || 0);
+
+        // Ignore unplayed games
+        if (
+            game.status === "scheduled" ||
+            (scoreA === 0 && scoreB === 0)
+        ) {
+            return;
+        }
+
+        if (scoreA > scoreB) {
+            records[teamA].wins++;
+            records[teamB].losses++;
+        }
+        else if (scoreB > scoreA) {
+            records[teamB].wins++;
+            records[teamA].losses++;
+        }
+
+    });
+
+    return records;
+}
+
 async function updateGamesAndTopScorers() {
     const gamesContainer = document.getElementById('gamesContainer');
     const top10List = document.getElementById('top10List');
@@ -1278,6 +1324,7 @@ async function updateGamesAndTopScorers() {
 
         // Sort games by date descending
         allGames.sort((a, b) => new Date(b.dateKey) - new Date(a.dateKey));
+        const teamRecords = calculateRecords(allGames);
 
         const today = new Date();
         const todayKey = today.toISOString().split('T')[0];
@@ -1345,21 +1392,45 @@ async function updateGamesAndTopScorers() {
             left.appendChild(headBar);
 
             // Team rows helper
-            const createTeamRow = (teamName, teamLogoURL, score) => {
-                const row = document.createElement('div'); row.className = 'teamRow';
-                const info = document.createElement('div'); info.className = 'teamInfo';
-                const logo = document.createElement('div'); 
-                logo.className = 'teamLogo';
-                logo.style.backgroundImage = `url(${teamLogoURL})`;
-                const nameDiv = document.createElement('div'); nameDiv.className = 'teamName';
-                nameDiv.textContent = teamName;
-                info.appendChild(logo); info.appendChild(nameDiv);
-                const scoreElem = document.createElement('div'); scoreElem.className = 'teamScore';
-                scoreElem.textContent = score;
-                row.appendChild(info); row.appendChild(scoreElem);
-                return row;
-            };
+           const createTeamRow = (teamName, teamLogoURL, score) => {
 
+    const record = teamRecords[teamName] || {
+        wins: 0,
+        losses: 0
+    };
+
+    const row = document.createElement('div');
+    row.className = 'teamRow';
+
+    const info = document.createElement('div');
+    info.className = 'teamInfo';
+
+    const logo = document.createElement('div');
+    logo.className = 'teamLogo';
+    logo.style.backgroundImage = `url(${teamLogoURL})`;
+
+    const nameDiv = document.createElement('div');
+    nameDiv.className = 'teamName';
+
+    nameDiv.innerHTML = `
+        ${teamName}
+        <span class="teamRecord">
+            (${record.wins}-${record.losses})
+        </span>
+    `;
+
+    info.appendChild(logo);
+    info.appendChild(nameDiv);
+
+    const scoreElem = document.createElement('div');
+    scoreElem.className = 'teamScore';
+    scoreElem.textContent = score;
+
+    row.appendChild(info);
+    row.appendChild(scoreElem);
+
+    return row;
+};
             left.appendChild(createTeamRow(game.teamA, game.teamALogo, game.scoreA));
             left.appendChild(createTeamRow(game.teamB, game.teamBLogo, game.scoreB));
 
