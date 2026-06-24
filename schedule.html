@@ -63,64 +63,7 @@ body {
   text-align: center;
 }
 
-#upcomingGamesNav {
-    position: fixed;
-    top: 15px;
-    left: 50%;
-    transform: translateX(-50%);
 
-    z-index: 9999;
-
-    display: flex;
-    align-items: center;
-
-    width: fit-content;
-    max-width: 90vw;
-
-    overflow: hidden;
-
-    background: rgba(15, 15, 15, 0.85);
-    backdrop-filter: blur(12px);
-
-    border: 1px solid rgba(255,255,255,.15);
-    border-radius: 999px;
-
-    padding: 10px 20px;
-
-    box-shadow:
-        0 8px 25px rgba(0,0,0,.35),
-        inset 0 1px 0 rgba(255,255,255,.08);
-}
-
-#upcomingGamesTrack {
-    display: flex;
-    align-items: center;
-    gap: 40px;
-    white-space: nowrap;
-
-    width: max-content;
-
-    will-change: transform;
-
-    animation: tickerScroll 60s linear infinite;
-}
-
-@keyframes tickerScroll {
-    from {
-        transform: translate3d(0,0,0);
-    }
-    to {
-        transform: translate3d(-50%,0,0);
-    }
-}
-
-@media (max-width:600px){
-
-    #upcomingGamesTrack{
-        animation: tickerScroll 90s linear infinite;
-    }
-
-}
 
 .gameTickerItem {
     display: flex;
@@ -323,10 +266,10 @@ button {
 <body>
 
 <div class="bg-wrapper"></div>
-<div id="upcomingGamesNav">
+
     <div id="upcomingGamesTrack"></div>
 </div>
-<div id="todayGamesNav"></div>
+
 <button id="adminLoginBtn">Admin Login</button>
 
 <div id="loginModal">
@@ -646,44 +589,7 @@ function displayTeams(){
     });
 }
 
-// 3. Display Today Games (navbar)
-function displayTodayGames() {
-    const nav = document.getElementById('todayGamesNav');
-    nav.innerHTML = '';
-    const todayStr = new Date().toISOString().slice(0,10);
-    const addedGames = new Set(); // to track displayed games
 
-    for (const key in teams) {
-        const gamesToday = getScheduleArray(teams[key].schedule).filter(g => g.date === todayStr);
-        gamesToday.forEach(game => {
-            // Create a unique identifier for the game
-            const gameId = [game.home, game.away, game.date].sort().join('|');
-            if (addedGames.has(gameId)) return; // skip if already added
-            addedGames.add(gameId);
-
-            const btn = document.createElement('button'); 
-            btn.className = 'todayGameBtn';
-
-            const homeTeam = Object.values(teams).find(t => t.name === game.home);
-            const awayTeam = Object.values(teams).find(t => t.name === game.away);
-
-           btn.innerHTML = `
-    <img src="${homeTeam.logoURL}">
-    ${homeTeam.name}
-    vs
-    <img src="${awayTeam.logoURL}">
-    ${awayTeam.name}
-    <br>
-    <small>${formatTime(game.time)}</small>
-`;
-            
-            // Scroll to the home team schedule when clicked
-            btn.onclick = () => showTeamSchedule(Object.keys(teams).find(k => teams[k].name === game.home));
-
-            nav.appendChild(btn);
-        });
-    }
-}
 
 
 // 4. Save Schedule
@@ -769,103 +675,6 @@ addTeamBtn.addEventListener('click', () => {
     }).catch(err => alert('Error adding team: ' + err.message));
 });
 
-function displayUpcomingGames() {
-    const track = document.getElementById('upcomingGamesTrack');
-    track.innerHTML = '';
-
-    const now = new Date();
-    const todayStr =
-        `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
-
-    const todayGames = [];
-    const futureGames = [];
-    const addedGames = new Set();
-
-    Object.values(teams).forEach(team => {
-        const schedule = team.schedule || {};
-
-        Object.values(schedule).forEach(game => {
-            if (!game || !game.date) return;
-
-            const home = game.home || game.teamB;
-            const away = game.away || game.teamA;
-
-            if (!home || !away) return;
-
-            const uniqueKey = `${game.date}-${game.time || ''}-${home}-${away}`;
-
-            if (addedGames.has(uniqueKey)) return;
-            addedGames.add(uniqueKey);
-
-            const fixedGame = {
-                ...game,
-                home,
-                away
-            };
-
-            if (game.date === todayStr) {
-                todayGames.push(fixedGame);
-            } else if (game.date > todayStr) {
-                futureGames.push(fixedGame);
-            }
-        });
-    });
-
-    let gamesToShow = todayGames;
-    let labelText = "🏀 TODAY'S GAMES";
-
-    if (gamesToShow.length === 0) {
-        futureGames.sort((a,b)=>
-            `${a.date} ${a.time || ''}`.localeCompare(`${b.date} ${b.time || ''}`)
-        );
-
-        if (futureGames.length > 0) {
-            const nextDate = futureGames[0].date;
-            gamesToShow = futureGames.filter(g => g.date === nextDate);
-            labelText = "🏀 NEXT GAMES";
-        }
-    }
-
-    if (!gamesToShow.length) {
-        track.innerHTML = `<div class="gameTickerItem">No Games Scheduled</div>`;
-        return;
-    }
-
-    track.innerHTML = `
-        <div class="gameTickerItem">
-            <strong>${labelText}</strong>
-        </div>
-    `;
-
-    gamesToShow.forEach(game => {
-        const homeTeam = Object.values(teams).find(t => t.name === game.home);
-        const awayTeam = Object.values(teams).find(t => t.name === game.away);
-
-        track.innerHTML += `
-            <div class="gameTickerItem">
-                <img src="${awayTeam?.logoURL || 'logo.png'}">
-                ${game.away}
-
-                <span style="opacity:.6">vs</span>
-
-                <img src="${homeTeam?.logoURL || 'logo.png'}">
-                ${game.home}
-
-                <span style="color:#1da1f2;font-weight:700;">•</span>
-
-                ${formatDate(game.date)}
-
-                <span style="opacity:.7">|</span>
-
-                ${formatTime(game.time)}
-            </div>
-        `;
-    });
-
-    const original = track.innerHTML;
-
-track.innerHTML = original + original + original;
-}
 
 
 
