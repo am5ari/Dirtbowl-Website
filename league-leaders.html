@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Dirtbowl League Leaders</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+<style>
+:root{
+  --dark: rgba(8,8,10,.88);
+  --card: rgba(15,15,18,.92);
+  --line: rgba(255,255,255,.12);
+  --gold: #ffffff;
+  --blue: #2948ff;
+  --text: #fff;
+  --muted: rgba(255,255,255,.68);
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;font-family:Poppins,sans-serif;color:var(--text);overflow-x:hidden;}
+body{background:url('dirtbowl.jpg') center/cover fixed no-repeat;padding-top:92px;}
+body::before{content:"";position:fixed;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.72),rgba(0,0,0,.42),rgba(0,0,0,.82));z-index:-1;}
+.site-nav{position:fixed;top:14px;left:50%;transform:translateX(-50%);width:min(1120px,calc(100% - 24px));z-index:9999;background:var(--dark);border:1px solid var(--line);border-radius:999px;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:0 12px 34px rgba(0,0,0,.45);}
+.nav-inner{height:62px;display:flex;align-items:center;justify-content:space-between;gap:18px;padding:0 16px 0 22px;}
+.brand{display:flex;align-items:center;gap:10px;color:#fff;text-decoration:none;font-weight:800;letter-spacing:.3px;white-space:nowrap;}
+.brand-badge{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,var(--blue),#06115c);box-shadow:0 0 18px rgba(41,72,255,.45);}
+.nav-links{display:flex;align-items:center;gap:6px;list-style:none;margin:0;padding:0;}
+.nav-links a{display:flex;align-items:center;gap:8px;color:#fff;text-decoration:none;font-weight:700;font-size:.92rem;padding:10px 13px;border-radius:999px;opacity:.9;transition:.2s ease;}
+.nav-links a:hover,.nav-links a.active{background:rgba(255,255,255,.12);opacity:1;}
+.nav-cta{background:var(--gold)!important;color:#111!important;opacity:1!important;}
+.nav-toggle{display:none;background:rgba(255,255,255,.10);border:1px solid var(--line);color:#fff;border-radius:999px;width:44px;height:44px;font-size:1.15rem;cursor:pointer;}
+.page-wrap{width:min(1180px,calc(100% - 24px));margin:0 auto 50px;}
+.hero{text-align:center;padding:24px 0 22px;}
+.eyebrow{display:inline-flex;gap:8px;align-items:center;padding:8px 14px;border:1px solid var(--line);background:rgba(255,255,255,.08);border-radius:999px;color:var(--gold);font-weight:800;font-size:.82rem;text-transform:uppercase;letter-spacing:.7px;}
+h1{font-size:clamp(2.1rem,6vw,4.5rem);line-height:1;margin:18px 0 10px;font-weight:800;text-shadow:0 8px 24px rgba(0,0,0,.65);}
+.sub{margin:0 auto;color:var(--muted);max-width:720px;font-size:1rem;}
+.tabs{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin:24px 0;}
+.tab-btn{border:1px solid var(--line);background:rgba(255,255,255,.09);color:white;border-radius:999px;padding:11px 16px;font-weight:800;cursor:pointer;}
+.tab-btn.active{background:var(--gold);color:#111;border-color:transparent;}
+.grid{display:grid;grid-template-columns:1.1fr .9fr;gap:22px;align-items:start;}
+.card{background:var(--card);border:1px solid var(--line);border-radius:24px;padding:20px;box-shadow:0 16px 40px rgba(0,0,0,.48);overflow:hidden;}
+.card h2{display:flex;align-items:center;gap:10px;margin:0 0 15px;color:var(--gold);font-size:1.2rem;}
+.table-wrap{overflow-x:auto;padding-bottom:4px;}
+.table{min-width:520px;}
+.row{display:grid;grid-template-columns:46px 1fr 58px 58px 76px;gap:10px;align-items:center;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.10);}
+.row:last-child,.leader-row:last-child{border-bottom:none;}
+.header{color:var(--muted);font-size:.76rem;font-weight:800;text-transform:uppercase;letter-spacing:.5px;}
+.rank{color:var(--gold);font-weight:900;}
+.team-cell{display:flex;align-items:center;gap:10px;min-width:0;}
+.logo{width:34px;height:34px;border-radius:50%;background:#222 center/cover no-repeat;flex:0 0 auto;}
+.name{font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.muted{font-size:.78rem;color:var(--muted);margin-top:2px;}
+.stat{text-align:center;font-weight:800;}
+.leader-row{display:grid;grid-template-columns:42px 1fr 82px;gap:10px;align-items:center;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.10);}
+.empty{text-align:center;color:var(--muted);padding:24px;}
+.hidden-section{display:none;}
+.loading{text-align:center;color:var(--muted);padding:30px;}
+@media(max-width:860px){body{padding-top:82px;background-attachment:scroll;}.site-nav{top:10px;border-radius:24px;}.nav-inner{height:58px;padding:0 10px 0 14px;}.brand span:last-child{font-size:.95rem}.nav-toggle{display:block}.nav-links{position:absolute;top:68px;left:0;right:0;display:none;flex-direction:column;align-items:stretch;background:rgba(8,8,10,.96);border:1px solid var(--line);border-radius:22px;padding:10px;box-shadow:0 16px 40px rgba(0,0,0,.55);}.site-nav.open .nav-links{display:flex}.nav-links a{justify-content:center;padding:13px}.grid{grid-template-columns:1fr}.card{padding:16px}.table{min-width:440px}.row{grid-template-columns:34px 1fr 44px 44px 58px;font-size:.88rem}.leader-row{grid-template-columns:34px 1fr 62px;font-size:.9rem}.logo{width:29px;height:29px}}
+@media(max-width:480px){.page-wrap{width:calc(100% - 18px)}.hero{padding-top:14px}.tabs{position:sticky;top:78px;z-index:20;background:rgba(0,0,0,.58);backdrop-filter:blur(10px);border:1px solid var(--line);border-radius:999px;padding:7px}.tab-btn{flex:1;padding:10px 8px;font-size:.78rem}.card{border-radius:20px}.card h2{font-size:1.05rem}.table{min-width:390px}.row{gap:6px}.team-cell{gap:7px}.name{font-size:.86rem}.muted{font-size:.7rem}}
+</style>
+</head>
+<body>
+<nav class="site-nav" id="siteNav">
+  <div class="nav-inner">
+    <a href="index.html" class="brand"><span class="brand-badge"><i class="fa-solid fa-basketball"></i></span><span>Dirtbowl</span></a>
+    <button class="nav-toggle" id="navToggle" aria-label="Open menu"><i class="fa-solid fa-bars"></i></button>
+    <ul class="nav-links">
+      <li><a href="index.html"><i class="fa-solid fa-house"></i>Home</a></li>
+      <li><a href="schedule.html"><i class="fa-solid fa-calendar-days"></i>Schedule</a></li>
+      <li><a href="stats.html"><i class="fa-solid fa-table-list"></i>Box Scores</a></li>
+      <li><a href="Rosters.html"><i class="fa-solid fa-users"></i>Rosters</a></li>
+      
+    </ul>
+  </div>
+</nav>
+<main class="page-wrap">
+  <section class="hero">
+    <div class="eyebrow"><i class="fa-solid fa-trophy"></i> Dirtbowl Central</div>
+    <h1>Standings & Leaders</h1>
+    
+  </section>
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="all">All</button>
+    <button class="tab-btn" data-tab="standings">Standings</button>
+    <button class="tab-btn" data-tab="leaders">Points Leaders</button>
+  </div>
+  <section class="grid">
+    <div class="card" id="standingsCard">
+      <h2><i class="fa-solid fa-list-ol"></i> Team Standings</h2>
+      <div class="table-wrap"><div id="standings" class="table loading">Loading standings...</div></div>
+    </div>
+    <div class="card" id="leadersCard">
+      <h2><i class="fa-solid fa-fire"></i> Points Leaders</h2>
+      <div id="pointsLeaders" class="loading">Loading leaders...</div>
+    </div>
+  </section>
+</main>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyByXfVkKxz166ghpEVD4xuaQtLDpeNCzUE",
+  authDomain: "dirtbowl-page.firebaseapp.com",
+  databaseURL: "https://dirtbowl-page-default-rtdb.firebaseio.com",
+  projectId: "dirtbowl-page",
+  storageBucket: "dirtbowl-page.firebasestorage.app",
+  messagingSenderId: "948778986865",
+  appId: "1:948778986865:web:0f66d810d77310ec459ad0",
+  measurementId: "G-0HV8M44Z3J"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+const nav = document.getElementById('siteNav');
+document.getElementById('navToggle').addEventListener('click',()=>nav.classList.toggle('open'));
+document.querySelectorAll('.nav-links a').forEach(a=>a.addEventListener('click',()=>nav.classList.remove('open')));
+document.querySelectorAll('.tab-btn').forEach(btn=>btn.addEventListener('click',()=>{
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  const tab=btn.dataset.tab;
+  document.getElementById('standingsCard').classList.toggle('hidden-section',tab==='leaders');
+  document.getElementById('leadersCard').classList.toggle('hidden-section',tab==='standings');
+}));
+function flattenGames(gamesObj){const games=[];Object.values(gamesObj||{}).forEach(dateGroup=>{Object.values(dateGroup||{}).forEach(game=>games.push(game));});return games;}
+function calculateStandings(teams,games){
+  const standings={};
+  Object.values(teams||{}).forEach(team=>{standings[team.name]={name:team.name,logoURL:team.logoURL||'',wins:0,losses:0,gamesPlayed:0,pointsFor:0,pointsAgainst:0};});
+  games.forEach(game=>{
+    const a=game.teamA,b=game.teamB;if(!a||!b)return;
+    if(!standings[a])standings[a]={name:a,logoURL:'',wins:0,losses:0,gamesPlayed:0,pointsFor:0,pointsAgainst:0};
+    if(!standings[b])standings[b]={name:b,logoURL:'',wins:0,losses:0,gamesPlayed:0,pointsFor:0,pointsAgainst:0};
+    const scoreA=Number(game.scoreA||0),scoreB=Number(game.scoreB||0);
+    if(game.status==='scheduled'||(scoreA===0&&scoreB===0)||scoreA===scoreB)return;
+    standings[a].gamesPlayed++;standings[b].gamesPlayed++;
+    standings[a].pointsFor+=scoreA;standings[a].pointsAgainst+=scoreB;
+    standings[b].pointsFor+=scoreB;standings[b].pointsAgainst+=scoreA;
+    if(scoreA>scoreB){standings[a].wins++;standings[b].losses++;}else{standings[b].wins++;standings[a].losses++;}
+  });
+  return Object.values(standings).sort((a,b)=>{
+    const pctA=a.gamesPlayed?a.wins/a.gamesPlayed:0,pctB=b.gamesPlayed?b.wins/b.gamesPlayed:0;
+    if(pctB!==pctA)return pctB-pctA;if(b.wins!==a.wins)return b.wins-a.wins;
+    return (b.pointsFor-b.pointsAgainst)-(a.pointsFor-a.pointsAgainst);
+  });
+}
+function calculatePointLeaders(games){
+  const players={};
+  games.forEach(game=>Object.entries(game.players||{}).forEach(([name,p])=>{
+    const pts=Number(p.points||0); if(pts<=0)return;
+    if(!players[name])players[name]={name,teamName:p.teamName||'',points:0,gamesPlayed:0};
+    players[name].points+=pts;players[name].gamesPlayed++;
+  }));
+  return Object.values(players).sort((a,b)=>b.points-a.points).slice(0,20);
+}
+function pctText(team){return team.gamesPlayed?(team.wins/team.gamesPlayed).toFixed(3).replace('0.','.'):'.000';}
+function renderStandings(teams){
+  const el=document.getElementById('standings');
+  el.className='table';
+  el.innerHTML=`<div class="row header"><div>#</div><div>Team</div><div class="stat">W</div><div class="stat">L</div><div class="stat">PCT</div></div>`;
+  if(!teams.length){el.innerHTML+='<div class="empty">No teams found</div>';return;}
+  teams.forEach((t,i)=>{el.innerHTML+=`<div class="row"><div class="rank">${i+1}</div><div class="team-cell"><div class="logo" style="background-image:url('${t.logoURL||'https://via.placeholder.com/40'}')"></div><div><div class="name">${t.name}</div><div class="muted">PF ${t.pointsFor} · PA ${t.pointsAgainst}</div></div></div><div class="stat">${t.wins}</div><div class="stat">${t.losses}</div><div class="stat">${pctText(t)}</div></div>`;});
+}
+function renderLeaders(leaders){
+  const el=document.getElementById('pointsLeaders');el.className='';
+  el.innerHTML=`<div class="leader-row header"><div>#</div><div>Player</div><div class="stat">PTS</div></div>`;
+  if(!leaders.length){el.innerHTML+='<div class="empty">No scoring stats found</div>';return;}
+  leaders.forEach((p,i)=>{const avg=(p.points/p.gamesPlayed).toFixed(1);el.innerHTML+=`<div class="leader-row"><div class="rank">${i+1}</div><div><div class="name">${p.name}</div><div class="muted">${p.teamName||'Team'} · ${avg} PPG</div></div><div class="stat">${p.points}</div></div>`;});
+}
+async function loadPage(){
+  const [teamsSnap,gamesSnap]=await Promise.all([db.ref('teams').once('value'),db.ref('games').once('value')]);
+  const teams=teamsSnap.val()||{},games=flattenGames(gamesSnap.val()||{});
+  renderStandings(calculateStandings(teams,games));
+  renderLeaders(calculatePointLeaders(games));
+}
+db.ref('teams').on('value',loadPage);db.ref('games').on('value',loadPage);
+</script>
+</body>
+</html>
