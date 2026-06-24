@@ -23,14 +23,17 @@
    GLOBAL
 ======================================================= */
 html, body {
-  height: 100%;
   margin: 0;
+  padding: 0;
   font-family: 'Poppins', sans-serif;
-  background: url('dirtbowl.jpg');
-  background-size: cover;
+  background: url(dirtbowl.jpg) center center no-repeat;
   color: var(--white);
-  overflow-x: hidden;
-  scroll-behavior: smooth;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-size: cover;
+  background-attachment: fixed;
 }
 
 /* =======================================================
@@ -229,84 +232,9 @@ textarea { min-height: 88px; resize: vertical; }
   cursor: pointer;
 }
 
-/* =======================================================
-   RECENT SCORES NAVBAR (FULLY FIXED)
-======================================================= */
-#recentScoreNav {
-  position: fixed;
-  top: 10px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 5000;
-  background: rgba(26, 26, 26, 0.85);
-  padding: 10px 20px;
-  border-radius: 20px;
-  backdrop-filter: blur(10px);
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  white-space: nowrap;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-}
 
-/* Label */
-#recentLabel {
-  font-weight: 700;
-  color: #fff;
-  text-transform: uppercase;
-  flex-shrink: 0;
-}
 
-/* Scrollable section */
-.recentScoreScroller {
-  overflow-x: auto;
-  overflow-y: hidden;
-  display: flex;
-  flex-direction: row;
-  gap: 10px;
-  scrollbar-width: none;
 
-  max-width: 70vw;        /* this gives it room to scroll */
-  -webkit-overflow-scrolling: touch;  /* iOS smooth scrolling */
-}
-
-/* Score track inside the scroller */
-#recentScoreTrack {
-  display: flex;
-  flex-direction: row;
-  gap: 10px;
-  flex-wrap: nowrap;
-}
-
-/* Score pill */
-.recentScoreItem {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
-  background: #181818;
-  border-radius: 40px;
-  color: #fff;
-  font-weight: 600;
-  cursor: pointer;
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-
-/* Optional scroll arrows */
-.scrollBtn {
-  background: rgba(17,17,17,0.85);
-  border: 1px solid #333;
-  color: #fff;
-  border-radius: 50%;
-  width: 32px;
-  height: 32px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
 
 /* =======================================================
    MEDIA QUERIES
@@ -358,11 +286,7 @@ textarea { min-height: 88px; resize: vertical; }
     right: 10px;
   }
 
-  #recentScoreNav {
-    top: 5px;
-    padding: 8px 12px;
-    gap: 8px;
-  }
+
 
   .scrollBtn {
     width: 28px;
@@ -396,14 +320,7 @@ textarea { min-height: 88px; resize: vertical; }
 
 <button id="adminLoginBtn">Admin</button>
 
-<div id="recentScoreNav">
-    
-    <span id="recentLabel">Recent Scores</span>
-    <div class="recentScoreScroller">
-        <div id="recentScoreTrack"></div>
-    </div>
-    
-</div>
+
 
 
 <div class="wrap">
