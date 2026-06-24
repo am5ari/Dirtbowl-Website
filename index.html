@@ -562,42 +562,55 @@ sections.forEach(section => observer.observe(section));
 </head>
 <body>
 
-    <!-- NAVBAR -->
-     <nav class="navbar">
-      
-        <div class="navbar__container">
-           <!-- <a href="#Home" id="navbar__container">Lexington Dirtbowl</a> -->
-           <div class="navbar__toggle" id="mobile-menu">
-            <span class="bar"></span>
-            <span class="bar"></span>
-            <span class="bar"></span>
-           </div>
-           <ul class="navbar__menu">
-            <li class="navbar__item">
-             
-           
-            <li class="navbar__item">
-                <a href="schedule.html" class="navbar__link" id="Schedule-link"><i class="fa-solid fa-calendar-days"></i> Schedule</a>
-            </li>
-            <li class="navbar__item">
-                <a href="stats.html" class="navbar__link" id="Stats-Link"><i class="fa-solid fa-table-list"></i> Box Scores</a>
-            </li>
-            <li class="navbar__item">
-                <a href="Comments.html" class="navbar__link" id="Comments-link"><i class="fa-solid fa-comments"></i> Feed</a>
-            </li>
-            <li class="navbar__item">
-                <a href="league-leaders.html" class="navbar__link leaders-link" id="Leaders-link"><i class="fa-solid fa-ranking-star"></i> Leaders</a>
-            </li>
-            <li class="navbar__item">
-                <a href="Rosters.html" class="navbar__link" id="Rosters-link"><i class="fa-solid fa-users"></i> Rosters</a>
-            </li>
-            <li class="navbar__item">
-                <a href="admin-signup.html" class="navbar__link" id="Admin-link"><i class="fa-solid fa-lock"></i> Admin</a>
-            </li>
-           </ul>
+    <nav class="navbar">
+  <div class="navbar__container">
 
-        </div>
-     </nav> 
+    <button class="navbar__toggle" id="mobile-menu" type="button" aria-label="Open Menu">
+      <span class="bar"></span>
+      <span class="bar"></span>
+      <span class="bar"></span>
+    </button>
+
+    <ul class="navbar__menu" id="navbar-menu">
+      <li class="navbar__item">
+        <a href="schedule.html" class="navbar__link">
+          <i class="fa-solid fa-calendar-days"></i> Schedule
+        </a>
+      </li>
+
+      <li class="navbar__item">
+        <a href="stats.html" class="navbar__link">
+          <i class="fa-solid fa-table-list"></i> Box Scores
+        </a>
+      </li>
+
+      <li class="navbar__item">
+        <a href="Comments.html" class="navbar__link">
+          <i class="fa-solid fa-comments"></i> Feed
+        </a>
+      </li>
+
+      <li class="navbar__item">
+        <a href="league-leaders.html" class="navbar__link leaders-link">
+          <i class="fa-solid fa-ranking-star"></i> Leaders
+        </a>
+      </li>
+
+      <li class="navbar__item">
+        <a href="Rosters.html" class="navbar__link">
+          <i class="fa-solid fa-users"></i> Rosters
+        </a>
+      </li>
+
+      <li class="navbar__item">
+        <a href="admin-signup.html" class="navbar__link">
+          <i class="fa-solid fa-lock"></i> Admin
+        </a>
+      </li>
+    </ul>
+
+  </div>
+</nav>
 
      
 
@@ -689,16 +702,34 @@ sections.forEach(section => observer.observe(section));
         </div>
      
 <script>
-const mobileMenuBtn = document.getElementById('mobile-menu');
-const navMenu = document.querySelector('.navbar__menu');
-if (mobileMenuBtn && navMenu) {
-  mobileMenuBtn.addEventListener('click', () => {
-    navMenu.classList.toggle('active');
+
+document.addEventListener("DOMContentLoaded", () => {
+  const mobileMenuBtn = document.getElementById("mobile-menu");
+  const navMenu = document.getElementById("navbar-menu");
+
+  if (!mobileMenuBtn || !navMenu) return;
+
+  mobileMenuBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    navMenu.classList.toggle("active");
+    mobileMenuBtn.classList.toggle("open");
   });
-  document.querySelectorAll('.navbar__link').forEach(link => {
-    link.addEventListener('click', () => navMenu.classList.remove('active'));
+
+  document.querySelectorAll(".navbar__link").forEach(link => {
+    link.addEventListener("click", () => {
+      navMenu.classList.remove("active");
+      mobileMenuBtn.classList.remove("open");
+    });
   });
-}
+
+  document.addEventListener("click", (e) => {
+    if (!navMenu.contains(e.target) && !mobileMenuBtn.contains(e.target)) {
+      navMenu.classList.remove("active");
+      mobileMenuBtn.classList.remove("open");
+    }
+  });
+});
+</script>
 </script>
      <script src="apps.js"></script>
      
