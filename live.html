@@ -8,7 +8,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&display=swap" rel="stylesheet">
 
 <style>
-*{box-sizing:border-box}
+*{
+  box-sizing:border-box;
+}
 
 html,body{
   margin:0;
@@ -85,7 +87,7 @@ video{
   width:100%;
   aspect-ratio:16/9;
   background:#111;
-  object-fit:cover;
+  object-fit:contain;
   display:block;
 }
 
@@ -223,6 +225,18 @@ button{
   cursor:pointer;
 }
 
+#tapToWatchBtn{
+  position:absolute;
+  inset:auto 50% 50% auto;
+  transform:translate(50%,50%);
+  z-index:20;
+  background:white;
+  color:#111;
+  padding:14px 18px;
+  border-radius:999px;
+  font-weight:900;
+}
+
 #liveCommentOverlay{
   position:absolute;
   left:16px;
@@ -244,40 +258,73 @@ button{
   animation:fadeComment 6s forwards;
 }
 
-.tapToWatch{
-  position:absolute;
-  inset:auto 50% 50% auto;
-  transform:translate(50%,50%);
-  z-index:20;
-  background:white;
-  color:#111;
-  padding:14px 18px;
-  border-radius:999px;
-  font-weight:900;
+@keyframes fadeComment{
+  0%{
+    opacity:0;
+    transform:translateY(10px);
+  }
+
+  10%{
+    opacity:1;
+    transform:translateY(0);
+  }
+
+  80%{
+    opacity:1;
+  }
+
+  100%{
+    opacity:0;
+    transform:translateY(-10px);
+  }
 }
 
-.videoWrap video{
+/* CUSTOM MOBILE FULLSCREEN */
+.mobileFullscreen{
+  position:fixed !important;
+  inset:0 !important;
+  width:100vw !important;
+  height:100vh !important;
+  z-index:99999 !important;
+  border-radius:0 !important;
+  padding:8px !important;
+  background:#000 !important;
+  display:flex !important;
+  flex-direction:column !important;
+}
+
+.mobileFullscreen .videoWrap{
   width:100%;
-  height:auto;
-  object-fit:contain;
-  background:#000;
+  height:100%;
+  border-radius:0;
+  flex:1;
 }
 
-.playerCard:fullscreen video{
+.mobileFullscreen video{
   width:100%;
   height:100%;
   object-fit:contain;
-  background:#000;
 }
 
-@keyframes fadeComment{
-  0%{opacity:0; transform:translateY(10px);}
-  10%{opacity:1; transform:translateY(0);}
-  80%{opacity:1;}
-  100%{opacity:0; transform:translateY(-10px);}
+.mobileFullscreen .scoreBug,
+.mobileFullscreen .status{
+  display:none;
 }
 
-/* fullscreen container */
+.mobileFullscreen .playerButtons{
+  position:absolute;
+  right:12px;
+  bottom:12px;
+  z-index:50;
+}
+
+.mobileFullscreen #fullscreenBtn{
+  background:#fff;
+  color:#111;
+  box-shadow:0 8px 24px rgba(0,0,0,.45);
+}
+
+/* DESKTOP REAL FULLSCREEN */
 .playerCard:fullscreen{
   width:100vw;
   height:100vh;
@@ -303,9 +350,15 @@ button{
 }
 
 .playerCard:fullscreen .scoreBug,
-.playerCard:fullscreen .status,
-.playerCard:fullscreen .playerButtons{
+.playerCard:fullscreen .status{
   display:none;
+}
+
+.playerCard:fullscreen .playerButtons{
+  position:absolute;
+  right:12px;
+  bottom:12px;
+  z-index:50;
 }
 
 @media(max-width:850px){
@@ -367,24 +420,33 @@ button{
         <span>No live score yet</span>
       </div>
 
-     <div class="videoWrap">
-  <video id="remoteVideo" autoplay playsinline webkit-playsinline controls></video>
+      <div class="videoWrap">
 
-  <button id="tapToWatchBtn" class="tapToWatch">
-    Tap to Watch Live
-  </button>
+        <video
+          id="remoteVideo"
+          autoplay
+          muted
+          playsinline
+          webkit-playsinline
+          controls>
+        </video>
 
-  <div class="liveTopOverlay">
-    <div class="liveBadge">● LIVE</div>
-    <div class="viewerPill" id="viewerCount">Viewers: 0</div>
-  </div>
+        <button id="tapToWatchBtn">
+          Tap to Watch Live
+        </button>
 
-  <div class="videoScoreBug" id="videoScoreBug">
-    <span>No live score yet</span>
-  </div>
+        <div class="liveTopOverlay">
+          <div class="liveBadge">● LIVE</div>
+          <div class="viewerPill" id="viewerCount">Viewers: 0</div>
+        </div>
 
-  <div id="liveCommentOverlay"></div>
-</div>
+        <div class="videoScoreBug" id="videoScoreBug">
+          <span>No live score yet</span>
+        </div>
+
+        <div id="liveCommentOverlay"></div>
+
+      </div>
 
       <div class="status" id="status">
         Checking live stream...
@@ -443,6 +505,8 @@ const viewerCount = document.getElementById("viewerCount");
 const chatList = document.getElementById("chatList");
 const liveCommentOverlay = document.getElementById("liveCommentOverlay");
 const playerCard = document.getElementById("playerCard");
+const tapToWatchBtn = document.getElementById("tapToWatchBtn");
+const fullscreenBtn = document.getElementById("fullscreenBtn");
 
 let pc = null;
 let viewerRef = null;
@@ -471,18 +535,25 @@ async function joinLive(){
 
   pc = new RTCPeerConnection(servers);
 
-pc.ontrack = async event => {
-  remoteVideo.srcObject = event.streams[0];
-  setStatus("Live now.");
+  pc.ontrack = async event => {
 
-  try {
-    await remoteVideo.play();
-    tapToWatchBtn.style.display = "none";
-  } catch (err) {
-    tapToWatchBtn.style.display = "block";
-    setStatus("Tap the button to start video.");
-  }
-};
+    remoteVideo.srcObject = event.streams[0];
+
+    setStatus("Live now.");
+
+    try {
+      await remoteVideo.play();
+      tapToWatchBtn.style.display = "none";
+    } catch (err) {
+      tapToWatchBtn.style.display = "block";
+      setStatus("Tap the button to start video.");
+    }
+
+  };
+
+  viewerRef = viewersRef.push({
+    joinedAt: firebase.database.ServerValue.TIMESTAMP
+  });
 
   viewerRef.onDisconnect().remove();
 
@@ -497,6 +568,7 @@ pc.ontrack = async event => {
   viewerRef
     .child("broadcasterCandidates")
     .on("child_added", snap => {
+
       const candidate = snap.val();
 
       if(candidate){
@@ -504,11 +576,13 @@ pc.ontrack = async event => {
           new RTCIceCandidate(candidate)
         ).catch(console.error);
       }
+
     });
 
   viewerRef
     .child("offer")
     .on("value", async snap => {
+
       const offer = snap.val();
 
       if(!offer || pc.currentRemoteDescription) return;
@@ -525,6 +599,7 @@ pc.ontrack = async event => {
         type: answer.type,
         sdp: answer.sdp
       });
+
     });
 }
 
@@ -543,12 +618,34 @@ liveRef.on("value", snap => {
 
     pc = null;
 
+    tapToWatchBtn.style.display = "block";
+
     return;
   }
 
-  setStatus("Joining live stream...");
+  setStatus("Tap to join live stream.");
 
-  joinLive();
+  tapToWatchBtn.style.display = "block";
+
+});
+
+tapToWatchBtn.addEventListener("click", async () => {
+
+  try {
+
+    await joinLive();
+
+    await remoteVideo.play();
+
+    tapToWatchBtn.style.display = "none";
+
+  } catch (err) {
+
+    console.log("Tap to watch failed:", err);
+
+    setStatus("Waiting for broadcaster... tap again in a second.");
+
+  }
 
 });
 
@@ -577,12 +674,18 @@ liveRef.child("scoreboard").on("value", snap => {
   `;
 
   scoreBug.innerHTML = scoreHTML;
+
   videoScoreBug.innerHTML = scoreHTML;
+
 });
 
 viewersRef.on("value", snapshot => {
-  const count = snapshot.exists() ? snapshot.numChildren() : 0;
+
+  const count =
+    snapshot.exists() ? snapshot.numChildren() : 0;
+
   viewerCount.textContent = `Viewers: ${count}`;
+
 });
 
 document.getElementById("sendChatBtn").onclick = async () => {
@@ -602,13 +705,19 @@ document.getElementById("sendChatBtn").onclick = async () => {
   });
 
   document.getElementById("chatText").value = "";
+
 };
 
 document.getElementById("chatText").addEventListener("keydown", e => {
+
   if(e.key === "Enter"){
+
     e.preventDefault();
+
     document.getElementById("sendChatBtn").click();
+
   }
+
 });
 
 chatRef.limitToLast(50).on("child_added", snap => {
@@ -616,17 +725,22 @@ chatRef.limitToLast(50).on("child_added", snap => {
   const msg = snap.val();
 
   const div = document.createElement("div");
+
   div.className = "msg";
+
   div.innerHTML = `
     <strong>${msg.name || "Fan"}:</strong>
     ${msg.text || ""}
   `;
 
   chatList.appendChild(div);
+
   chatList.scrollTop = chatList.scrollHeight;
 
   const pop = document.createElement("div");
+
   pop.className = "liveComment";
+
   pop.innerHTML = `
     <strong>${msg.name || "Fan"}:</strong>
     ${msg.text || ""}
@@ -640,40 +754,34 @@ chatRef.limitToLast(50).on("child_added", snap => {
 
 });
 
-document.getElementById("fullscreenBtn").addEventListener("click", async () => {
-  try {
-    const video = document.getElementById("remoteVideo");
+fullscreenBtn.addEventListener("click", async () => {
 
-    if (playerCard.requestFullscreen) {
-      await playerCard.requestFullscreen();
-    } 
-    else if (playerCard.webkitRequestFullscreen) {
-      playerCard.webkitRequestFullscreen();
-    } 
-    else if (video.webkitEnterFullscreen) {
-      video.webkitEnterFullscreen(); // iPhone fallback
+  playerCard.classList.toggle("mobileFullscreen");
+
+  if(playerCard.classList.contains("mobileFullscreen")){
+
+    fullscreenBtn.textContent = "Exit Fullscreen";
+
+    try {
+      if(screen.orientation && screen.orientation.lock){
+        await screen.orientation.lock("landscape");
+      }
+    } catch(err) {
+      console.log("Orientation lock not supported:", err);
     }
 
-    if (screen.orientation && screen.orientation.lock) {
-      await screen.orientation.lock("landscape").catch(() => {});
-    }
+  } else {
 
-  } catch (err) {
-    console.log("Fullscreen not supported on this phone:", err);
+    fullscreenBtn.textContent = "Fullscreen";
+
+    try {
+      if(screen.orientation && screen.orientation.unlock){
+        screen.orientation.unlock();
+      }
+    } catch(err) {}
+
   }
-});
 
-const tapToWatchBtn = document.getElementById("tapToWatchBtn");
-
-tapToWatchBtn.addEventListener("click", async () => {
-  try {
-    await joinLive();
-    await remoteVideo.play();
-    tapToWatchBtn.style.display = "none";
-  } catch (err) {
-    console.log("Tap to watch failed:", err);
-    setStatus("Tap again or check if the broadcaster is live.");
-  }
 });
 </script>
 
