@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dirtbowl Live</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&display=swap" rel="stylesheet">
+
+<style>
+*{box-sizing:border-box}
+
+html,body{
+  margin:0;
+  min-height:100%;
+  font-family:Poppins,sans-serif;
+  color:#fff;
+  background:url("dirtbowl.jpg") center/cover fixed no-repeat;
+}
+
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.72);
+  z-index:-1;
+}
+
+.wrap{
+  width:min(1050px,calc(100% - 20px));
+  margin:20px auto;
+  padding:18px;
+}
+
+.top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  margin-bottom:14px;
+  flex-wrap:wrap;
+}
+
+a{
+  color:#111;
+  background:#fff;
+  text-decoration:none;
+  font-weight:900;
+  padding:10px 14px;
+  border-radius:999px;
+}
+
+h1{
+  margin:0;
+  font-size:clamp(1.7rem,6vw,3.8rem);
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:1.4fr .8fr;
+  gap:16px;
+}
+
+.playerCard,
+.chatCard{
+  background:rgba(0,0,0,.86);
+  border:1px solid rgba(255,255,255,.14);
+  border-radius:22px;
+  padding:16px;
+  box-shadow:0 15px 45px rgba(0,0,0,.5);
+}
+
+.playerCard{
+  position:relative;
+}
+
+.videoWrap{
+  position:relative;
+  background:#000;
+  border-radius:18px;
+  overflow:hidden;
+}
+
+video{
+  width:100%;
+  aspect-ratio:16/9;
+  background:#111;
+  object-fit:cover;
+  display:block;
+}
+
+.liveTopOverlay{
+  position:absolute;
+  top:12px;
+  left:12px;
+  right:12px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+  z-index:8;
+  pointer-events:none;
+}
+
+.liveBadge{
+  background:#ff0033;
+  color:white;
+  padding:7px 12px;
+  border-radius:999px;
+  font-weight:900;
+  font-size:.8rem;
+  box-shadow:0 0 18px rgba(255,0,51,.5);
+}
+
+.viewerPill{
+  background:rgba(0,0,0,.75);
+  border:1px solid rgba(255,255,255,.16);
+  padding:7px 12px;
+  border-radius:999px;
+  font-weight:900;
+  font-size:.8rem;
+}
+
+.scoreBug{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:12px;
+  flex-wrap:wrap;
+  margin-bottom:12px;
+  background:#111;
+  border-radius:16px;
+  padding:12px;
+  font-weight:900;
+}
+
+.videoScoreBug{
+  position:absolute;
+  left:50%;
+  bottom:14px;
+  transform:translateX(-50%);
+  z-index:8;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:12px;
+  flex-wrap:wrap;
+  background:rgba(0,0,0,.82);
+  border:1px solid rgba(255,255,255,.16);
+  border-radius:999px;
+  padding:10px 16px;
+  font-weight:900;
+  pointer-events:none;
+  max-width:calc(100% - 24px);
+}
+
+.scoreTeam{
+  display:flex;
+  gap:8px;
+  align-items:center;
+  white-space:nowrap;
+}
+
+.scoreNum{
+  font-size:1.7rem;
+  color:#ffc107;
+}
+
+.videoScoreBug .scoreNum{
+  font-size:1.35rem;
+}
+
+.status{
+  margin-top:10px;
+  color:#ddd;
+  font-weight:700;
+}
+
+.playerButtons{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-top:10px;
+}
+
+.chatList{
+  height:390px;
+  overflow:auto;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  margin-bottom:10px;
+}
+
+.msg{
+  background:rgba(255,255,255,.08);
+  border-radius:12px;
+  padding:9px;
+  font-size:.9rem;
+}
+
+.chatControls{
+  display:flex;
+  gap:8px;
+}
+
+input{
+  flex:1;
+  padding:12px;
+  border-radius:12px;
+  border:1px solid #333;
+  background:#111;
+  color:#fff;
+}
+
+button{
+  border:0;
+  border-radius:12px;
+  background:#fff;
+  color:#111;
+  font-weight:900;
+  padding:12px;
+  cursor:pointer;
+}
+
+#liveCommentOverlay{
+  position:absolute;
+  left:16px;
+  bottom:70px;
+  width:min(360px, calc(100% - 32px));
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  pointer-events:none;
+  z-index:9;
+}
+
+.liveComment{
+  background:rgba(0,0,0,.82);
+  border:1px solid rgba(255,255,255,.18);
+  border-radius:14px;
+  padding:9px 12px;
+  font-size:.85rem;
+  animation:fadeComment 6s forwards;
+}
+
+.tapToWatch{
+  position:absolute;
+  inset:auto 50% 50% auto;
+  transform:translate(50%,50%);
+  z-index:20;
+  background:white;
+  color:#111;
+  padding:14px 18px;
+  border-radius:999px;
+  font-weight:900;
+}
+
+.videoWrap video{
+  width:100%;
+  height:auto;
+  object-fit:contain;
+  background:#000;
+}
+
+.playerCard:fullscreen video{
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  background:#000;
+}
+
+@keyframes fadeComment{
+  0%{opacity:0; transform:translateY(10px);}
+  10%{opacity:1; transform:translateY(0);}
+  80%{opacity:1;}
+  100%{opacity:0; transform:translateY(-10px);}
+}
+
+/* fullscreen container */
+.playerCard:fullscreen{
+  width:100vw;
+  height:100vh;
+  border-radius:0;
+  padding:12px;
+  background:#000;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+}
+
+.playerCard:fullscreen .videoWrap{
+  width:100%;
+  height:100%;
+  border-radius:0;
+}
+
+.playerCard:fullscreen video{
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  background:#000;
+}
+
+.playerCard:fullscreen .scoreBug,
+.playerCard:fullscreen .status,
+.playerCard:fullscreen .playerButtons{
+  display:none;
+}
+
+@media(max-width:850px){
+  .grid{
+    grid-template-columns:1fr;
+  }
+
+  .chatList{
+    height:260px;
+  }
+}
+
+@media(max-width:560px){
+  .wrap{
+    padding:10px;
+  }
+
+  .chatControls{
+    flex-direction:column;
+  }
+
+  .videoScoreBug{
+    bottom:10px;
+    padding:8px 10px;
+    font-size:.78rem;
+  }
+
+  .videoScoreBug .scoreNum{
+    font-size:1.05rem;
+  }
+
+  #liveCommentOverlay{
+    left:10px;
+    bottom:62px;
+    width:calc(100% - 20px);
+  }
+
+  .liveComment{
+    font-size:.78rem;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="wrap">
+
+  <div class="top">
+    <h1>Dirtbowl Live</h1>
+    <a href="index.html">Home</a>
+  </div>
+
+  <div class="grid">
+
+    <div class="playerCard" id="playerCard">
+
+      <div class="scoreBug" id="scoreBug">
+        <span>No live score yet</span>
+      </div>
+
+     <div class="videoWrap">
+  <video id="remoteVideo" autoplay playsinline webkit-playsinline controls></video>
+
+  <button id="tapToWatchBtn" class="tapToWatch">
+    Tap to Watch Live
+  </button>
+
+  <div class="liveTopOverlay">
+    <div class="liveBadge">● LIVE</div>
+    <div class="viewerPill" id="viewerCount">Viewers: 0</div>
+  </div>
+
+  <div class="videoScoreBug" id="videoScoreBug">
+    <span>No live score yet</span>
+  </div>
+
+  <div id="liveCommentOverlay"></div>
+</div>
+
+      <div class="status" id="status">
+        Checking live stream...
+      </div>
+
+      <div class="playerButtons">
+        <button id="fullscreenBtn">Fullscreen</button>
+      </div>
+
+    </div>
+
+    <div class="chatCard">
+      <h2 style="margin-top:0;">Live Chat</h2>
+
+      <div id="chatList" class="chatList"></div>
+
+      <div class="chatControls">
+        <input id="chatName" placeholder="Name">
+        <input id="chatText" placeholder="Message">
+        <button id="sendChatBtn">Send</button>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyByXfVkKxz166ghpEVD4xuaQtLDpeNCzUE",
+  authDomain: "dirtbowl-page.firebaseapp.com",
+  databaseURL: "https://dirtbowl-page-default-rtdb.firebaseio.com",
+  projectId: "dirtbowl-page",
+  storageBucket: "dirtbowl-page.firebasestorage.app",
+  messagingSenderId: "948778986865",
+  appId: "1:948778986865:web:0f66d810d77310ec459ad0",
+  measurementId: "G-0HV8M44Z3J"
+};
+
+firebase.initializeApp(firebaseConfig);
+
+const db = firebase.database();
+
+const liveRef = db.ref("liveBroadcast/current");
+const viewersRef = db.ref("liveBroadcast/current/viewers");
+const chatRef = db.ref("liveBroadcast/current/chat");
+
+const remoteVideo = document.getElementById("remoteVideo");
+const statusEl = document.getElementById("status");
+const scoreBug = document.getElementById("scoreBug");
+const videoScoreBug = document.getElementById("videoScoreBug");
+const viewerCount = document.getElementById("viewerCount");
+const chatList = document.getElementById("chatList");
+const liveCommentOverlay = document.getElementById("liveCommentOverlay");
+const playerCard = document.getElementById("playerCard");
+
+let pc = null;
+let viewerRef = null;
+let connected = false;
+
+const servers = {
+  iceServers: [
+    {
+      urls: [
+        "stun:stun.l.google.com:19302",
+        "stun:stun1.l.google.com:19302"
+      ]
+    }
+  ]
+};
+
+function setStatus(text){
+  statusEl.textContent = text;
+}
+
+async function joinLive(){
+
+  if(connected) return;
+
+  connected = true;
+
+  pc = new RTCPeerConnection(servers);
+
+pc.ontrack = async event => {
+  remoteVideo.srcObject = event.streams[0];
+  setStatus("Live now.");
+
+  try {
+    await remoteVideo.play();
+    tapToWatchBtn.style.display = "none";
+  } catch (err) {
+    tapToWatchBtn.style.display = "block";
+    setStatus("Tap the button to start video.");
+  }
+};
+
+  viewerRef.onDisconnect().remove();
+
+  pc.onicecandidate = event => {
+    if(event.candidate){
+      viewerRef
+        .child("viewerCandidates")
+        .push(event.candidate.toJSON());
+    }
+  };
+
+  viewerRef
+    .child("broadcasterCandidates")
+    .on("child_added", snap => {
+      const candidate = snap.val();
+
+      if(candidate){
+        pc.addIceCandidate(
+          new RTCIceCandidate(candidate)
+        ).catch(console.error);
+      }
+    });
+
+  viewerRef
+    .child("offer")
+    .on("value", async snap => {
+      const offer = snap.val();
+
+      if(!offer || pc.currentRemoteDescription) return;
+
+      await pc.setRemoteDescription(
+        new RTCSessionDescription(offer)
+      );
+
+      const answer = await pc.createAnswer();
+
+      await pc.setLocalDescription(answer);
+
+      await viewerRef.child("answer").set({
+        type: answer.type,
+        sdp: answer.sdp
+      });
+    });
+}
+
+liveRef.on("value", snap => {
+
+  const data = snap.val();
+
+  if(!data || !data.isLive){
+
+    setStatus("No livestream active right now.");
+
+    remoteVideo.srcObject = null;
+    connected = false;
+
+    if(pc) pc.close();
+
+    pc = null;
+
+    return;
+  }
+
+  setStatus("Joining live stream...");
+
+  joinLive();
+
+});
+
+liveRef.child("scoreboard").on("value", snap => {
+
+  const s = snap.val();
+
+  if(!s){
+    scoreBug.innerHTML = "<span>No live score yet</span>";
+    videoScoreBug.innerHTML = "<span>No live score yet</span>";
+    return;
+  }
+
+  const scoreHTML = `
+    <div class="scoreTeam">
+      ${s.awayTeam || "Away"}
+      <span class="scoreNum">${s.awayScore ?? 0}</span>
+    </div>
+
+    <span>vs</span>
+
+    <div class="scoreTeam">
+      ${s.homeTeam || "Home"}
+      <span class="scoreNum">${s.homeScore ?? 0}</span>
+    </div>
+  `;
+
+  scoreBug.innerHTML = scoreHTML;
+  videoScoreBug.innerHTML = scoreHTML;
+});
+
+viewersRef.on("value", snapshot => {
+  const count = snapshot.exists() ? snapshot.numChildren() : 0;
+  viewerCount.textContent = `Viewers: ${count}`;
+});
+
+document.getElementById("sendChatBtn").onclick = async () => {
+
+  const name =
+    document.getElementById("chatName").value.trim() || "Fan";
+
+  const text =
+    document.getElementById("chatText").value.trim();
+
+  if(!text) return;
+
+  await chatRef.push({
+    name,
+    text,
+    timestamp: firebase.database.ServerValue.TIMESTAMP
+  });
+
+  document.getElementById("chatText").value = "";
+};
+
+document.getElementById("chatText").addEventListener("keydown", e => {
+  if(e.key === "Enter"){
+    e.preventDefault();
+    document.getElementById("sendChatBtn").click();
+  }
+});
+
+chatRef.limitToLast(50).on("child_added", snap => {
+
+  const msg = snap.val();
+
+  const div = document.createElement("div");
+  div.className = "msg";
+  div.innerHTML = `
+    <strong>${msg.name || "Fan"}:</strong>
+    ${msg.text || ""}
+  `;
+
+  chatList.appendChild(div);
+  chatList.scrollTop = chatList.scrollHeight;
+
+  const pop = document.createElement("div");
+  pop.className = "liveComment";
+  pop.innerHTML = `
+    <strong>${msg.name || "Fan"}:</strong>
+    ${msg.text || ""}
+  `;
+
+  liveCommentOverlay.appendChild(pop);
+
+  setTimeout(() => {
+    pop.remove();
+  }, 6000);
+
+});
+
+document.getElementById("fullscreenBtn").addEventListener("click", async () => {
+  try {
+    const video = document.getElementById("remoteVideo");
+
+    if (playerCard.requestFullscreen) {
+      await playerCard.requestFullscreen();
+    } 
+    else if (playerCard.webkitRequestFullscreen) {
+      playerCard.webkitRequestFullscreen();
+    } 
+    else if (video.webkitEnterFullscreen) {
+      video.webkitEnterFullscreen(); // iPhone fallback
+    }
+
+    if (screen.orientation && screen.orientation.lock) {
+      await screen.orientation.lock("landscape").catch(() => {});
+    }
+
+  } catch (err) {
+    console.log("Fullscreen not supported on this phone:", err);
+  }
+});
+
+const tapToWatchBtn = document.getElementById("tapToWatchBtn");
+
+tapToWatchBtn.addEventListener("click", async () => {
+  try {
+    await joinLive();
+    await remoteVideo.play();
+    tapToWatchBtn.style.display = "none";
+  } catch (err) {
+    console.log("Tap to watch failed:", err);
+    setStatus("Tap again or check if the broadcaster is live.");
+  }
+});
+</script>
+
+</body>
+</html>
