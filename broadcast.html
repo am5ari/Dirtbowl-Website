@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dirtbowl Broadcast</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;font-family:Poppins,sans-serif;color:#fff;background:url("dirtbowl.jpg") center/cover fixed no-repeat;}
+body::before{content:"";position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:-1}
+.wrap{width:min(980px,calc(100% - 20px));margin:20px auto;padding:18px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+a{color:#111;background:#fff;text-decoration:none;font-weight:900;padding:10px 14px;border-radius:999px}
+.card{background:rgba(0,0,0,.86);border:1px solid rgba(255,255,255,.14);border-radius:22px;padding:16px;box-shadow:0 15px 45px rgba(0,0,0,.5)}
+h1{margin:0;font-size:clamp(1.7rem,6vw,3.8rem)}
+video{width:100%;aspect-ratio:16/9;background:#111;border-radius:18px;object-fit:cover;margin:14px 0}
+.controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+button,input{font-family:inherit}
+button{border:0;border-radius:14px;padding:13px 14px;font-weight:900;cursor:pointer;background:#fff;color:#111}
+button.danger{background:#ff4747;color:#fff} button.live{background:#ff0033;color:#fff}
+.status{margin-top:12px;color:#ddd;font-weight:700}.scoreBox{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.scoreBox input{width:100%;padding:12px;border-radius:12px;border:1px solid #333;background:#111;color:#fff}
+@media(max-width:560px){.wrap{padding:10px}.scoreBox{grid-template-columns:1fr}}
+
+.scoreControl{
+  background:#111;
+  border-radius:16px;
+  padding:14px;
+  text-align:center;
+}
+
+.scoreControl h3{
+  margin:0 0 8px;
+}
+
+#homeScoreDisplay,
+#awayScoreDisplay{
+  font-size:2.5rem;
+  font-weight:900;
+  color:#ffc107;
+  margin-bottom:10px;
+}
+
+.scoreControl button{
+  margin:4px;
+  min-width:54px;
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><h1>Broadcast Live</h1><a href="live.html">Watch Page</a></div>
+  <div class="card">
+    <video id="localVideo" autoplay muted playsinline></video>
+    <div class="controls">
+      <button id="startCameraBtn">Start Camera</button><button id="goLiveBtn" class="live">Go Live</button>
+      <button id="switchCameraBtn">Switch Camera</button><button id="muteBtn">Mute Mic</button><button id="stopBtn" class="danger">Stop Live</button>
+    </div>
+    <div class="scoreBox">
+  <input id="homeTeam" placeholder="Home team">
+  <input id="awayTeam" placeholder="Away team">
+
+  <div class="scoreControl">
+    <h3>Home Score</h3>
+    <div id="homeScoreDisplay">0</div>
+    <button onclick="changeScore('home', 1)">+1</button>
+    <button onclick="changeScore('home', 2)">+2</button>
+    <button onclick="changeScore('home', 3)">+3</button>
+    <button onclick="changeScore('home', -1)">-1</button>
+  </div>
+
+  <div class="scoreControl">
+    <h3>Away Score</h3>
+    <div id="awayScoreDisplay">0</div>
+    <button onclick="changeScore('away', 1)">+1</button>
+    <button onclick="changeScore('away', 2)">+2</button>
+    <button onclick="changeScore('away', 3)">+3</button>
+    <button onclick="changeScore('away', -1)">-1</button>
+  </div>
+</div>
+    <div class="controls" style="margin-top:10px;"><button id="saveScoreBtn">Update Score</button></div>
+    <div class="status" id="status">Camera not started.</div>
+  </div>
+</div>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+<script>
+const firebaseConfig = {apiKey:"AIzaSyByXfVkKxz166ghpEVD4xuaQtLDpeNCzUE",authDomain:"dirtbowl-page.firebaseapp.com",databaseURL:"https://dirtbowl-page-default-rtdb.firebaseio.com",projectId:"dirtbowl-page",storageBucket:"dirtbowl-page.firebasestorage.app",messagingSenderId:"948778986865",appId:"1:948778986865:web:0f66d810d77310ec459ad0",measurementId:"G-0HV8M44Z3J"};
+firebase.initializeApp(firebaseConfig); const db=firebase.database();
+const liveRef=db.ref("liveBroadcast/current"); const viewersRef=db.ref("liveBroadcast/current/viewers");
+const localVideo=document.getElementById("localVideo"); const statusEl=document.getElementById("status");
+let localStream=null; let facingMode="environment"; let pcs={};
+const servers={iceServers:[{urls:["stun:stun.l.google.com:19302","stun:stun1.l.google.com:19302"]}]};
+function setStatus(t){statusEl.textContent=t;}
+async function startCamera(){ if(localStream){localStream.getTracks().forEach(t=>t.stop());} localStream=await navigator.mediaDevices.getUserMedia({video:{facingMode},audio:true}); localVideo.srcObject=localStream; setStatus("Camera ready."); }
+async function goLive(){ if(!localStream) await startCamera(); await liveRef.set({isLive:true,startedAt:firebase.database.ServerValue.TIMESTAMP,title:"Dirtbowl Live Game"}); liveRef.onDisconnect().update({isLive:false}); viewersRef.on("child_added", async snap=>{ const viewerId=snap.key; const viewerData=snap.val()||{}; if(pcs[viewerId]||!viewerData.joinedAt)return; const pc=new RTCPeerConnection(servers); pcs[viewerId]=pc; localStream.getTracks().forEach(track=>pc.addTrack(track,localStream)); pc.onicecandidate=e=>{if(e.candidate)viewersRef.child(viewerId).child("broadcasterCandidates").push(e.candidate.toJSON());}; viewersRef.child(viewerId).child("viewerCandidates").on("child_added", cSnap=>{const c=cSnap.val(); if(c)pc.addIceCandidate(new RTCIceCandidate(c)).catch(console.error);}); const offer=await pc.createOffer(); await pc.setLocalDescription(offer); await viewersRef.child(viewerId).update({offer:{type:offer.type,sdp:offer.sdp}}); viewersRef.child(viewerId).child("answer").on("value", async ansSnap=>{const answer=ansSnap.val(); if(answer&&pc.signalingState!=="stable") await pc.setRemoteDescription(new RTCSessionDescription(answer));}); setStatus("Live. Viewer connected."); }); setStatus("Live. Waiting for viewers..."); }
+async function stopLive(){ await liveRef.update({isLive:false}); Object.values(pcs).forEach(pc=>pc.close()); pcs={}; if(localStream){localStream.getTracks().forEach(t=>t.stop()); localStream=null; localVideo.srcObject=null;} await viewersRef.remove(); setStatus("Live stopped."); }
+document.getElementById("startCameraBtn").onclick=startCamera; document.getElementById("goLiveBtn").onclick=goLive; document.getElementById("stopBtn").onclick=stopLive;
+document.getElementById("switchCameraBtn").onclick=async()=>{facingMode=facingMode==="environment"?"user":"environment"; await startCamera();};
+document.getElementById("muteBtn").onclick=()=>{ if(!localStream)return; const audio=localStream.getAudioTracks()[0]; if(!audio)return; audio.enabled=!audio.enabled; document.getElementById("muteBtn").textContent=audio.enabled?"Mute Mic":"Unmute Mic"; };
+document.getElementById("saveScoreBtn").onclick=async()=>{ await liveRef.child("scoreboard").set({homeTeam:document.getElementById("homeTeam").value||"Home",awayTeam:document.getElementById("awayTeam").value||"Away",homeScore:Number(document.getElementById("homeScore").value||0),awayScore:Number(document.getElementById("awayScore").value||0),updatedAt:firebase.database.ServerValue.TIMESTAMP}); setStatus("Score updated."); };
+let homeScore = 0;
+let awayScore = 0;
+
+async function updateLiveScore(){
+  await liveRef.child("scoreboard").set({
+    homeTeam: document.getElementById("homeTeam").value || "Home",
+    awayTeam: document.getElementById("awayTeam").value || "Away",
+    homeScore,
+    awayScore,
+    updatedAt: firebase.database.ServerValue.TIMESTAMP
+  });
+}
+
+async function changeScore(team, amount){
+  if(team === "home"){
+    homeScore = Math.max(0, homeScore + amount);
+    document.getElementById("homeScoreDisplay").textContent = homeScore;
+  }
+
+  if(team === "away"){
+    awayScore = Math.max(0, awayScore + amount);
+    document.getElementById("awayScoreDisplay").textContent = awayScore;
+  }
+
+  await updateLiveScore();
+}
+
+window.changeScore = changeScore;
+</script>
+</body>
+</html>
