@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2026 Dirtbowl Playoff Stats</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --bg:#05070d;
+  --panel:rgba(12,16,28,.94);
+  --card:rgba(255,255,255,.055);
+  --line:rgba(255,255,255,.11);
+  --text:#fff;
+  --muted:#aab2c5;
+  --blue:#246bfe;
+  --gold:#f2c84b;
+  --green:#2bd27f;
+}
+
+*{box-sizing:border-box}
+
+html{scroll-behavior:smooth}
+
+body{
+  margin:0;
+  min-height:100vh;
+  font-family:Poppins,sans-serif;
+  color:var(--text);
+  background:var(--bg);
+  overflow-x:hidden;
+}
+
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  z-index:-2;
+  background:
+    linear-gradient(rgba(3,5,12,.76),rgba(3,5,12,.96)),
+    url("dirtbowl.jpg") center/cover no-repeat;
+}
+
+body::after{
+  content:"";
+  position:fixed;
+  inset:0;
+  z-index:-1;
+  pointer-events:none;
+  background:
+    radial-gradient(circle at 5% 0%,rgba(36,107,254,.23),transparent 32%),
+    radial-gradient(circle at 95% 10%,rgba(242,200,75,.13),transparent 30%);
+}
+
+.topbar{
+  position:sticky;
+  top:0;
+  z-index:1000;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  padding:13px clamp(14px,4vw,55px);
+  background:rgba(5,7,13,.86);
+  border-bottom:1px solid var(--line);
+  backdrop-filter:blur(16px);
+  -webkit-backdrop-filter:blur(16px);
+}
+
+.brand{
+  display:flex;
+  align-items:center;
+  gap:11px;
+  min-width:0;
+}
+
+.brand-mark{
+  width:42px;
+  height:42px;
+  flex:0 0 auto;
+  display:grid;
+  place-items:center;
+  border-radius:13px;
+  background:linear-gradient(135deg,var(--blue),#6240ff);
+  font-size:22px;
+}
+
+.brand strong{
+  display:block;
+  font-size:14px;
+}
+
+.brand span{
+  display:block;
+  color:var(--muted);
+  font-size:10px;
+}
+
+.nav-links{
+  display:flex;
+  gap:8px;
+}
+
+.nav-links a{
+  color:#fff;
+  text-decoration:none;
+  padding:9px 13px;
+  border:1px solid var(--line);
+  border-radius:999px;
+  background:rgba(255,255,255,.05);
+  font-size:12px;
+  font-weight:800;
+}
+
+.hero{
+  max-width:1250px;
+  margin:auto;
+  padding:52px 18px 22px;
+  text-align:center;
+}
+
+.eyebrow{
+  margin:0 0 9px;
+  color:var(--gold);
+  font-size:11px;
+  font-weight:900;
+  letter-spacing:.17em;
+  text-transform:uppercase;
+}
+
+.hero h1{
+  margin:0;
+  font-size:clamp(38px,7vw,80px);
+  line-height:1;
+  letter-spacing:-.05em;
+}
+
+.hero p{
+  max-width:680px;
+  margin:16px auto 0;
+  color:var(--muted);
+  font-size:14px;
+}
+
+.summary{
+  max-width:1250px;
+  margin:20px auto 0;
+  padding:0 18px;
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:13px;
+}
+
+.summary-card{
+  padding:17px;
+  border:1px solid var(--line);
+  border-radius:18px;
+  background:var(--card);
+  backdrop-filter:blur(10px);
+}
+
+.summary-card span{
+  display:block;
+  color:var(--muted);
+  font-size:11px;
+  font-weight:800;
+  text-transform:uppercase;
+}
+
+.summary-card strong{
+  display:block;
+  margin-top:6px;
+  font-size:28px;
+}
+
+.tabs{
+  max-width:1250px;
+  margin:22px auto 0;
+  padding:0 18px;
+  display:flex;
+  gap:8px;
+  overflow-x:auto;
+}
+
+.tab{
+  flex:0 0 auto;
+  border:1px solid var(--line);
+  border-radius:999px;
+  padding:10px 15px;
+  background:rgba(255,255,255,.055);
+  color:#fff;
+  font-weight:800;
+  cursor:pointer;
+}
+
+.tab.active{
+  background:var(--blue);
+  border-color:var(--blue);
+}
+
+.content{
+  max-width:1250px;
+  margin:18px auto 60px;
+  padding:0 18px;
+}
+
+.panel{
+  display:none;
+}
+
+.panel.active{
+  display:block;
+}
+
+.section-title{
+  display:flex;
+  align-items:end;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:14px;
+}
+
+.section-title h2{
+  margin:0;
+  font-size:23px;
+}
+
+.section-title p{
+  margin:0;
+  color:var(--muted);
+  font-size:12px;
+}
+
+.table-wrap{
+  overflow-x:auto;
+  border:1px solid var(--line);
+  border-radius:20px;
+  background:var(--panel);
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  min-width:760px;
+}
+
+th,td{
+  padding:13px 14px;
+  text-align:left;
+  border-bottom:1px solid var(--line);
+}
+
+th{
+  color:var(--muted);
+  font-size:10px;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+}
+
+td{
+  font-size:13px;
+}
+
+tr:last-child td{
+  border-bottom:0;
+}
+
+.rank{
+  color:var(--gold);
+  font-weight:900;
+}
+
+.player-cell{
+  display:flex;
+  align-items:center;
+  gap:9px;
+}
+
+.player-number{
+  width:31px;
+  height:31px;
+  display:grid;
+  place-items:center;
+  border-radius:10px;
+  background:rgba(36,107,254,.18);
+  border:1px solid rgba(36,107,254,.35);
+  font-size:11px;
+  font-weight:900;
+}
+
+.player-name{
+  font-weight:800;
+}
+
+.player-team{
+  color:var(--muted);
+  font-size:10px;
+}
+
+.leader{
+  color:var(--gold);
+  font-weight:900;
+}
+
+.games-grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:15px;
+}
+
+.game-card{
+  overflow:hidden;
+  border:1px solid var(--line);
+  border-radius:20px;
+  background:var(--panel);
+}
+
+.game-head{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  padding:11px 14px;
+  border-bottom:1px solid var(--line);
+  color:var(--muted);
+  font-size:11px;
+  font-weight:800;
+}
+
+.round-pill{
+  color:var(--gold);
+  text-transform:uppercase;
+}
+
+.game-score{
+  display:grid;
+  grid-template-columns:1fr auto 1fr;
+  align-items:center;
+  gap:12px;
+  padding:18px 14px;
+}
+
+.game-team{
+  display:flex;
+  align-items:center;
+  gap:9px;
+  min-width:0;
+}
+
+.game-team.right{
+  justify-content:flex-end;
+  text-align:right;
+}
+
+.game-team img{
+  width:42px;
+  height:42px;
+  object-fit:contain;
+  border-radius:12px;
+  background:#fff;
+  padding:3px;
+}
+
+.game-team strong{
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+
+.score{
+  font-size:25px;
+  font-weight:900;
+}
+
+.details-btn{
+  width:calc(100% - 28px);
+  margin:0 14px 14px;
+  padding:10px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:rgba(255,255,255,.06);
+  color:#fff;
+  font-weight:800;
+  cursor:pointer;
+}
+
+.box-details{
+  display:none;
+  padding:0 14px 15px;
+}
+
+.box-details.open{
+  display:block;
+}
+
+.team-stats-title{
+  margin:14px 0 8px;
+  color:#fff;
+  font-size:14px;
+}
+
+.mini-table{
+  width:100%;
+  min-width:610px;
+}
+
+.empty{
+  padding:40px 20px;
+  text-align:center;
+  color:var(--muted);
+  border:1px dashed var(--line);
+  border-radius:18px;
+}
+
+.loading{
+  padding:50px;
+  text-align:center;
+  color:var(--muted);
+}
+
+@media(max-width:900px){
+  .summary{
+    grid-template-columns:repeat(2,1fr);
+  }
+
+  .games-grid{
+    grid-template-columns:1fr;
+  }
+}
+
+@media(max-width:600px){
+  .brand span{
+    display:none;
+  }
+
+  .nav-links a{
+    padding:8px 10px;
+    font-size:10px;
+  }
+
+  .summary{
+    grid-template-columns:1fr 1fr;
+    gap:9px;
+  }
+
+  .summary-card{
+    padding:13px;
+  }
+
+  .summary-card strong{
+    font-size:22px;
+  }
+
+  .game-score{
+    grid-template-columns:1fr;
+    text-align:center;
+  }
+
+  .game-team,
+  .game-team.right{
+    justify-content:center;
+    text-align:center;
+  }
+}
+</style>
+</head>
+
+<body>
+<header class="topbar">
+  <div class="brand">
+    <div class="brand-mark">🏆</div>
+    <div>
+      <strong>Playoff Stats</strong>
+      <span>Lexington Dirtbowl 2026</span>
+    </div>
+  </div>
+
+  <div class="nav-links">
+    <a href="playoffs.html">Bracket</a>
+    <a href="index.html">Home</a>
+  </div>
+</header>
+
+<section class="hero">
+  <p class="eyebrow">2026 Postseason</p>
+  <h1>Playoff Stats & Box Scores</h1>
+  <p>View every playoff result, complete player box scores, and the postseason leaders across all rounds.</p>
+</section>
+
+<section class="summary">
+  <div class="summary-card">
+    <span>Completed Games</span>
+    <strong id="completedGames">0</strong>
+  </div>
+
+  <div class="summary-card">
+    <span>Total Players</span>
+    <strong id="totalPlayers">0</strong>
+  </div>
+
+  <div class="summary-card">
+    <span>Points Leader</span>
+    <strong id="pointsLeader">—</strong>
+  </div>
+
+  <div class="summary-card">
+    <span>Champion</span>
+    <strong id="championName">TBD</strong>
+  </div>
+</section>
+
+<nav class="tabs">
+  <button class="tab active" data-panel="leadersPanel">Playoff Leaders</button>
+  <button class="tab" data-panel="boxScoresPanel">Box Scores</button>
+</nav>
+
+<main class="content">
+  <section id="leadersPanel" class="panel active">
+    <div class="section-title">
+      <div>
+        <h2>Postseason Leaders</h2>
+        <p>Totals from playoff box scores only</p>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Rank</th>
+            <th>Player</th>
+            <th>GP</th>
+            <th>PTS</th>
+            <th>REB</th>
+            <th>AST</th>
+            <th>STL</th>
+            <th>BLK</th>
+            <th>PPG</th>
+          </tr>
+        </thead>
+        <tbody id="leadersTable">
+          <tr><td colspan="9" class="loading">Loading playoff leaders…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="boxScoresPanel" class="panel">
+    <div class="section-title">
+      <div>
+        <h2>Playoff Box Scores</h2>
+        <p>Tap a game to view every player's statistics</p>
+      </div>
+    </div>
+
+    <div class="games-grid" id="gamesGrid">
+      <div class="loading">Loading playoff box scores…</div>
+    </div>
+  </section>
+</main>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import {
+  getDatabase,
+  ref,
+  onValue
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyByXfVkKxz166ghpEVD4xuaQtLDpeNCzUE",
+  authDomain: "dirtbowl-page.firebaseapp.com",
+  databaseURL: "https://dirtbowl-page-default-rtdb.firebaseio.com",
+  projectId: "dirtbowl-page",
+  storageBucket: "dirtbowl-page.appspot.com",
+  messagingSenderId: "948778986865",
+  appId: "1:948778986865:web:0f66d810d77310ec459ad0"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+let teams = {};
+let playoffData = {};
+let playoffBoxScores = {};
+
+const roundOrder = {
+  quarterfinals: 0,
+  semifinals: 1,
+  finals: 2
+};
+
+const roundLabels = {
+  quarterfinals: "Quarterfinals",
+  semifinals: "Semifinals",
+  finals: "Championship"
+};
+
+document.querySelectorAll(".tab").forEach(button => {
+  button.addEventListener("click", () => {
+    document.querySelectorAll(".tab").forEach(item => item.classList.remove("active"));
+    document.querySelectorAll(".panel").forEach(panel => panel.classList.remove("active"));
+
+    button.classList.add("active");
+    document.getElementById(button.dataset.panel).classList.add("active");
+  });
+});
+
+function getTeamLogo(teamName){
+  return Object.values(teams).find(team => team.name === teamName)?.logoURL || "logo.png";
+}
+
+function playerStatsFromBoxScore(boxScore){
+  return Object.values(boxScore.players || {}).map(player => ({
+    name: player.name || "",
+    team: player.team || player.teamName || "",
+    number: player.number ?? "",
+    points: Number(player.pts ?? player.points ?? 0),
+    rebounds: Number(player.reb ?? player.rebounds ?? 0),
+    assists: Number(player.ast ?? player.assists ?? 0),
+    steals: Number(player.stl ?? player.steals ?? 0),
+    blocks: Number(player.blk ?? player.blocks ?? 0)
+  }));
+}
+
+function getPlayoffBoxScores(raw){
+  const results = {};
+
+  Object.entries(raw || {}).forEach(([id, boxScore]) => {
+    if(
+      boxScore.gameType === "playoff" ||
+      id.startsWith("playoff__") ||
+      boxScore.playoffId
+    ){
+      results[id] = boxScore;
+    }
+  });
+
+  return results;
+}
+
+function buildLeaderTotals(){
+  const totals = {};
+
+  Object.values(playoffBoxScores).forEach(boxScore => {
+    playerStatsFromBoxScore(boxScore).forEach(player => {
+      if(!player.name) return;
+
+      const key = `${player.team}__${player.name}`;
+
+      if(!totals[key]){
+        totals[key] = {
+          ...player,
+          games: 0,
+          points: 0,
+          rebounds: 0,
+          assists: 0,
+          steals: 0,
+          blocks: 0
+        };
+      }
+
+      totals[key].games += 1;
+      totals[key].points += player.points;
+      totals[key].rebounds += player.rebounds;
+      totals[key].assists += player.assists;
+      totals[key].steals += player.steals;
+      totals[key].blocks += player.blocks;
+    });
+  });
+
+  return Object.values(totals).sort((a,b) => {
+    if(b.points !== a.points) return b.points - a.points;
+    if(b.rebounds !== a.rebounds) return b.rebounds - a.rebounds;
+    return b.assists - a.assists;
+  });
+}
+
+function renderSummary(leaders){
+  document.getElementById("completedGames").textContent =
+    Object.keys(playoffBoxScores).length;
+
+  document.getElementById("totalPlayers").textContent = leaders.length;
+
+  document.getElementById("pointsLeader").textContent =
+    leaders.length ? `${leaders[0].name} (${leaders[0].points})` : "—";
+
+  document.getElementById("championName").textContent =
+    playoffData.champion?.name || "TBD";
+}
+
+function renderLeaders(){
+  const leaders = buildLeaderTotals();
+  const tbody = document.getElementById("leadersTable");
+
+  renderSummary(leaders);
+
+  if(!leaders.length){
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="9">
+          <div class="empty">No playoff player statistics have been saved yet.</div>
+        </td>
+      </tr>
+    `;
+    return;
+  }
+
+  tbody.innerHTML = leaders.map((player,index) => `
+    <tr>
+      <td class="rank">${index + 1}</td>
+
+      <td>
+        <div class="player-cell">
+          <div class="player-number">${player.number === "" ? "–" : player.number}</div>
+          <div>
+            <div class="player-name">${player.name}</div>
+            <div class="player-team">${player.team}</div>
+          </div>
+        </div>
+      </td>
+
+      <td>${player.games}</td>
+      <td class="${index === 0 ? "leader" : ""}">${player.points}</td>
+      <td>${player.rebounds}</td>
+      <td>${player.assists}</td>
+      <td>${player.steals}</td>
+      <td>${player.blocks}</td>
+      <td>${player.games ? (player.points / player.games).toFixed(1) : "0.0"}</td>
+    </tr>
+  `).join("");
+}
+
+function playerTable(players){
+  if(!players.length){
+    return `<div class="empty">No player stats saved for this game.</div>`;
+  }
+
+  const sorted = [...players].sort((a,b) => b.points - a.points);
+
+  return `
+    <div class="table-wrap">
+      <table class="mini-table">
+        <thead>
+          <tr>
+            <th>Player</th>
+            <th>PTS</th>
+            <th>REB</th>
+            <th>AST</th>
+            <th>STL</th>
+            <th>BLK</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${sorted.map(player => `
+            <tr>
+              <td>
+                <div class="player-cell">
+                  <div class="player-number">${player.number === "" ? "–" : player.number}</div>
+                  <div class="player-name">${player.name}</div>
+                </div>
+              </td>
+              <td>${player.points}</td>
+              <td>${player.rebounds}</td>
+              <td>${player.assists}</td>
+              <td>${player.steals}</td>
+              <td>${player.blocks}</td>
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+function renderBoxScores(){
+  const grid = document.getElementById("gamesGrid");
+
+  const games = Object.entries(playoffBoxScores)
+    .map(([id,boxScore]) => ({ id, ...boxScore }))
+    .sort((a,b) => {
+      const roundDifference =
+        (roundOrder[a.round] ?? 99) - (roundOrder[b.round] ?? 99);
+
+      if(roundDifference !== 0) return roundDifference;
+
+      return String(a.date || "").localeCompare(String(b.date || ""));
+    });
+
+  if(!games.length){
+    grid.innerHTML = `<div class="empty">No playoff box scores are available yet.</div>`;
+    return;
+  }
+
+  grid.innerHTML = "";
+
+  games.forEach(game => {
+    const allPlayers = playerStatsFromBoxScore(game);
+    const awayPlayers = allPlayers.filter(player => player.team === game.away);
+    const homePlayers = allPlayers.filter(player => player.team === game.home);
+
+    const card = document.createElement("article");
+    card.className = "game-card";
+
+    card.innerHTML = `
+      <div class="game-head">
+        <span class="round-pill">${roundLabels[game.round] || "Playoffs"}</span>
+        <span>${game.date || ""}</span>
+      </div>
+
+      <div class="game-score">
+        <div class="game-team">
+          <img src="${getTeamLogo(game.away)}" onerror="this.src='logo.png'">
+          <strong>${game.away}</strong>
+        </div>
+
+        <div class="score">${game.awayScore ?? "–"} - ${game.homeScore ?? "–"}</div>
+
+        <div class="game-team right">
+          <strong>${game.home}</strong>
+          <img src="${getTeamLogo(game.home)}" onerror="this.src='logo.png'">
+        </div>
+      </div>
+
+      <button type="button" class="details-btn">View Full Box Score</button>
+
+      <div class="box-details">
+        <h3 class="team-stats-title">${game.away}</h3>
+        ${playerTable(awayPlayers)}
+
+        <h3 class="team-stats-title">${game.home}</h3>
+        ${playerTable(homePlayers)}
+      </div>
+    `;
+
+    const button = card.querySelector(".details-btn");
+    const details = card.querySelector(".box-details");
+
+    button.addEventListener("click", () => {
+      const opening = !details.classList.contains("open");
+      details.classList.toggle("open");
+      button.textContent = opening ? "Hide Box Score" : "View Full Box Score";
+    });
+
+    grid.appendChild(card);
+  });
+}
+
+function renderEverything(){
+  renderLeaders();
+  renderBoxScores();
+}
+
+onValue(ref(db,"teams"), snapshot => {
+  teams = snapshot.val() || {};
+  renderEverything();
+});
+
+onValue(ref(db,"playoffs/2026"), snapshot => {
+  playoffData = snapshot.val() || {};
+  renderEverything();
+});
+
+onValue(ref(db,"boxScores"), snapshot => {
+  playoffBoxScores = getPlayoffBoxScores(snapshot.val() || {});
+  renderEverything();
+});
+</script>
+</body>
+</html>
