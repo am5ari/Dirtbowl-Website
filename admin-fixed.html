@@ -32,7 +32,7 @@ button,input,select,textarea{font-family:inherit}
 .navBtn{width:100%;border:0;background:transparent;color:#ddd;padding:13px 14px;border-radius:14px;text-align:left;font-weight:700;cursor:pointer;margin:4px 0;display:flex;align-items:center;gap:10px}.navBtn:hover,.navBtn.active{background:rgba(29,161,242,.15);color:#fff}.navBtn.active{border:1px solid rgba(29,161,242,.35)}
 .main{margin-left:260px;width:calc(100% - 260px);padding:24px}.topbar{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:22px}.topbar h1{margin:0;font-size:30px}.topbar p{margin:3px 0 0;color:var(--muted)}
 .mobileMenu{display:none;border:1px solid var(--line);background:#111;color:white;border-radius:12px;padding:10px 12px}.panel{background:rgba(17,17,17,.92);border:1px solid var(--line);border-radius:22px;padding:20px;box-shadow:0 10px 30px rgba(0,0,0,.25);backdrop-filter:blur(10px)}
-.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:18px}.statCard{background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:18px;padding:18px}.statCard h3{margin:0;color:var(--muted);font-size:13px}.statCard strong{display:block;font-size:30px;margin-top:8px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:16px;margin-bottom:18px}.statCard{background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:18px;padding:18px}.statCard h3{margin:0;color:var(--muted);font-size:13px}.statCard strong{display:block;font-size:30px;margin-top:8px}
 .section{display:none}.section.active{display:block}.sectionHead{display:flex;justify-content:space-between;align-items:center;gap:14px;margin-bottom:16px}.sectionHead h2{margin:0}.sectionHead p{margin:4px 0 0;color:var(--muted);font-size:14px}
 .formGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}.formGrid.two{grid-template-columns:repeat(2,1fr)}.field label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px;font-weight:700}.field input,.field select,.field textarea{width:100%;background:#0b0b0b;border:1px solid var(--line);color:white;border-radius:12px;padding:12px;outline:none}.field textarea{min-height:90px;resize:vertical}.btn{border:0;border-radius:12px;padding:12px 16px;font-weight:800;cursor:pointer;color:white;background:var(--accent)}.btn:hover{filter:brightness(1.08)}.btn.dark{background:#222;border:1px solid var(--line)}.btn.danger{background:var(--danger)}.btn.success{background:var(--success);color:#06120b}.btn.small{padding:8px 10px;font-size:12px}.btn.full{width:100%}
 .tableWrap{overflow-x:auto}.adminTable{width:100%;border-collapse:collapse;min-width:760px}.adminTable th,.adminTable td{padding:13px;border-bottom:1px solid var(--line);text-align:left}.adminTable th{font-size:12px;color:var(--muted);text-transform:uppercase}.adminTable tr:hover td{background:rgba(255,255,255,.03)}.teamLogo{width:42px;height:42px;border-radius:10px;object-fit:contain;background:#050505;border:1px solid var(--line)}.actions{display:flex;gap:8px;flex-wrap:wrap}.pill{display:inline-flex;align-items:center;gap:6px;border-radius:99px;padding:6px 10px;background:rgba(255,255,255,.08);font-size:12px;color:#ddd}
@@ -94,6 +94,97 @@ button,input,select,textarea{font-family:inherit}
     min-width:0;
   }
 }
+
+/* =========================
+   PLAYOFF ADMIN
+========================= */
+.playoffForm{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:12px;
+  margin-bottom:18px;
+}
+.playoffGame{
+  background:rgba(255,255,255,.045);
+  border:1px solid var(--line);
+  border-radius:18px;
+  padding:14px;
+  margin-bottom:12px;
+}
+.playoffGame.live{
+  border-color:rgba(37,211,102,.55);
+  box-shadow:0 0 0 1px rgba(37,211,102,.12);
+}
+.playoffRound{
+  display:inline-flex;
+  padding:5px 9px;
+  margin-bottom:8px;
+  border-radius:999px;
+  background:rgba(29,161,242,.14);
+  border:1px solid rgba(29,161,242,.3);
+  color:#dcefff;
+  font-size:11px;
+  font-weight:800;
+  text-transform:uppercase;
+}
+.playoffTeams{
+  display:grid;
+  grid-template-columns:1fr auto 1fr;
+  gap:12px;
+  align-items:center;
+  margin-top:10px;
+}
+.playoffTeam{
+  display:flex;
+  align-items:center;
+  gap:9px;
+  min-width:0;
+}
+.playoffTeam.right{
+  justify-content:flex-end;
+  text-align:right;
+}
+.playoffTeam img{
+  width:34px;
+  height:34px;
+  object-fit:contain;
+  border-radius:10px;
+  background:#050505;
+  border:1px solid var(--line);
+}
+.playoffScore{
+  font-size:24px;
+  font-weight:900;
+}
+.playoffMeta{
+  margin-top:8px;
+  color:var(--muted);
+  font-size:12px;
+}
+.championAdmin{
+  margin-top:18px;
+  padding:16px;
+  border:1px solid rgba(242,180,0,.3);
+  border-radius:18px;
+  background:rgba(242,180,0,.08);
+}
+@media(max-width:900px){
+  .playoffForm{grid-template-columns:1fr}
+}
+@media(max-width:520px){
+  .playoffTeams{
+    grid-template-columns:1fr;
+    text-align:left;
+  }
+  .playoffTeam.right{
+    justify-content:flex-start;
+    text-align:left;
+  }
+  .playoffScore{
+    text-align:center;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -105,6 +196,7 @@ button,input,select,textarea{font-family:inherit}
     <button class="navBtn" data-page="players">👤 Players</button>
     <button class="navBtn" data-page="schedule">📅 Schedule</button>
     <button class="navBtn" data-page="boxscores">📋 Box Scores</button>
+    <button class="navBtn" data-page="playoffs">🏆 Playoffs</button>
     <button class="navBtn" data-page="admins">🔐 Admin Signup</button>
     <hr style="border-color:rgba(255,255,255,.08);margin:18px 0">
     <a href="index.html" class="navBtn" style="text-decoration:none">← Back to Site</a>
@@ -122,6 +214,7 @@ button,input,select,textarea{font-family:inherit}
         <div class="statCard"><h3>Players</h3><strong id="playerCount">0</strong></div>
         <div class="statCard"><h3>Games</h3><strong id="gameCount">0</strong></div>
         <div class="statCard"><h3>Admins</h3><strong id="adminCount">0</strong></div>
+        <div class="statCard"><h3>Playoff Games</h3><strong id="playoffCount">0</strong></div>
       </div>
       <div class="panel"><h2>Quick Start</h2><p class="muted">Add teams first, then add players, then create schedule games. Box scores pull rosters from your teams automatically.</p></div>
     </section>
@@ -181,6 +274,50 @@ button,input,select,textarea{font-family:inherit}
       </div>
     </section>
 
+
+    <section id="playoffs" class="section">
+      <div class="panel">
+        <div class="sectionHead">
+          <div>
+            <h2>8-Team Playoff Bracket</h2>
+            <p>Choose seeds 1–8 once. Winners automatically advance when a game is marked Final.</p>
+          </div>
+          <a href="playoffs.html" target="_blank" class="btn dark" style="text-decoration:none">View Public Bracket</a>
+        </div>
+
+        <div class="notice">
+          Quarterfinal matchups are locked as <b>1 vs 8</b>, <b>4 vs 5</b>, <b>2 vs 7</b>, and <b>3 vs 6</b>.
+          Enter scores and set the game to <b>Final</b> to advance the winner.
+        </div>
+
+        <h3>Set Seeds</h3>
+        <div class="playoffForm" id="seedForm">
+          <div class="field"><label>Seed 1</label><select id="seed1"></select></div>
+          <div class="field"><label>Seed 2</label><select id="seed2"></select></div>
+          <div class="field"><label>Seed 3</label><select id="seed3"></select></div>
+          <div class="field"><label>Seed 4</label><select id="seed4"></select></div>
+          <div class="field"><label>Seed 5</label><select id="seed5"></select></div>
+          <div class="field"><label>Seed 6</label><select id="seed6"></select></div>
+          <div class="field"><label>Seed 7</label><select id="seed7"></select></div>
+          <div class="field"><label>Seed 8</label><select id="seed8"></select></div>
+        </div>
+
+        <div class="actions" style="margin-bottom:22px">
+          <button type="button" class="btn success" id="saveSeedsBtn">Save Seeds & Build Bracket</button>
+          <button type="button" class="btn danger" id="resetBracketBtn">Reset Bracket</button>
+        </div>
+
+        <h3>Update Playoff Scores</h3>
+        <div id="automaticPlayoffGames"></div>
+
+        <div class="championAdmin" id="autoChampionBox" style="display:none">
+          <h3 style="margin:0">🏆 Champion</h3>
+          <div id="autoChampionName" style="font-size:28px;font-weight:900;margin-top:8px"></div>
+          <p class="muted">The champion is set automatically from the final score.</p>
+        </div>
+      </div>
+    </section>
+
     <section id="admins" class="section">
       <div class="panel">
         <h2>Admin Account Signup</h2>
@@ -227,6 +364,8 @@ let schedule = {};
 let selectedTeamId = null;
 let editingGameId = null;
 let editingPlayerName = null;
+let playoffGames = {};
+let editingPlayoffId = null;
 
 const $ = (id) => document.getElementById(id);
 const cleanId = (text) => text.trim().toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
@@ -236,6 +375,7 @@ window.addEventListener("DOMContentLoaded", () => {
   setupNav();
   loadTeams();
   loadSchedule();
+  loadPlayoffs();
   bindButtons();
 });
 
@@ -246,7 +386,7 @@ function setupNav(){
       btn.classList.add("active");
       document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
       $(btn.dataset.page).classList.add("active");
-      $("pageTitle").textContent = btn.textContent.replace(/[📊🏀👤📅📋🔐]/g,"").trim();
+      $("pageTitle").textContent = btn.textContent.replace(/[📊🏀👤📅📋🏆🔐]/g,"").trim();
       $("sidebar").classList.remove("open");
     };
   });
@@ -262,6 +402,8 @@ function bindButtons(){
   $("createAdminBtn").onclick = createAdmin;
   $("boxGameSelect").onchange = renderBoxScoreEditor;
   $("closeModal").onclick = () => $("editModal").style.display="none";
+  $("saveSeedsBtn").onclick = saveSeeds;
+  $("resetBracketBtn").onclick = resetBracket;
 }
 
 function loadTeams(){
@@ -270,6 +412,7 @@ function loadTeams(){
     renderTeams();
     renderTeamList();
     fillTeamSelects();
+    fillPlayoffTeamSelects();
     updateCounts();
     if(!selectedTeamId && Object.keys(teams).length){ selectedTeamId = Object.keys(teams)[0]; renderTeamList(); renderPlayers(); }
   });
@@ -308,6 +451,39 @@ function loadSchedule(){
     fillBoxGameSelect();
     updateCounts();
   });
+}
+
+
+function getAllBoxScoreGames(){
+  const allGames = {};
+
+  // Regular-season games
+  Object.entries(schedule).forEach(([id, game])=>{
+    allGames[id] = {
+      ...game,
+      id,
+      gameType:"regular",
+      _boxScorePath:`boxScores/${id}`
+    };
+  });
+
+  // Playoff games
+  Object.entries(playoffGames || {}).forEach(([playoffId, game])=>{
+    if(!game.away || !game.home) return;
+
+    const id = `playoff__${playoffId}`;
+
+    allGames[id] = {
+      ...game,
+      id,
+      gameType:"playoff",
+      playoffId,
+      _path:`playoffs/2026/games/${playoffId}`,
+      _boxScorePath:`boxScores/${id}`
+    };
+  });
+
+  return allGames;
 }
 
 function updateCounts(){
@@ -483,24 +659,101 @@ function clearGameForm(){ editingGameId=null; $("gameDate").value=""; $("gameTim
 function fillBoxGameSelect(){
   const sel = $("boxGameSelect");
   const current = sel.value;
-  const games = Object.entries(schedule).map(([id,g])=>({id,...g})).sort((a,b)=>((a.date||"")+(a.time||"")).localeCompare((b.date||"")+(b.time||"")));
-  sel.innerHTML = `<option value="">Choose a game</option>` + games.map(g=>`<option value="${g.id}">${g.date} - ${g.away} @ ${g.home}</option>`).join("");
-  if(current) sel.value = current;
+  const allGames = getAllBoxScoreGames();
+
+  const games = Object.entries(allGames)
+    .map(([id,g])=>({id,...g}))
+    .sort((a,b)=>{
+      const aDate = `${a.date || "9999-12-31"}${a.time || ""}`;
+      const bDate = `${b.date || "9999-12-31"}${b.time || ""}`;
+      return aDate.localeCompare(bDate);
+    });
+
+  const regularGames = games.filter(game=>game.gameType === "regular");
+  const playoffList = games.filter(game=>game.gameType === "playoff");
+
+  let options = `<option value="">Choose a game</option>`;
+
+  if(playoffList.length){
+    options += `<optgroup label="🏆 Playoff Games">`;
+    options += playoffList.map(game=>`
+      <option value="${game.id}">
+        ${playoffRoundLabel(game.round)} - ${game.away} @ ${game.home}
+      </option>
+    `).join("");
+    options += `</optgroup>`;
+  }
+
+  if(regularGames.length){
+    options += `<optgroup label="Regular Season Games">`;
+    options += regularGames.map(game=>`
+      <option value="${game.id}">
+        ${game.date || "No date"} - ${game.away} @ ${game.home}
+      </option>
+    `).join("");
+    options += `</optgroup>`;
+  }
+
+  sel.innerHTML = options;
+
+  if(current && allGames[current]){
+    sel.value = current;
+  }
+
   renderBoxScoreEditor();
 }
 
 async function renderBoxScoreEditor(){
   const gameId = $("boxGameSelect").value;
-  const editor = $("boxScoreEditor"); editor.innerHTML = "";
-  if(!gameId || !schedule[gameId]){ editor.innerHTML = `<div class="empty">Choose a game to edit box score.</div>`; return; }
-  const g = schedule[gameId];
-  const savedSnap = await get(ref(db,"boxScores/"+gameId));
+  const editor = $("boxScoreEditor");
+  editor.innerHTML = "";
+
+  const allGames = getAllBoxScoreGames();
+
+  if(!gameId || !allGames[gameId]){
+    editor.innerHTML = `<div class="empty">Choose a game to edit its box score.</div>`;
+    return;
+  }
+
+  const g = allGames[gameId];
+  const savedSnap = await get(ref(db,g._boxScorePath));
   const saved = savedSnap.val() || {};
-  editor.innerHTML = `<div class="gameCard"><div class="gameTitle">${g.away} @ ${g.home}</div><div class="gameSub">${g.date} • ${formatTime(g.time)}</div>
-    <div class="scoreBox"><input id="awayScore" type="number" placeholder="${g.away}" value="${saved.awayScore ?? parseScore(g.score).away ?? ""}"><b>-</b><input id="homeScore" type="number" placeholder="${g.home}" value="${saved.homeScore ?? parseScore(g.score).home ?? ""}"></div></div>
-    <div id="statsArea"></div><button class="btn success" onclick="saveBoxScore('${gameId}')">Save Box Score</button>`;
+
+  const gameLabel = g.gameType === "playoff"
+    ? `🏆 ${playoffRoundLabel(g.round)}`
+    : "Regular Season";
+
+  editor.innerHTML = `
+    <div class="gameCard">
+      <span class="playoffRound">${gameLabel}</span>
+      <div class="gameTitle">${g.away} @ ${g.home}</div>
+      <div class="gameSub">
+        ${g.date || "Date TBD"} • ${formatTime(g.time)}
+        ${g.gameType === "playoff" ? ` • ${String(g.status || "scheduled").toUpperCase()}` : ""}
+      </div>
+
+      <div class="scoreBox">
+        <input id="awayScore" type="number" placeholder="${g.away}"
+          value="${saved.awayScore ?? g.awayScore ?? parseScore(g.score).away ?? ""}">
+        <b>-</b>
+        <input id="homeScore" type="number" placeholder="${g.home}"
+          value="${saved.homeScore ?? g.homeScore ?? parseScore(g.score).home ?? ""}">
+      </div>
+    </div>
+
+    <div id="statsArea"></div>
+
+    <button type="button" class="btn success" id="saveSelectedBoxScoreBtn">
+      Save ${g.gameType === "playoff" ? "Playoff " : ""}Box Score
+    </button>
+  `;
+
   renderStatsRows(gameId, g.away, "away", saved.players || {});
   renderStatsRows(gameId, g.home, "home", saved.players || {});
+
+  $("saveSelectedBoxScoreBtn").addEventListener("click",()=>{
+    saveBoxScore(gameId);
+  });
 }
 
 function renderStatsRows(gameId, teamName, side, savedPlayers){
@@ -526,59 +779,376 @@ function renderStatsRows(gameId, teamName, side, savedPlayers){
 }
 
 window.saveBoxScore = async (gameId) => {
-  const g = schedule[gameId];
+  const allGames = getAllBoxScoreGames();
+  const g = allGames[gameId];
+
+  if(!g){
+    return alert("This game could not be found.");
+  }
+
   const awayScore = $("awayScore").value === "" ? "" : Number($("awayScore").value);
   const homeScore = $("homeScore").value === "" ? "" : Number($("homeScore").value);
+
   const players = {};
+
   document.querySelectorAll(".statRow").forEach(row=>{
     const key = row.dataset.key;
-    players[key] = { name: row.dataset.name, team: row.dataset.team, number: row.dataset.number };
-    row.querySelectorAll("input").forEach(input=> players[key][input.dataset.stat] = input.value === "" ? "" : Number(input.value));
+
+    players[key] = {
+      name:row.dataset.name,
+      team:row.dataset.team,
+      number:row.dataset.number
+    };
+
+    row.querySelectorAll("input").forEach(input=>{
+      players[key][input.dataset.stat] =
+        input.value === "" ? "" : Number(input.value);
+    });
   });
-  const score = `${g.away} ${awayScore} - ${g.home} ${homeScore}`;
-await update(ref(db,"boxScores/"+gameId), {
-  gameId,
-  home:g.home,
-  away:g.away,
-  date:g.date,
-  time:g.time,
-  homeScore,
-  awayScore,
-  players
-});
 
-const fixedPlayers = {};
+  await update(ref(db,g._boxScorePath),{
+    gameId,
+    gameType:g.gameType,
+    playoffId:g.playoffId || "",
+    round:g.round || "",
+    home:g.home,
+    away:g.away,
+    date:g.date || "",
+    time:g.time || "",
+    homeScore,
+    awayScore,
+    players
+  });
 
-Object.values(players).forEach((p) => {
-  fixedPlayers[p.name] = {
-    teamName: p.team,
-    number: p.number ?? 0,
+  const fixedPlayers = {};
 
-    points: p.pts ?? 0,
-    rebounds: p.reb ?? 0,
-    assists: p.ast ?? 0,
-    steals: p.stl ?? 0,
-    blocks: p.blk ?? 0
+  Object.values(players).forEach(player=>{
+    fixedPlayers[player.name] = {
+      teamName:player.team,
+      number:player.number ?? 0,
+      points:player.pts ?? 0,
+      rebounds:player.reb ?? 0,
+      assists:player.ast ?? 0,
+      steals:player.stl ?? 0,
+      blocks:player.blk ?? 0
+    };
+  });
+
+  // Keep the public stats page compatible with regular and playoff box scores.
+  const statsDate = g.date || "playoffs";
+  await set(ref(db,`games/${statsDate}/${gameId}`),{
+    teamA:g.away,
+    teamB:g.home,
+    scoreA:awayScore,
+    scoreB:homeScore,
+    status:"final",
+    gameType:g.gameType,
+    playoffRound:g.round || "",
+    players:fixedPlayers
+  });
+
+  if(g.gameType === "playoff"){
+    if(awayScore === "" || homeScore === ""){
+      return alert("Enter both playoff scores before saving.");
+    }
+
+    if(awayScore === homeScore){
+      return alert("A playoff game cannot finish in a tie.");
+    }
+
+    const playoffGame = {
+      ...playoffGames[g.playoffId],
+      awayScore,
+      homeScore,
+      status:"final"
+    };
+
+    playoffGame.winner = calculateWinner(playoffGame);
+
+    // The playoff listener automatically advances this winner to the next round.
+    await set(ref(db,`playoffs/2026/games/${g.playoffId}`),playoffGame);
+  }else if(g._path){
+    await update(ref(db,g._path),{
+      score:`${awayScore}-${homeScore}`
+    });
+  }
+
+  setStatus(
+    g.gameType === "playoff"
+      ? "Playoff box score saved and winner advanced"
+      : "Box score saved"
+  );
+};
+
+function fillPlayoffTeamSelects(){
+  const options = `<option value="">Select team</option>` +
+    Object.values(teams)
+      .sort((a,b)=>String(a.name||"").localeCompare(String(b.name||"")))
+      .map(team=>`<option value="${team.name}">${team.name}</option>`)
+      .join("");
+
+  for(let seed = 1; seed <= 8; seed++){
+    const select = $(`seed${seed}`);
+    if(!select) continue;
+    const current = select.value;
+    select.innerHTML = options;
+    if(current) select.value = current;
+  }
+}
+
+function defaultBracketGames(seeds = {}){
+  return {
+    qf1:{round:"quarterfinals",slot:1,away:seeds[1]||"",home:seeds[8]||"",awaySeed:1,homeSeed:8,awayScore:"",homeScore:"",status:"scheduled",winner:""},
+    qf2:{round:"quarterfinals",slot:2,away:seeds[4]||"",home:seeds[5]||"",awaySeed:4,homeSeed:5,awayScore:"",homeScore:"",status:"scheduled",winner:""},
+    qf3:{round:"quarterfinals",slot:3,away:seeds[2]||"",home:seeds[7]||"",awaySeed:2,homeSeed:7,awayScore:"",homeScore:"",status:"scheduled",winner:""},
+    qf4:{round:"quarterfinals",slot:4,away:seeds[3]||"",home:seeds[6]||"",awaySeed:3,homeSeed:6,awayScore:"",homeScore:"",status:"scheduled",winner:""},
+    sf1:{round:"semifinals",slot:1,away:"",home:"",awaySeed:"",homeSeed:"",awayScore:"",homeScore:"",status:"scheduled",winner:""},
+    sf2:{round:"semifinals",slot:2,away:"",home:"",awaySeed:"",homeSeed:"",awayScore:"",homeScore:"",status:"scheduled",winner:""},
+    final:{round:"finals",slot:1,away:"",home:"",awaySeed:"",homeSeed:"",awayScore:"",homeScore:"",status:"scheduled",winner:""}
   };
-});
+}
 
-await set(ref(db, "games/" + g.date + "/" + gameId), {
-  teamA: g.away,
-  teamB: g.home,
-  scoreA: awayScore,
-  scoreB: homeScore,
-  status: "final",
-  players: fixedPlayers
-});
+function calculateWinner(game){
+  if(String(game.status || "").toLowerCase() !== "final") return "";
+  if(game.awayScore === "" || game.homeScore === "" ||
+     game.awayScore === undefined || game.homeScore === undefined) return "";
 
-if(g._path){
-  await update(ref(db,g._path), {
-    score: `${awayScore}-${homeScore}`
+  const awayScore = Number(game.awayScore);
+  const homeScore = Number(game.homeScore);
+  if(awayScore === homeScore) return "";
+  return awayScore > homeScore ? game.away : game.home;
+}
+
+function seedForTeam(teamName, seeds){
+  for(const [seed, name] of Object.entries(seeds || {})){
+    if(name === teamName) return Number(seed);
+  }
+  return "";
+}
+
+function resetGameIfTeamsChanged(game, away, home, awaySeed, homeSeed){
+  const changed = game.away !== away || game.home !== home;
+  return {
+    ...game,
+    away,
+    home,
+    awaySeed,
+    homeSeed,
+    ...(changed ? {awayScore:"",homeScore:"",status:"scheduled",winner:""} : {})
+  };
+}
+
+function buildAutomaticAdvancement(data){
+  const seeds = data.seeds || {};
+  const games = {...defaultBracketGames(seeds), ...(data.games || {})};
+
+  ["qf1","qf2","qf3","qf4"].forEach(id=>{
+    games[id].winner = calculateWinner(games[id]);
+  });
+
+  const sf1Away = games.qf1.winner || "";
+  const sf1Home = games.qf2.winner || "";
+  const sf2Away = games.qf3.winner || "";
+  const sf2Home = games.qf4.winner || "";
+
+  games.sf1 = resetGameIfTeamsChanged(
+    games.sf1, sf1Away, sf1Home,
+    seedForTeam(sf1Away,seeds), seedForTeam(sf1Home,seeds)
+  );
+  games.sf2 = resetGameIfTeamsChanged(
+    games.sf2, sf2Away, sf2Home,
+    seedForTeam(sf2Away,seeds), seedForTeam(sf2Home,seeds)
+  );
+
+  games.sf1.winner = calculateWinner(games.sf1);
+  games.sf2.winner = calculateWinner(games.sf2);
+
+  const finalAway = games.sf1.winner || "";
+  const finalHome = games.sf2.winner || "";
+
+  games.final = resetGameIfTeamsChanged(
+    games.final, finalAway, finalHome,
+    seedForTeam(finalAway,seeds), seedForTeam(finalHome,seeds)
+  );
+  games.final.winner = calculateWinner(games.final);
+
+  return {
+    seeds,
+    games,
+    champion: games.final.winner
+      ? {
+          name: games.final.winner,
+          text: "2026 Lexington Dirtbowl Champion",
+          logoURL: Object.values(teams).find(t=>t.name===games.final.winner)?.logoURL || ""
+        }
+      : null
+  };
+}
+
+function loadPlayoffs(){
+  onValue(ref(db,"playoffs/2026"), async snap=>{
+    const raw = snap.val() || {};
+    const built = buildAutomaticAdvancement(raw);
+
+    playoffGames = built.games || {};
+
+    for(let seed=1; seed<=8; seed++){
+      if($(`seed${seed}`)) $(`seed${seed}`).value = built.seeds?.[seed] || "";
+    }
+
+    renderAutomaticPlayoffGames(built);
+    fillBoxGameSelect();
+    if($("playoffCount")) $("playoffCount").textContent = Object.keys(playoffGames).length;
+
+    const needsSync = JSON.stringify(raw.games || {}) !== JSON.stringify(built.games || {}) ||
+      JSON.stringify(raw.champion || null) !== JSON.stringify(built.champion || null);
+
+    if(needsSync && Object.keys(built.seeds || {}).length){
+      await update(ref(db,"playoffs/2026"),{
+        games:built.games,
+        champion:built.champion
+      });
+    }
   });
 }
 
-setStatus("Box score saved");
-};
+async function saveSeeds(){
+  const seeds = {};
+  const chosen = new Set();
+
+  for(let seed=1; seed<=8; seed++){
+    const team = $(`seed${seed}`).value;
+    if(!team) return alert(`Choose a team for seed ${seed}.`);
+    if(chosen.has(team)) return alert(`${team} was selected more than once.`);
+    chosen.add(team);
+    seeds[seed] = team;
+  }
+
+  const games = defaultBracketGames(seeds);
+
+  await set(ref(db,"playoffs/2026"),{
+    seeds,
+    games,
+    champion:null
+  });
+
+  setStatus("8-team bracket created");
+}
+
+async function resetBracket(){
+  if(!confirm("Reset every playoff score and remove the current bracket?")) return;
+  await remove(ref(db,"playoffs/2026"));
+  setStatus("Playoff bracket reset");
+}
+
+function playoffRoundLabel(round){
+  return {
+    quarterfinals:"Quarterfinals",
+    semifinals:"Semifinals",
+    finals:"Championship"
+  }[round] || round;
+}
+
+function renderAutomaticPlayoffGames(data){
+  const list = $("automaticPlayoffGames");
+  if(!list) return;
+
+  const order = ["qf1","qf2","qf3","qf4","sf1","sf2","final"];
+  list.innerHTML = "";
+
+  if(!data.seeds || Object.keys(data.seeds).length < 8){
+    list.innerHTML = `<div class="empty">Choose all eight seeds and press “Save Seeds & Build Bracket.”</div>`;
+    $("autoChampionBox").style.display = "none";
+    return;
+  }
+
+  order.forEach(id=>{
+    const game = data.games[id];
+    const awayTeam = Object.values(teams).find(t=>t.name===game.away);
+    const homeTeam = Object.values(teams).find(t=>t.name===game.home);
+    const locked = !game.away || !game.home;
+
+    const card = document.createElement("div");
+    card.className = "playoffGame" + (game.status === "live" ? " live" : "");
+
+    card.innerHTML = `
+      <div class="gameTop">
+        <div>
+          <span class="playoffRound">${playoffRoundLabel(game.round)} • Game ${game.slot}</span>
+          <div class="gameTitle">${game.away || "Winner TBD"} @ ${game.home || "Winner TBD"}</div>
+          <div class="playoffMeta">${game.winner ? `Winner: ${game.winner}` : locked ? "Waiting for earlier-round winners" : "Enter score below"}</div>
+        </div>
+      </div>
+
+      <div class="playoffTeams">
+        <div class="playoffTeam">
+          <img src="${awayTeam?.logoURL || "logo.png"}" onerror="this.src='logo.png'">
+          <div><b>${game.away || "TBD"}</b><div class="playerMeta">Seed ${game.awaySeed || "–"}</div></div>
+        </div>
+
+        <div class="playoffScore">
+          <input class="playoffAwayScore" type="number" min="0" value="${game.awayScore ?? ""}" ${locked ? "disabled" : ""} style="width:76px;text-align:center">
+          -
+          <input class="playoffHomeScore" type="number" min="0" value="${game.homeScore ?? ""}" ${locked ? "disabled" : ""} style="width:76px;text-align:center">
+        </div>
+
+        <div class="playoffTeam right">
+          <div><b>${game.home || "TBD"}</b><div class="playerMeta">Seed ${game.homeSeed || "–"}</div></div>
+          <img src="${homeTeam?.logoURL || "logo.png"}" onerror="this.src='logo.png'">
+        </div>
+      </div>
+
+      <div class="formGrid two" style="margin-top:12px;margin-bottom:0">
+        <div class="field">
+          <label>Status</label>
+          <select class="playoffStatus" ${locked ? "disabled" : ""}>
+            <option value="scheduled" ${game.status==="scheduled"?"selected":""}>Scheduled</option>
+            <option value="live" ${game.status==="live"?"selected":""}>Live</option>
+            <option value="final" ${game.status==="final"?"selected":""}>Final</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>&nbsp;</label>
+          <button type="button" class="btn full saveAutoGameBtn" ${locked ? "disabled" : ""}>Save Score</button>
+        </div>
+      </div>
+    `;
+
+    card.querySelector(".saveAutoGameBtn").addEventListener("click", async ()=>{
+      const awayScoreRaw = card.querySelector(".playoffAwayScore").value;
+      const homeScoreRaw = card.querySelector(".playoffHomeScore").value;
+      const status = card.querySelector(".playoffStatus").value;
+
+      if(status === "final" && (awayScoreRaw === "" || homeScoreRaw === "")){
+        return alert("Enter both scores before marking the game final.");
+      }
+      if(status === "final" && Number(awayScoreRaw) === Number(homeScoreRaw)){
+        return alert("A final playoff game cannot end in a tie.");
+      }
+
+      const updatedGame = {
+        ...game,
+        awayScore:awayScoreRaw === "" ? "" : Number(awayScoreRaw),
+        homeScore:homeScoreRaw === "" ? "" : Number(homeScoreRaw),
+        status
+      };
+      updatedGame.winner = calculateWinner(updatedGame);
+
+      await set(ref(db,`playoffs/2026/games/${id}`),updatedGame);
+      setStatus("Playoff score saved");
+    });
+
+    list.appendChild(card);
+  });
+
+  if(data.champion?.name){
+    $("autoChampionName").textContent = data.champion.name;
+    $("autoChampionBox").style.display = "block";
+  }else{
+    $("autoChampionBox").style.display = "none";
+  }
+}
+
 
 async function createAdmin(){
   const email = $("adminEmail").value.trim();
