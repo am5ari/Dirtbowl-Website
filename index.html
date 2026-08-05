@@ -60,12 +60,201 @@ footer {
     .todayGamesSection{width:min(980px,100%);margin:30px auto 0;padding:18px;border-radius:28px;background:rgba(5,5,8,.76);border:1px solid var(--border);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);box-shadow:0 18px 50px rgba(0,0,0,.5);text-align:left}
     .todayGamesHeader{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}.todayTitle{display:flex;align-items:center;gap:10px;font-weight:900;text-transform:uppercase;letter-spacing:.08em;font-size:.88rem}.schedulePill{color:#111;background:white;text-decoration:none;font-weight:900;font-size:.8rem;padding:8px 12px;border-radius:999px;white-space:nowrap}
     .todayGamesGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}.todayGameBox{background:linear-gradient(180deg,rgba(255,255,255,.11),rgba(255,255,255,.045));border:1px solid rgba(255,255,255,.13);border-radius:22px;padding:15px;box-shadow:inset 0 1px 0 rgba(255,255,255,.08)}
-    .matchupRow{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:10px}.teamSide{display:flex;align-items:center;gap:8px;min-width:0;font-weight:900;color:white}.rightTeam{justify-content:flex-end;text-align:right}.teamSide span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.team-logo{width:34px;height:34px;border-radius:50%;object-fit:cover;background:#222;flex:0 0 auto}.gameScore{background:#0e0e12;border:1px solid rgba(255,255,255,.13);color:white;border-radius:999px;padding:8px 12px;font-weight:900;white-space:nowrap;box-shadow:0 8px 20px rgba(0,0,0,.25)}.finalScore{color:var(--gold)}.gameStatus{text-align:center;margin-top:11px;font-size:.74rem;font-weight:900;opacity:.7;text-transform:uppercase;letter-spacing:.07em}.emptyTodayBox,.loadingBox{text-align:center;font-weight:900;opacity:.85}
+    .matchupRow{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:10px}.teamSide{display:flex;align-items:center;gap:8px;min-width:0;font-weight:900;color:white}.rightTeam{justify-content:flex-end;text-align:right}.teamSide span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.team-logo{width:34px;height:34px;border-radius:50%;object-fit:cover;background:#222;flex:0 0 auto}.gameScore{background:#0e0e12;border:1px solid rgba(255,255,255,.13);color:white;border-radius:999px;padding:8px 12px;font-weight:900;white-space:nowrap;box-shadow:0 8px 20px rgba(0,0,0,.25)}.finalScore{color:var(--gold)}.gameStatus{text-align:center;margin-top:11px;font-size:.74rem;font-weight:900;opacity:.7;text-transform:uppercase;letter-spacing:.07em}
+    .emptyTodayBox,.loadingBox{text-align:center;font-weight:900;opacity:.85}
+
+    .homeBracketSection{
+      width:min(1100px,100%);
+      margin:18px auto 0;
+      padding:18px;
+      border-radius:28px;
+      background:rgba(5,5,8,.76);
+      border:1px solid var(--border);
+      backdrop-filter:blur(16px);
+      -webkit-backdrop-filter:blur(16px);
+      box-shadow:0 18px 50px rgba(0,0,0,.5);
+      text-align:left;
+    }
+
+    .homeBracketHeader{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:14px;
+    }
+
+    .homeBracketTitle{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      font-weight:900;
+      text-transform:uppercase;
+      letter-spacing:.08em;
+      font-size:.88rem;
+    }
+
+    .bracketPill{
+      color:#111;
+      background:white;
+      text-decoration:none;
+      font-weight:900;
+      font-size:.8rem;
+      padding:8px 12px;
+      border-radius:999px;
+      white-space:nowrap;
+    }
+
+    .homeBracket{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(250px,1fr));
+      gap:14px;
+      overflow-x:auto;
+      padding-bottom:4px;
+    }
+
+    .homeRound{
+      min-width:250px;
+    }
+
+    .homeRoundTitle{
+      text-align:center;
+      padding:9px 10px;
+      margin-bottom:10px;
+      border-radius:12px;
+      background:rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.12);
+      font-size:.74rem;
+      font-weight:900;
+      text-transform:uppercase;
+      letter-spacing:.08em;
+    }
+
+    .homeRoundGames{
+      display:flex;
+      flex-direction:column;
+      justify-content:space-around;
+      gap:12px;
+      min-height:100%;
+    }
+
+    .homeBracketGame{
+      overflow:hidden;
+      border-radius:16px;
+      border:1px solid rgba(255,255,255,.12);
+      background:linear-gradient(180deg,rgba(255,255,255,.09),rgba(255,255,255,.035));
+    }
+
+    .homeBracketGame.live{
+      border-color:rgba(39,209,127,.55);
+    }
+
+    .homeBracketGameHead{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:8px;
+      padding:8px 10px;
+      border-bottom:1px solid rgba(255,255,255,.08);
+      color:rgba(255,255,255,.72);
+      font-size:.64rem;
+      font-weight:900;
+      text-transform:uppercase;
+    }
+
+    .homeBracketDate{
+      display:block;
+      margin-top:3px;
+      color:white;
+      font-size:.68rem;
+      text-transform:none;
+      letter-spacing:0;
+    }
+
+    .homeBracketTeam{
+      display:grid;
+      grid-template-columns:24px 1fr auto;
+      align-items:center;
+      gap:7px;
+      padding:9px 10px;
+      border-bottom:1px solid rgba(255,255,255,.06);
+    }
+
+    .homeBracketTeam:last-child{
+      border-bottom:0;
+    }
+
+    .homeBracketTeam.winner{
+      background:linear-gradient(90deg,rgba(7,11,255,.22),transparent);
+    }
+
+    .homeSeed{
+      width:22px;
+      height:22px;
+      display:grid;
+      place-items:center;
+      border-radius:7px;
+      background:rgba(255,255,255,.08);
+      color:rgba(255,255,255,.7);
+      font-size:.64rem;
+      font-weight:900;
+    }
+
+    .homeTeamInfo{
+      display:flex;
+      align-items:center;
+      gap:7px;
+      min-width:0;
+    }
+
+    .homeTeamInfo img{
+      width:26px;
+      height:26px;
+      object-fit:contain;
+      border-radius:50%;
+      background:white;
+      padding:2px;
+      flex:0 0 auto;
+    }
+
+    .homeTeamName{
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+      font-size:.76rem;
+      font-weight:900;
+    }
+
+    .homeBracketScore{
+      font-weight:900;
+      font-size:.9rem;
+    }
+
+    .homeBracketEmpty{
+      grid-column:1/-1;
+      padding:30px 12px;
+      text-align:center;
+      font-weight:900;
+      opacity:.8;
+    }
+
 
     .main{padding:70px 18px}.mainContainer{width:min(1120px,100%);margin:auto;display:grid;grid-template-columns:.9fr 1.1fr;gap:28px;align-items:center;padding:28px;border-radius:30px;background:rgba(8,8,10,.74);border:1px solid var(--border);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:0 18px 50px rgba(0,0,0,.45)}.imageCard{min-height:360px;border-radius:26px;background:linear-gradient(rgba(0,0,0,.15),rgba(0,0,0,.45)),url("imageedit_2_2282413472.jpg") center/cover no-repeat;border:1px solid rgba(255,255,255,.14);box-shadow:inset 0 1px 0 rgba(255,255,255,.08)}.mainContent h1{margin:0 0 12px;font-size:clamp(1.8rem,4vw,3.3rem);line-height:1.05;letter-spacing:-.04em}.mainContent p{color:rgba(255,255,255,.78);line-height:1.7;font-weight:600;margin:0 0 22px}.contactBtn{display:inline-flex;align-items:center;gap:9px;color:#111;background:white;text-decoration:none;border-radius:999px;font-weight:900;padding:13px 18px}
     .footer{padding:36px 18px;background:rgba(0,0,0,.7);border-top:1px solid rgba(255,255,255,.1)}.footerInner{width:min(1120px,100%);margin:auto;display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap}.footerLogo{font-weight:900;font-size:1.2rem}.footerLinks,.socialLinks{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.footer a{color:white;text-decoration:none;font-weight:800;opacity:.85}.footer a:hover{opacity:1}.rights{color:rgba(255,255,255,.65);font-size:.88rem;font-weight:600}
 
     @media(max-width:900px){.desktopLinks{display:none}.menuBtn{display:inline-flex}.navShell{border-radius:22px}.hero{padding-top:104px}.mainContainer{grid-template-columns:1fr}.imageCard{min-height:240px}}
+    @media(max-width:900px){
+      .homeBracket{
+        display:flex;
+        scroll-snap-type:x proximity;
+      }
+
+      .homeRound{
+        flex:0 0 270px;
+        scroll-snap-align:start;
+      }
+    }
+
     @media(max-width:560px){.siteNav{top:10px;width:calc(100% - 16px)}.navShell{min-height:58px;padding:9px 10px}.brand span:last-child{display:none}.brandIcon{width:38px;height:38px}.menuBtn{padding:10px 13px}.hero{padding:92px 10px 44px}.heroHeading{font-size:clamp(3rem,18vw,5.2rem)}.quickButtons{display:grid;grid-template-columns:1fr 1fr}.quickBtn{padding:11px 10px;font-size:.88rem}.todayGamesSection{padding:14px;border-radius:22px}.todayGamesHeader{align-items:flex-start;flex-direction:column}.todayGamesGrid{grid-template-columns:1fr}.matchupRow{grid-template-columns:1fr;text-align:center}.teamSide,.rightTeam{justify-content:center;text-align:center}.gameScore{justify-self:center}.main{padding:42px 10px}.mainContainer{padding:18px;border-radius:22px}.footerInner{flex-direction:column;text-align:center}.footerLinks,.socialLinks{justify-content:center}}
   </style>
 </head>
@@ -100,16 +289,33 @@ footer {
       <div class="heroInner">
         <div class="heroTag"><i class="fa-solid fa-fire"></i> Official 2026 Summer Basketball</div>
         <h1 class="heroHeading">Lexington Dirtbowl</h1>
-        <p class="heroSub">Playoff Brackets, Stats and Regular Season league leaders for Lexington Dirtbowl.</p>
+        <p class="heroSub">Scores, schedules, rosters, standings, and league leaders for Lexington Dirtbowl.</p>
         <div class="quickButtons">
-          <a class="quickBtn primary" href="playoffs.html"><i class="fa-solid fa-table-list"></i> Bracket</a>
-          <a class="quickBtn" href="league-leaders.html"><i class="fa-solid fa-ranking-star"></i> Season Leaders</a>
-          <a class="quickBtn" href="playoff-stats.html"><i class="fa-solid fa-users"></i> Playoff Stats</a>
-          
+          <a class="quickBtn primary" href="stats.html"><i class="fa-solid fa-table-list"></i> Box Scores</a>
+          <a class="quickBtn" href="league-leaders.html"><i class="fa-solid fa-ranking-star"></i> Leaders</a>
+          <a class="quickBtn" href="schedule.html"><i class="fa-solid fa-calendar-days"></i> Schedule</a>
+          <a class="quickBtn" href="Rosters.html"><i class="fa-solid fa-users"></i> Rosters</a>
         </div>
         <section class="todayGamesSection" aria-label="Today's Games">
           <div class="todayGamesHeader"><div class="todayTitle"><i class="fa-solid fa-basketball"></i> Today's Games</div><a class="schedulePill" href="schedule.html">Full Schedule</a></div>
           <div id="score-track" class="todayGamesGrid"><div class="todayGameBox loadingBox">Loading today's games...</div></div>
+        </section>
+
+        <section class="homeBracketSection" aria-label="Playoff Bracket">
+          <div class="homeBracketHeader">
+            <div class="homeBracketTitle">
+              <i class="fa-solid fa-trophy"></i>
+              Playoff Bracket
+            </div>
+
+            <a class="bracketPill" href="playoffs.html">
+              Full Bracket
+            </a>
+          </div>
+
+          <div id="home-bracket" class="homeBracket">
+            <div class="homeBracketEmpty">Loading playoff bracket...</div>
+          </div>
         </section>
       </div>
     </section>
@@ -132,7 +338,348 @@ footer {
     mobileDropdown.querySelectorAll("a").forEach(link => link.addEventListener("click", () => {mobileDropdown.classList.remove("open"); menuBtn.setAttribute("aria-expanded", "false");}));
     function getToday(){const now=new Date();return `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;}
     function formatTime(time){if(!time)return"TBD";const [hours,minutes]=time.split(":");let h=Number(hours);const ampm=h>=12?"PM":"AM";h=h%12||12;return `${h}:${minutes} ${ampm}`;}
-    async function loadScores(){const track=document.getElementById("score-track");if(!track)return;const today=getToday();try{const [gamesSnap,teamsSnap]=await Promise.all([get(ref(dbRT,"games/"+today)),get(ref(dbRT,"teams"))]);const teams=teamsSnap.exists()?teamsSnap.val():{};function getLogo(teamName){for(const key in teams){if(teams[key].name===teamName)return teams[key].logoURL||"";}return"";}let scoresHTML="";let hasGames=false;const added=new Set();if(gamesSnap.exists()){gamesSnap.forEach(child=>{const game=child.val();const unique=`${game.teamA}-${game.teamB}-${today}`;if(added.has(unique))return;added.add(unique);hasGames=true;scoresHTML+=`<div class="todayGameBox"><div class="matchupRow"><div class="teamSide"><img class="team-logo" src="${getLogo(game.teamA)}" alt="${game.teamA} logo" /><span>${game.teamA}</span></div><div class="gameScore finalScore">${game.scoreA??0} - ${game.scoreB??0}</div><div class="teamSide rightTeam"><img class="team-logo" src="${getLogo(game.teamB)}" alt="${game.teamB} logo" /><span>${game.teamB}</span></div></div><div class="gameStatus">Box Score Saved</div></div>`;});}Object.values(teams).forEach(team=>{Object.values(team.schedule||{}).forEach(game=>{if(game.date!==today)return;const unique=`${game.away}-${game.home}-${game.date}-${game.time||""}`;if(added.has(unique))return;added.add(unique);hasGames=true;scoresHTML+=`<div class="todayGameBox"><div class="matchupRow"><div class="teamSide"><img class="team-logo" src="${getLogo(game.away)}" alt="${game.away} logo" /><span>${game.away}</span></div><div class="gameScore">${game.score?game.score:formatTime(game.time)}</div><div class="teamSide rightTeam"><img class="team-logo" src="${getLogo(game.home)}" alt="${game.home} logo" /><span>${game.home}</span></div></div><div class="gameStatus">Scheduled</div></div>`;});});if(!hasGames){scoresHTML=`<div class="todayGameBox emptyTodayBox">No games today</div>`;}track.innerHTML=scoresHTML;}catch(error){console.error(error);track.innerHTML=`<div class="todayGameBox emptyTodayBox">No games today</div>`;}}
+    function formatDate(dateString){
+      if(!dateString) return "Date TBD";
+
+      const [year,month,day] = dateString.split("-").map(Number);
+
+      return new Date(year,month-1,day).toLocaleDateString("en-US",{
+        month:"short",
+        day:"numeric"
+      });
+    }
+
+    function playoffRoundLabel(round){
+      if(round === "quarterfinals") return "Quarterfinals";
+      if(round === "semifinals") return "Semifinals";
+      if(round === "finals") return "Championship";
+      return "Playoffs";
+    }
+
+    function renderHomeBracket(playoffData, teams){
+      const bracket = document.getElementById("home-bracket");
+      if(!bracket) return;
+
+      const games = playoffData.games || {};
+      const seeds = playoffData.seeds || {};
+
+      if(Object.keys(seeds).length < 8){
+        bracket.innerHTML = `
+          <div class="homeBracketEmpty">
+            The playoff seeds have not been set yet.
+          </div>
+        `;
+        return;
+      }
+
+      function getLogo(teamName){
+        for(const key in teams){
+          if(teams[key].name === teamName){
+            return teams[key].logoURL || "logo.png";
+          }
+        }
+        return "logo.png";
+      }
+
+      function gameHTML(game = {}){
+        const winner = game.winner || "";
+        const isLive = game.status === "live";
+
+        const statusText = isLive
+          ? "● Live"
+          : game.status === "final"
+            ? "Final"
+            : "Scheduled";
+
+        return `
+          <article class="homeBracketGame ${isLive ? "live" : ""}">
+            <div class="homeBracketGameHead">
+              <div>
+                Game ${game.slot || 1}
+                <span class="homeBracketDate">
+                  ${formatDate(game.date)} • ${formatTime(game.time)}
+                </span>
+              </div>
+
+              <span>${statusText}</span>
+            </div>
+
+            <div class="homeBracketTeam ${winner === game.away ? "winner" : ""}">
+              <span class="homeSeed">${game.awaySeed || "–"}</span>
+
+              <div class="homeTeamInfo">
+                <img
+                  src="${getLogo(game.away)}"
+                  alt="${game.away || "Away team"} logo"
+                  onerror="this.src='logo.png'"
+                >
+                <span class="homeTeamName">${game.away || "Winner TBD"}</span>
+              </div>
+
+              <span class="homeBracketScore">
+                ${
+                  game.awayScore === "" || game.awayScore === undefined
+                    ? "–"
+                    : game.awayScore
+                }
+              </span>
+            </div>
+
+            <div class="homeBracketTeam ${winner === game.home ? "winner" : ""}">
+              <span class="homeSeed">${game.homeSeed || "–"}</span>
+
+              <div class="homeTeamInfo">
+                <img
+                  src="${getLogo(game.home)}"
+                  alt="${game.home || "Home team"} logo"
+                  onerror="this.src='logo.png'"
+                >
+                <span class="homeTeamName">${game.home || "Winner TBD"}</span>
+              </div>
+
+              <span class="homeBracketScore">
+                ${
+                  game.homeScore === "" || game.homeScore === undefined
+                    ? "–"
+                    : game.homeScore
+                }
+              </span>
+            </div>
+          </article>
+        `;
+      }
+
+      const rounds = [
+        ["Quarterfinals",["qf1","qf2","qf3","qf4"]],
+        ["Semifinals",["sf1","sf2"]],
+        ["Championship",["final"]]
+      ];
+
+      bracket.innerHTML = rounds.map(([title,ids]) => `
+        <section class="homeRound">
+          <div class="homeRoundTitle">${title}</div>
+
+          <div class="homeRoundGames">
+            ${ids.map(id => gameHTML(games[id])).join("")}
+          </div>
+        </section>
+      `).join("");
+    }
+
+    async function loadScores(){
+      const track = document.getElementById("score-track");
+      if(!track) return;
+
+      const today = getToday();
+
+      try{
+        const [gamesSnap,teamsSnap,playoffsSnap] = await Promise.all([
+          get(ref(dbRT,"games/" + today)),
+          get(ref(dbRT,"teams")),
+          get(ref(dbRT,"playoffs/2026"))
+        ]);
+
+        const teams = teamsSnap.exists() ? teamsSnap.val() : {};
+        const playoffData = playoffsSnap.exists() ? playoffsSnap.val() : {};
+        const playoffGames = playoffData.games || {};
+
+        renderHomeBracket(playoffData,teams);
+
+        function getLogo(teamName){
+          for(const key in teams){
+            if(teams[key].name === teamName){
+              return teams[key].logoURL || "logo.png";
+            }
+          }
+          return "logo.png";
+        }
+
+        let scoresHTML = "";
+        let hasGames = false;
+        const added = new Set();
+
+        // Playoff games for today
+        Object.entries(playoffGames).forEach(([gameId,game])=>{
+          if(!game || game.date !== today || !game.away || !game.home) return;
+
+          const unique = `playoff-${gameId}`;
+          if(added.has(unique)) return;
+
+          added.add(unique);
+          hasGames = true;
+
+          const isFinal = game.status === "final";
+          const isLive = game.status === "live";
+
+          scoresHTML += `
+            <div class="todayGameBox">
+              <div class="matchupRow">
+
+                <div class="teamSide">
+                  <img
+                    class="team-logo"
+                    src="${getLogo(game.away)}"
+                    alt="${game.away} logo"
+                    onerror="this.src='logo.png'"
+                  >
+                  <span>${game.away}</span>
+                </div>
+
+                <div class="gameScore ${isFinal ? "finalScore" : ""}">
+                  ${
+                    isFinal
+                      ? `${game.awayScore ?? 0} - ${game.homeScore ?? 0}`
+                      : formatTime(game.time)
+                  }
+                </div>
+
+                <div class="teamSide rightTeam">
+                  <img
+                    class="team-logo"
+                    src="${getLogo(game.home)}"
+                    alt="${game.home} logo"
+                    onerror="this.src='logo.png'"
+                  >
+                  <span>${game.home}</span>
+                </div>
+
+              </div>
+
+              <div class="gameStatus">
+                🏆 ${playoffRoundLabel(game.round)}
+                ${isLive ? " • LIVE" : isFinal ? " • FINAL" : ""}
+              </div>
+            </div>
+          `;
+        });
+
+        // Saved regular-season box scores for today
+        if(gamesSnap.exists()){
+          gamesSnap.forEach(child=>{
+            const game = child.val();
+
+            if(game.gameType === "playoff") return;
+
+            const unique = `${game.teamA}-${game.teamB}-${today}`;
+            if(added.has(unique)) return;
+
+            added.add(unique);
+            hasGames = true;
+
+            scoresHTML += `
+              <div class="todayGameBox">
+                <div class="matchupRow">
+
+                  <div class="teamSide">
+                    <img
+                      class="team-logo"
+                      src="${getLogo(game.teamA)}"
+                      alt="${game.teamA} logo"
+                      onerror="this.src='logo.png'"
+                    >
+                    <span>${game.teamA}</span>
+                  </div>
+
+                  <div class="gameScore finalScore">
+                    ${game.scoreA ?? 0} - ${game.scoreB ?? 0}
+                  </div>
+
+                  <div class="teamSide rightTeam">
+                    <img
+                      class="team-logo"
+                      src="${getLogo(game.teamB)}"
+                      alt="${game.teamB} logo"
+                      onerror="this.src='logo.png'"
+                    >
+                    <span>${game.teamB}</span>
+                  </div>
+
+                </div>
+
+                <div class="gameStatus">Box Score Saved</div>
+              </div>
+            `;
+          });
+        }
+
+        // Regular-season scheduled games for today
+        Object.values(teams).forEach(team=>{
+          Object.values(team.schedule || {}).forEach(game=>{
+            if(game.date !== today) return;
+
+            const unique = `${game.away}-${game.home}-${game.date}-${game.time || ""}`;
+            if(added.has(unique)) return;
+
+            added.add(unique);
+            hasGames = true;
+
+            scoresHTML += `
+              <div class="todayGameBox">
+                <div class="matchupRow">
+
+                  <div class="teamSide">
+                    <img
+                      class="team-logo"
+                      src="${getLogo(game.away)}"
+                      alt="${game.away} logo"
+                      onerror="this.src='logo.png'"
+                    >
+                    <span>${game.away}</span>
+                  </div>
+
+                  <div class="gameScore">
+                    ${game.score ? game.score : formatTime(game.time)}
+                  </div>
+
+                  <div class="teamSide rightTeam">
+                    <img
+                      class="team-logo"
+                      src="${getLogo(game.home)}"
+                      alt="${game.home} logo"
+                      onerror="this.src='logo.png'"
+                    >
+                    <span>${game.home}</span>
+                  </div>
+
+                </div>
+
+                <div class="gameStatus">Scheduled</div>
+              </div>
+            `;
+          });
+        });
+
+        if(!hasGames){
+          scoresHTML = `
+            <div class="todayGameBox emptyTodayBox">
+              No games today
+            </div>
+          `;
+        }
+
+        track.innerHTML = scoresHTML;
+
+      }catch(error){
+        console.error(error);
+
+        track.innerHTML = `
+          <div class="todayGameBox emptyTodayBox">
+            Could not load today's games
+          </div>
+        `;
+
+        const bracket = document.getElementById("home-bracket");
+
+        if(bracket){
+          bracket.innerHTML = `
+            <div class="homeBracketEmpty">
+              Could not load the playoff bracket.
+            </div>
+          `;
+        }
+      }
+    }
+
     window.addEventListener("DOMContentLoaded",()=>{loadScores();logEvent(analytics,"page_view",{path:window.location.pathname});});
   </script>
 </body>
