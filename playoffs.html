@@ -4,70 +4,661 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>2026 Lexington Dirtbowl Playoffs</title>
+
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+
 <style>
-:root{--bg:#05070d;--panel:rgba(13,17,29,.94);--line:rgba(255,255,255,.12);--muted:#a9b0c0;--blue:#246bfe;--gold:#f1c644;--green:#27d17f}
-*{box-sizing:border-box}
-body{margin:0;min-height:100vh;font-family:Poppins,sans-serif;color:#fff;background:#05070d;overflow-x:hidden}
-body:before{content:"";position:fixed;inset:0;z-index:-2;background:linear-gradient(rgba(2,4,11,.76),rgba(2,4,11,.95)),url("dirtbowl.jpg") center/cover no-repeat}
-body:after{content:"";position:fixed;inset:0;z-index:-1;background:radial-gradient(circle at top left,rgba(36,107,254,.22),transparent 34%),radial-gradient(circle at top right,rgba(241,198,68,.14),transparent 30%)}
-.top{position:sticky;top:0;z-index:100;padding:13px 5%;display:flex;justify-content:space-between;align-items:center;background:rgba(5,7,13,.86);border-bottom:1px solid var(--line);backdrop-filter:blur(15px)}
-.top a{color:#fff;text-decoration:none;font-size:13px;font-weight:800;padding:9px 14px;border:1px solid var(--line);border-radius:999px}
-.hero{text-align:center;padding:48px 16px 25px}
-.hero small{color:var(--gold);font-weight:900;letter-spacing:.16em;text-transform:uppercase}
-.hero h1{font-size:clamp(40px,8vw,86px);line-height:1;margin:8px 0;letter-spacing:-.055em}
-.hero p{color:var(--muted);margin:12px auto;max-width:650px}
-.champion{display:none;max-width:760px;margin:10px auto 26px;padding:0 16px}
-.champion-inner{display:flex;align-items:center;gap:18px;padding:20px;border:1px solid rgba(241,198,68,.4);border-radius:22px;background:linear-gradient(135deg,rgba(241,198,68,.15),rgba(255,255,255,.05))}
-.champion img{width:76px;height:76px;object-fit:contain;border-radius:18px;background:#fff;padding:5px}
-.champion small{color:var(--gold);font-weight:900;text-transform:uppercase}
-.champion h2{margin:3px 0;font-size:32px}
-.wrapper{max-width:1500px;margin:0 auto 60px;padding:0 14px}
-.bracket{display:grid;grid-template-columns:repeat(3,minmax(280px,1fr));gap:20px;padding:20px;border:1px solid var(--line);border-radius:28px;background:rgba(5,7,13,.72);overflow-x:auto}
-.round{display:flex;flex-direction:column;min-width:280px}
-.round-title{text-align:center;padding:10px;border-radius:13px;background:rgba(255,255,255,.065);border:1px solid var(--line);font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.1em}
-.games{flex:1;display:flex;flex-direction:column;justify-content:space-around;gap:20px;padding-top:14px}
-.game{overflow:hidden;border:1px solid var(--line);border-radius:17px;background:var(--panel);box-shadow:0 14px 30px rgba(0,0,0,.22)}
-.game.live{border-color:rgba(39,209,127,.65)}
-.game-head{display:flex;justify-content:space-between;padding:8px 11px;color:var(--muted);font-size:10px;font-weight:800;border-bottom:1px solid var(--line);text-transform:uppercase}
-.game.live .status{color:var(--green)}
-.team{display:grid;grid-template-columns:28px 1fr auto;gap:8px;align-items:center;padding:10px 11px;border-bottom:1px solid rgba(255,255,255,.06)}
-.team:last-child{border-bottom:0}.team.winner{background:linear-gradient(90deg,rgba(36,107,254,.19),transparent)}
-.seed{display:grid;place-items:center;width:25px;height:25px;border-radius:8px;background:rgba(255,255,255,.07);color:var(--muted);font-size:10px;font-weight:900}
-.info{display:flex;align-items:center;gap:8px;min-width:0}.info img{width:29px;height:29px;object-fit:contain;border-radius:50%;background:#fff;padding:2px}.name{font-size:13px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.score{font-size:18px;font-weight:900}
-.empty{grid-column:1/-1;text-align:center;color:var(--muted);padding:70px 20px}
-@media(max-width:900px){.bracket{display:flex;scroll-snap-type:x proximity}.round{flex:0 0 285px;scroll-snap-align:start}}
-@media(max-width:600px){.champion-inner{flex-direction:column;text-align:center}.bracket{padding:11px;border-radius:19px}}
+:root{
+  --bg:#05070d;
+  --panel:rgba(13,17,29,.94);
+  --line:rgba(255,255,255,.12);
+  --muted:#a9b0c0;
+  --blue:#246bfe;
+  --gold:#f1c644;
+  --green:#27d17f;
+  --red:#ff5d68;
+}
+
+*{
+  box-sizing:border-box;
+}
+
+html{
+  scroll-behavior:smooth;
+}
+
+body{
+  margin:0;
+  min-height:100vh;
+  font-family:Poppins,sans-serif;
+  color:#fff;
+  background:var(--bg);
+  overflow-x:hidden;
+}
+
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  z-index:-2;
+  background:
+    linear-gradient(rgba(2,4,11,.76),rgba(2,4,11,.95)),
+    url("dirtbowl.jpg") center/cover no-repeat;
+}
+
+body::after{
+  content:"";
+  position:fixed;
+  inset:0;
+  z-index:-1;
+  pointer-events:none;
+  background:
+    radial-gradient(circle at top left,rgba(36,107,254,.22),transparent 34%),
+    radial-gradient(circle at top right,rgba(241,198,68,.14),transparent 30%);
+}
+
+.top{
+  position:sticky;
+  top:0;
+  z-index:100;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:14px;
+  padding:13px 5%;
+  background:rgba(5,7,13,.86);
+  border-bottom:1px solid var(--line);
+  backdrop-filter:blur(15px);
+  -webkit-backdrop-filter:blur(15px);
+}
+
+.top strong{
+  font-size:14px;
+}
+
+.top-links{
+  display:flex;
+  gap:8px;
+}
+
+.top a{
+  color:#fff;
+  text-decoration:none;
+  font-size:12px;
+  font-weight:800;
+  padding:9px 14px;
+  border:1px solid var(--line);
+  border-radius:999px;
+  background:rgba(255,255,255,.05);
+}
+
+.hero{
+  text-align:center;
+  padding:48px 16px 25px;
+}
+
+.hero small{
+  color:var(--gold);
+  font-weight:900;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+}
+
+.hero h1{
+  font-size:clamp(40px,8vw,86px);
+  line-height:1;
+  margin:8px 0;
+  letter-spacing:-.055em;
+}
+
+.hero p{
+  color:var(--muted);
+  margin:12px auto;
+  max-width:650px;
+}
+
+.status-row{
+  display:flex;
+  justify-content:center;
+  flex-wrap:wrap;
+  gap:9px;
+  margin-top:18px;
+}
+
+.status-pill{
+  padding:7px 11px;
+  border:1px solid var(--line);
+  border-radius:999px;
+  background:rgba(255,255,255,.055);
+  color:#dfe4f2;
+  font-size:11px;
+  font-weight:800;
+}
+
+.champion{
+  display:none;
+  max-width:760px;
+  margin:10px auto 26px;
+  padding:0 16px;
+}
+
+.champion-inner{
+  display:flex;
+  align-items:center;
+  gap:18px;
+  padding:20px;
+  border:1px solid rgba(241,198,68,.4);
+  border-radius:22px;
+  background:
+    linear-gradient(135deg,rgba(241,198,68,.15),rgba(255,255,255,.05));
+  box-shadow:0 20px 60px rgba(0,0,0,.28);
+}
+
+.champion img{
+  width:76px;
+  height:76px;
+  object-fit:contain;
+  border-radius:18px;
+  background:#fff;
+  padding:5px;
+}
+
+.champion small{
+  color:var(--gold);
+  font-weight:900;
+  text-transform:uppercase;
+}
+
+.champion h2{
+  margin:3px 0;
+  font-size:32px;
+}
+
+.wrapper{
+  max-width:1500px;
+  margin:0 auto 60px;
+  padding:0 14px;
+}
+
+.bracket{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(280px,1fr));
+  gap:20px;
+  padding:20px;
+  border:1px solid var(--line);
+  border-radius:28px;
+  background:rgba(5,7,13,.72);
+  overflow-x:auto;
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+  box-shadow:0 26px 70px rgba(0,0,0,.3);
+}
+
+.round{
+  display:flex;
+  flex-direction:column;
+  min-width:280px;
+}
+
+.round-title{
+  text-align:center;
+  padding:10px;
+  border-radius:13px;
+  background:rgba(255,255,255,.065);
+  border:1px solid var(--line);
+  font-size:12px;
+  font-weight:900;
+  text-transform:uppercase;
+  letter-spacing:.1em;
+}
+
+.games{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-around;
+  gap:20px;
+  padding-top:14px;
+}
+
+.game{
+  overflow:hidden;
+  border:1px solid var(--line);
+  border-radius:17px;
+  background:var(--panel);
+  box-shadow:0 14px 30px rgba(0,0,0,.22);
+}
+
+.game.live{
+  border-color:rgba(39,209,127,.65);
+  box-shadow:0 0 0 1px rgba(39,209,127,.12),0 14px 30px rgba(0,0,0,.22);
+}
+
+.game.final{
+  border-color:rgba(36,107,254,.4);
+}
+
+.game-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:12px;
+  padding:9px 11px;
+  color:var(--muted);
+  font-size:10px;
+  font-weight:800;
+  border-bottom:1px solid var(--line);
+  text-transform:uppercase;
+}
+
+.game-head > div{
+  display:flex;
+  flex-direction:column;
+  gap:5px;
+  min-width:0;
+}
+
+.game-date-time{
+  display:flex;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:5px;
+  color:#fff;
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:0;
+  text-transform:none;
+}
+
+.game-date-time span{
+  color:var(--blue);
+}
+
+.status{
+  flex-shrink:0;
+  padding:4px 8px;
+  border-radius:999px;
+  background:rgba(255,255,255,.06);
+}
+
+.game.live .status{
+  color:var(--green);
+  background:rgba(39,209,127,.10);
+  border:1px solid rgba(39,209,127,.22);
+}
+
+.game.final .status{
+  color:#fff;
+  background:rgba(36,107,254,.16);
+  border:1px solid rgba(36,107,254,.28);
+}
+
+.team{
+  display:grid;
+  grid-template-columns:28px 1fr auto;
+  gap:8px;
+  align-items:center;
+  padding:10px 11px;
+  border-bottom:1px solid rgba(255,255,255,.06);
+}
+
+.team:last-child{
+  border-bottom:0;
+}
+
+.team.winner{
+  background:linear-gradient(90deg,rgba(36,107,254,.19),transparent);
+}
+
+.seed{
+  display:grid;
+  place-items:center;
+  width:25px;
+  height:25px;
+  border-radius:8px;
+  background:rgba(255,255,255,.07);
+  color:var(--muted);
+  font-size:10px;
+  font-weight:900;
+}
+
+.info{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  min-width:0;
+}
+
+.info img{
+  width:29px;
+  height:29px;
+  object-fit:contain;
+  border-radius:50%;
+  background:#fff;
+  padding:2px;
+}
+
+.name{
+  font-size:13px;
+  font-weight:800;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.score{
+  font-size:18px;
+  font-weight:900;
+}
+
+.empty{
+  grid-column:1/-1;
+  text-align:center;
+  color:var(--muted);
+  padding:70px 20px;
+}
+
+.error{
+  color:#ff9ba3;
+}
+
+@media(max-width:900px){
+  .bracket{
+    display:flex;
+    scroll-snap-type:x proximity;
+  }
+
+  .round{
+    flex:0 0 285px;
+    scroll-snap-align:start;
+  }
+}
+
+@media(max-width:600px){
+  .top{
+    padding:10px 12px;
+  }
+
+  .top strong{
+    font-size:12px;
+  }
+
+  .top a{
+    padding:8px 10px;
+    font-size:10px;
+  }
+
+  .hero{
+    padding-top:36px;
+  }
+
+  .champion-inner{
+    flex-direction:column;
+    text-align:center;
+  }
+
+  .bracket{
+    padding:11px;
+    border-radius:19px;
+  }
+
+  .game-date-time{
+    font-size:10px;
+  }
+}
 </style>
 </head>
+
 <body>
-<header class="top"><strong>🏀 Lexington Dirtbowl Playoffs</strong><a href="index.html">← Home</a></header>
-<section class="hero"><small>Road to the Championship</small><h1>Win or Go Home</h1><p></p></section>
-<section class="champion" id="champion"><div class="champion-inner"><img id="championLogo" src="logo.png"><div><small>🏆 2026 Champions</small><h2 id="championName"></h2><div id="championText"></div></div></div></section>
-<main class="wrapper"><div class="bracket" id="bracket"><div class="empty">Loading bracket…</div></div></main>
+
+<header class="top">
+  <strong>🏀 Lexington Dirtbowl Playoffs</strong>
+
+  <div class="top-links">
+    <a href="playoff-stats.html">Stats</a>
+    <a href="index.html">Home</a>
+  </div>
+</header>
+
+<section class="hero">
+  <small>Road to the Championship</small>
+  <h1>Win or Go Home</h1>
+  <p>Follow every matchup, date, time, score, and team advancing through the 2026 Lexington Dirtbowl playoffs.</p>
+
+  <div class="status-row">
+    <span class="status-pill" id="gameCount">0 playoff games</span>
+    <span class="status-pill" id="liveCount">0 live</span>
+    <span class="status-pill" id="updateStatus">Connecting to Firebase…</span>
+  </div>
+</section>
+
+<section class="champion" id="champion">
+  <div class="champion-inner">
+    <img id="championLogo" src="logo.png" alt="Champion logo">
+
+    <div>
+      <small>🏆 2026 Champions</small>
+      <h2 id="championName"></h2>
+      <div id="championText"></div>
+    </div>
+  </div>
+</section>
+
+<main class="wrapper">
+  <div class="bracket" id="bracket">
+    <div class="empty">Loading bracket…</div>
+  </div>
+</main>
+
 <script type="module">
-import{initializeApp}from"https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import{getDatabase,ref,onValue}from"https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-const firebaseConfig={apiKey:"AIzaSyByXfVkKxz166ghpEVD4xuaQtLDpeNCzUE",authDomain:"dirtbowl-page.firebaseapp.com",databaseURL:"https://dirtbowl-page-default-rtdb.firebaseio.com",projectId:"dirtbowl-page",storageBucket:"dirtbowl-page.appspot.com",messagingSenderId:"948778986865",appId:"1:948778986865:web:0f66d810d77310ec459ad0"};
-const app=initializeApp(firebaseConfig),db=getDatabase(app);
-let teams={};
-const order=[["Quarterfinals",["qf1","qf2","qf3","qf4"]],["Semifinals",["sf1","sf2"]],["Championship",["final"]]];
-function logo(name){return Object.values(teams).find(t=>t.name===name)?.logoURL||"logo.png"}
-function gameHTML(g={}){
- const winner=g.winner||"",live=g.status==="live";
- return `<article class="game ${live?"live":""}"><div class="game-head"><span>Game ${g.slot||1}</span><span class="status">${live?"● Live":g.status==="final"?"Final":"Scheduled"}</span></div>
- <div class="team ${winner===g.away?"winner":""}"><span class="seed">${g.awaySeed||"–"}</span><div class="info"><img src="${logo(g.away)}"><span class="name">${g.away||"Winner TBD"}</span></div><span class="score">${g.awayScore===""||g.awayScore===undefined?"–":g.awayScore}</span></div>
- <div class="team ${winner===g.home?"winner":""}"><span class="seed">${g.homeSeed||"–"}</span><div class="info"><img src="${logo(g.home)}"><span class="name">${g.home||"Winner TBD"}</span></div><span class="score">${g.homeScore===""||g.homeScore===undefined?"–":g.homeScore}</span></div></article>`
+import {
+  initializeApp
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+
+import {
+  getDatabase,
+  ref,
+  onValue
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyByXfVkKxz166ghpEVD4xuaQtLDpeNCzUE",
+  authDomain: "dirtbowl-page.firebaseapp.com",
+  databaseURL: "https://dirtbowl-page-default-rtdb.firebaseio.com",
+  projectId: "dirtbowl-page",
+  storageBucket: "dirtbowl-page.appspot.com",
+  messagingSenderId: "948778986865",
+  appId: "1:948778986865:web:0f66d810d77310ec459ad0"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+let teams = {};
+let playoffData = {};
+
+const bracket = document.getElementById("bracket");
+const gameCount = document.getElementById("gameCount");
+const liveCount = document.getElementById("liveCount");
+const updateStatus = document.getElementById("updateStatus");
+
+const order = [
+  ["Quarterfinals", ["qf1","qf2","qf3","qf4"]],
+  ["Semifinals", ["sf1","sf2"]],
+  ["Championship", ["final"]]
+];
+
+function logo(teamName){
+  return Object.values(teams).find(team => team.name === teamName)?.logoURL || "logo.png";
 }
-function render(data){
- const games=data.games||{};
- if(!data.seeds||Object.keys(data.seeds).length<8){document.getElementById("bracket").innerHTML='<div class="empty">The playoff seeds have not been set yet.</div>';return}
- document.getElementById("bracket").innerHTML=order.map(([title,ids])=>`<section class="round"><div class="round-title">${title}</div><div class="games">${ids.map(id=>gameHTML(games[id])).join("")}</div></section>`).join("");
- const champ=data.champion;
- if(champ?.name){document.getElementById("championName").textContent=champ.name;document.getElementById("championText").textContent=champ.text||"2026 Lexington Dirtbowl Champion";document.getElementById("championLogo").src=champ.logoURL||logo(champ.name);document.getElementById("champion").style.display="block"}else document.getElementById("champion").style.display="none";
+
+function formatDate(dateString){
+  if(!dateString) return "Date TBD";
+
+  const [year,month,day] = dateString.split("-").map(Number);
+
+  return new Date(year,month - 1,day).toLocaleDateString("en-US",{
+    weekday:"short",
+    month:"short",
+    day:"numeric"
+  });
 }
-onValue(ref(db,"teams"),s=>{teams=s.val()||{}});
-onValue(ref(db,"playoffs/2026"),s=>render(s.val()||{}));
+
+function formatTime(timeString){
+  if(!timeString) return "Time TBD";
+
+  const [hours,minutes] = timeString.split(":");
+  let hour = Number(hours);
+
+  const suffix = hour >= 12 ? "PM" : "AM";
+  hour = hour % 12 || 12;
+
+  return `${hour}:${minutes} ${suffix}`;
+}
+
+function statusText(game){
+  if(game.status === "live") return "● Live";
+  if(game.status === "final") return "Final";
+  return "Scheduled";
+}
+
+function gameHTML(game = {}){
+  const winner = game.winner || "";
+  const live = game.status === "live";
+  const final = game.status === "final";
+
+  return `
+    <article class="game ${live ? "live" : ""} ${final ? "final" : ""}">
+
+      <div class="game-head">
+        <div>
+          <span>Game ${game.slot || 1}</span>
+
+          <div class="game-date-time">
+            📅 ${formatDate(game.date)}
+            <span>•</span>
+            🕒 ${formatTime(game.time)}
+          </div>
+        </div>
+
+        <span class="status">
+          ${statusText(game)}
+        </span>
+      </div>
+
+      <div class="team ${winner === game.away ? "winner" : ""}">
+        <span class="seed">${game.awaySeed || "–"}</span>
+
+        <div class="info">
+          <img
+            src="${logo(game.away)}"
+            alt="${game.away || "Away team"}"
+            onerror="this.src='logo.png'"
+          >
+
+          <span class="name">
+            ${game.away || "Winner TBD"}
+          </span>
+        </div>
+
+        <span class="score">
+          ${
+            game.awayScore === "" || game.awayScore === undefined
+              ? "–"
+              : game.awayScore
+          }
+        </span>
+      </div>
+
+      <div class="team ${winner === game.home ? "winner" : ""}">
+        <span class="seed">${game.homeSeed || "–"}</span>
+
+        <div class="info">
+          <img
+            src="${logo(game.home)}"
+            alt="${game.home || "Home team"}"
+            onerror="this.src='logo.png'"
+          >
+
+          <span class="name">
+            ${game.home || "Winner TBD"}
+          </span>
+        </div>
+
+        <span class="score">
+          ${
+            game.homeScore === "" || game.homeScore === undefined
+              ? "–"
+              : game.homeScore
+          }
+        </span>
+      </div>
+
+    </article>
+  `;
+}
+
+function render(){
+  const games = playoffData.games || {};
+  const seeds = playoffData.seeds || {};
+
+  const allGames = Object.values(games);
+  gameCount.textContent = `${allGames.length} playoff game${allGames.length === 1 ? "" : "s"}`;
+  liveCount.textContent = `${allGames.filter(game => game.status === "live").length} live`;
+  updateStatus.textContent = "Bracket updated live";
+
+  if(Object.keys(seeds).length < 8){
+    bracket.innerHTML = `
+      <div class="empty">
+        The playoff seeds have not been set yet.
+      </div>
+    `;
+    return;
+  }
+
+  bracket.innerHTML = order.map(([title,ids]) => `
+    <section class="round">
+      <div class="round-title">${title}</div>
+
+      <div class="games">
+        ${ids.map(id => gameHTML(games[id])).join("")}
+      </div>
+    </section>
+  `).join("");
+
+  const champion = playoffData.champion;
+
+  if(champion?.name){
+    document.getElementById("championName").textContent = champion.name;
+    document.getElementById("championText").textContent =
+      champion.text || "2026 Lexington Dirtbowl Champion";
+    document.getElementById("championLogo").src =
+      champion.logoURL || logo(champion.name);
+    document.getElementById("champion").style.display = "block";
+  }else{
+    document.getElementById("champion").style.display = "none";
+  }
+}
+
+onValue(ref(db,"teams"),snapshot => {
+  teams = snapshot.val() || {};
+  render();
+});
+
+onValue(ref(db,"playoffs/2026"),snapshot => {
+  playoffData = snapshot.val() || {};
+  render();
+},error => {
+  console.error(error);
+  updateStatus.textContent = "Firebase error";
+
+  bracket.innerHTML = `
+    <div class="empty error">
+      Could not load the playoff bracket. Check your Firebase database rules.
+    </div>
+  `;
+});
 </script>
+
 </body>
 </html>
