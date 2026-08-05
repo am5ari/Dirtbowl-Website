@@ -898,13 +898,13 @@ function fillPlayoffTeamSelects(){
 
 function defaultBracketGames(seeds = {}){
   return {
-    qf1:{round:"quarterfinals",slot:1,away:seeds[1]||"",home:seeds[8]||"",awaySeed:1,homeSeed:8,awayScore:"",homeScore:"",status:"scheduled",winner:""},
-    qf2:{round:"quarterfinals",slot:2,away:seeds[4]||"",home:seeds[5]||"",awaySeed:4,homeSeed:5,awayScore:"",homeScore:"",status:"scheduled",winner:""},
-    qf3:{round:"quarterfinals",slot:3,away:seeds[2]||"",home:seeds[7]||"",awaySeed:2,homeSeed:7,awayScore:"",homeScore:"",status:"scheduled",winner:""},
-    qf4:{round:"quarterfinals",slot:4,away:seeds[3]||"",home:seeds[6]||"",awaySeed:3,homeSeed:6,awayScore:"",homeScore:"",status:"scheduled",winner:""},
-    sf1:{round:"semifinals",slot:1,away:"",home:"",awaySeed:"",homeSeed:"",awayScore:"",homeScore:"",status:"scheduled",winner:""},
-    sf2:{round:"semifinals",slot:2,away:"",home:"",awaySeed:"",homeSeed:"",awayScore:"",homeScore:"",status:"scheduled",winner:""},
-    final:{round:"finals",slot:1,away:"",home:"",awaySeed:"",homeSeed:"",awayScore:"",homeScore:"",status:"scheduled",winner:""}
+    qf1:{round:"quarterfinals",slot:1,date:"",time:"",away:seeds[1]||"",home:seeds[8]||"",awaySeed:1,homeSeed:8,awayScore:"",homeScore:"",status:"scheduled",winner:""},
+    qf2:{round:"quarterfinals",slot:2,date:"",time:"",away:seeds[4]||"",home:seeds[5]||"",awaySeed:4,homeSeed:5,awayScore:"",homeScore:"",status:"scheduled",winner:""},
+    qf3:{round:"quarterfinals",slot:3,date:"",time:"",away:seeds[2]||"",home:seeds[7]||"",awaySeed:2,homeSeed:7,awayScore:"",homeScore:"",status:"scheduled",winner:""},
+    qf4:{round:"quarterfinals",slot:4,date:"",time:"",away:seeds[3]||"",home:seeds[6]||"",awaySeed:3,homeSeed:6,awayScore:"",homeScore:"",status:"scheduled",winner:""},
+    sf1:{round:"semifinals",slot:1,date:"",time:"",away:"",home:"",awaySeed:"",homeSeed:"",awayScore:"",homeScore:"",status:"scheduled",winner:""},
+    sf2:{round:"semifinals",slot:2,date:"",time:"",away:"",home:"",awaySeed:"",homeSeed:"",awayScore:"",homeScore:"",status:"scheduled",winner:""},
+    final:{round:"finals",slot:1,date:"",time:"",away:"",home:"",awaySeed:"",homeSeed:"",awayScore:"",homeScore:"",status:"scheduled",winner:""}
   };
 }
 
@@ -1076,6 +1076,7 @@ function renderAutomaticPlayoffGames(data){
         <div>
           <span class="playoffRound">${playoffRoundLabel(game.round)} • Game ${game.slot}</span>
           <div class="gameTitle">${game.away || "Winner TBD"} @ ${game.home || "Winner TBD"}</div>
+          <div class="playoffMeta">${game.date ? formatPlayoffDate(game.date) : "Date TBD"} • ${game.time ? formatTime(game.time) : "Time TBD"}</div>
           <div class="playoffMeta">${game.winner ? `Winner: ${game.winner}` : locked ? "Waiting for earlier-round winners" : "Enter score below"}</div>
         </div>
       </div>
@@ -1098,7 +1099,9 @@ function renderAutomaticPlayoffGames(data){
         </div>
       </div>
 
-      <div class="formGrid two" style="margin-top:12px;margin-bottom:0">
+      <div class="playoffForm" style="margin-top:12px;margin-bottom:0">
+        <div class="field"><label>Date</label><input class="playoffDate" type="date" value="${game.date || ""}"></div>
+        <div class="field"><label>Time</label><input class="playoffTime" type="time" value="${game.time || ""}"></div>
         <div class="field">
           <label>Status</label>
           <select class="playoffStatus" ${locked ? "disabled" : ""}>
@@ -1107,16 +1110,15 @@ function renderAutomaticPlayoffGames(data){
             <option value="final" ${game.status==="final"?"selected":""}>Final</option>
           </select>
         </div>
-        <div class="field">
-          <label>&nbsp;</label>
-          <button type="button" class="btn full saveAutoGameBtn" ${locked ? "disabled" : ""}>Save Score</button>
-        </div>
+        <div class="field"><label>&nbsp;</label><button type="button" class="btn full saveAutoGameBtn">Save Game</button></div>
       </div>
     `;
 
     card.querySelector(".saveAutoGameBtn").addEventListener("click", async ()=>{
       const awayScoreRaw = card.querySelector(".playoffAwayScore").value;
       const homeScoreRaw = card.querySelector(".playoffHomeScore").value;
+      const date = card.querySelector(".playoffDate").value;
+      const time = card.querySelector(".playoffTime").value;
       const status = card.querySelector(".playoffStatus").value;
 
       if(status === "final" && (awayScoreRaw === "" || homeScoreRaw === "")){
@@ -1128,6 +1130,8 @@ function renderAutomaticPlayoffGames(data){
 
       const updatedGame = {
         ...game,
+        date,
+        time,
         awayScore:awayScoreRaw === "" ? "" : Number(awayScoreRaw),
         homeScore:homeScoreRaw === "" ? "" : Number(homeScoreRaw),
         status
@@ -1185,6 +1189,7 @@ onAuthStateChanged(auth, (user) => {
 });
 function showPage(page){ document.querySelector(`.navBtn[data-page="${page}"]`)?.click(); }
 function findTeamIdByName(name){ return Object.entries(teams).find(([id,t]) => t.name === name)?.[0]; }
+function formatPlayoffDate(dateString){ if(!dateString) return "Date TBD"; const [year,month,day]=dateString.split("-").map(Number); return new Date(year,month-1,day).toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"}); }
 function formatTime(t){ if(!t) return "No time"; const [h,m]=t.split(":"); let hr=Number(h); const ampm=hr>=12?"PM":"AM"; hr=hr%12||12; return `${hr}:${m} ${ampm}`; }
 function escapeQuotes(str){ return String(str).replace(/'/g,"\\'"); }
 function safeKey(str){ return String(str).replace(/[^a-zA-Z0-9]/g,"_"); }
